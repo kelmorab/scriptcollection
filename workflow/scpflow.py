@@ -1,19 +1,29 @@
-#Usage: python ekplxscp.py [-u or -d] [-m or -s] server user path source(es) [destination]
-#              0            1          2         3      4    5    6          7
+#+-------------------------------------------------------------------------------------------------------------------+
+# Script for improving workflow, when using scp on multiple files
+# 2016, K. Schweiger
+#
+# Usage: python ekplxscp.py (-u or -d) (-m or -s) server user path source[es] [destination]
+# (..): mandatory, [..]: voluntary, -u: Upload, -d: Download
+# -s: Single file mode -> When uploading, the destination is voluntary and the file is copyed wo the location 
+#                         specified in the path argument
+#                      -> When downloading, the destination is manatory (current folder with .)
+# -m: Multi file mode  -> Destination, when up- or downloading: see -s
+#                      -> Possible usage: multiple sourcefiles as argument (onload upload)
+#                                         sourcefile is list of files -> no destination as argument, when 
+#                                                                        setting destination in sourcefile
+#                                                                     -> destination mandatory, when source 
+#                                                                        file only contains files without destination
+#                      -> List of files as sourcefile: /path/to/file [/destination/on/server/rel/to/path/argv]
+#+-------------------------------------------------------------------------------------------------------------------+
+
 import sys
 import os
 
-"""
-if len(sys.argv) != 8:
-    print sys.argv, len(sys.argv)
+screenoutput = False
+
+if screenoutput:
     for i,argv in enumerate(sys.argv):
         print i,":",argv
-    print "arguments missing"
-    exit()
-"""
-
-for i,argv in enumerate(sys.argv):
-    print i,":",argv
 
 
 if sys.argv[1] != "-u" and sys.argv[1] != "-d":
@@ -22,18 +32,15 @@ if sys.argv[1] != "-u" and sys.argv[1] != "-d":
 if sys.argv[2] != "-m" and sys.argv[2] != "-s":
     print "-m or -s as second argument required"
     exit()
-if sys.argv[3] != "naf" and sys.argv[3] != "ekp" and sys.argv[3] != "lxplus":
+if sys.argv[3] != "naf" and (sys.argv[3])[0:5] != "ekplx" and sys.argv[3] != "lxplus":
     print "server: naf, ekp or lxplus"
     exit()
-#if inputtype == False and direction == False:
-#    print "Please set sys args correctly"
-#    exit()
 
 
 class scp:
-    def __init__(self,server,machine,user, path):
-        if server == "ekp":
-            self.server = "ekplx"+machine+".physik.uni-karlsruhe.de"
+    def __init__(self,server,user, path):
+        if server[0:5] == "ekplx":
+            self.server = server+".physik.uni-karlsruhe.de"
         elif server == "naf":
             self.server = "naf-cms.desy.de"
         elif server == "lxplus":
@@ -44,7 +51,8 @@ class scp:
         self.scpstring = user+"@"+self.server+":"+path
         
     def singlefile(self,source, destination, direction):
-        print self.scpstring, source, destination
+        if screenoutput:
+            print direction+": "+self.scpstring+"/"+source+" to "+destination
         if direction == "download":
             os.system("scp "+self.scpstring+"/"+source+" "+destination)
         if direction == "upload":
@@ -64,6 +72,7 @@ class scp:
                 exit()
 
 
+
 if sys.argv[1] == "-u":
     direction = "upload"
 elif sys.argv[1] == "-d":
@@ -71,12 +80,15 @@ elif sys.argv[1] == "-d":
 
 
 
-copy = scp(sys.argv[3],"91",sys.argv[4],sys.argv[5])
+copy = scp(sys.argv[3],sys.argv[4],sys.argv[5])
 #single file mode
 if sys.argv[2] == "-s":
-    copy.singlefile(sys.argv[6],sys.argv[7],direction)
+    if len(sys.argv) == 7:
+        copy.singlefile(sys.argv[6],"",direction)
+    else:
+        copy.singlefile(sys.argv[6],sys.argv[7],direction)
 #multifile mode: From file with destination
-elif sys.argv[2] == "-m" and len(sys.argv) == 7 and sys.argv[6].endswith(".txt"):
+elif sys.argv[2] == "-m" and len(sys.argv) == 7 and sys.argv[6].endswith(".txt") and direction == "upload":
     copy.readsourcefromfile(sys.argv[6],direction)
 #multifile mode: From file without destination
 elif sys.argv[2] == "-m" and sys.argv[6].endswith(".txt"):
