@@ -1,9 +1,6 @@
-#include <cstdlib>
 #include <iostream>
-#include <map>
 #include <string>
 
-#include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
@@ -16,9 +13,11 @@ using namespace std;
 void MakeTreeforbReg(   ) 
 {
   
+  //Create file for output
   TString outfilename("bRegTree.root");
   TFile* outputFile = new TFile( outfilename, "RECREATE" );
   
+  //Read input file
   TFile *input(0);
   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/testtrees/jetreg_0113_1_nominal_Tree.root";
    
@@ -31,7 +30,7 @@ void MakeTreeforbReg(   )
   }
 
 
-  //Set up Input Tree
+  //Set up input tree
   TTree *InputTree = (TTree*)input->Get("MVATree");
 
   int Event_Odd, NJets;
@@ -75,7 +74,7 @@ void MakeTreeforbReg(   )
 
 
 
-  //Set up Output Tree
+  //Set up output tree
   outputFile->cd();
   TTree *OutputTree = new TTree("bRegTree","Tree for bJetRegression training");
 
@@ -111,7 +110,7 @@ void MakeTreeforbReg(   )
 
 
 
-  //Fill Output Tree
+  //Fill output tree
   int nEvents = InputTree->GetEntries();
   for(int i = 0; i<nEvents; i++) {
     
@@ -123,9 +122,6 @@ void MakeTreeforbReg(   )
       E_Weight = Event_Weight;  
       
       J_Pt = Jet_pt[j];
-      if (J_Pt == 0) {
-	cout << J_Pt << endl;
-      }
       J_corr = Jet_corr[j];
       J_Eta = Jet_Eta[j];
       J_M = Jet_M[j];
@@ -150,7 +146,5 @@ void MakeTreeforbReg(   )
   }
 
   OutputTree->Write("bRegTree.root");
-  
-  
 
 }
