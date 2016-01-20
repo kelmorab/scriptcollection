@@ -1,8 +1,10 @@
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TChain.h"
 #include "TString.h"
 #include "TObjString.h"
 #include "TSystem.h"
@@ -14,24 +16,21 @@ void MakeTreeforbReg(   )
 {
   
   //Create file for output
-  TString outfilename("bRegTree.root");
+  //TString outfilename("bRegTree.root");
+  char* outfilename = getenv("OUTPUTFILE");
   TFile* outputFile = new TFile( outfilename, "RECREATE" );
-  
-  //Read input file
-  TFile *input(0);
-  TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/testtrees/jetreg_0113_1_nominal_Tree.root";
-   
-  if (!gSystem->AccessPathName( fname )) {
-    input = TFile::Open( fname ); // check if file in local directory exists
-  }
-  if (!input) {
-    std::cout << "ERROR: could not open data file" << std::endl;
-    exit(1);
-  }
 
 
   //Set up input tree
-  TTree *InputTree = (TTree*)input->Get("MVATree");
+  TChain* InputChain = new TChain("MVATree");
+  //TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/testtrees/jetreg_0113_1_nominal_Tree.root";
+  char* filenames = getenv("INPUTFILES");
+  string buf;
+  stringstream ss(filenames); 
+  while (ss >> buf){
+    InputChain->Add(buf.c_str());
+  }
+
 
   int Event_Odd, NJets;
   float rho, Event_Weight;
@@ -43,34 +42,34 @@ void MakeTreeforbReg(   )
 
   
 
-  InputTree->SetBranchAddress("Evt_Odd",&Event_Odd);            
-  InputTree->SetBranchAddress("N_Jets",&NJets);                      
-  InputTree->SetBranchAddress("Evt_Rho",&rho);                       
-  InputTree->SetBranchAddress("Weight",&Event_Weight);               
+  InputChain->SetBranchAddress("Evt_Odd",&Event_Odd);            
+  InputChain->SetBranchAddress("N_Jets",&NJets);                      
+  InputChain->SetBranchAddress("Evt_Rho",&rho);                       
+  InputChain->SetBranchAddress("Weight",&Event_Weight);               
 
-  InputTree->SetBranchAddress("Jet_Pt",&Jet_pt);                     
-  InputTree->SetBranchAddress("Jet_corr",&Jet_corr);                 
-  InputTree->SetBranchAddress("Jet_Eta",&Jet_Eta);                   
-  InputTree->SetBranchAddress("Jet_M",&Jet_M);                       
-  InputTree->SetBranchAddress("Jet_leadTrackPt",&Jet_leadTrackPt);   
-  InputTree->SetBranchAddress("Jet_Flav",&Jet_Flav);                 
+  InputChain->SetBranchAddress("Jet_Pt",&Jet_pt);                     
+  InputChain->SetBranchAddress("Jet_corr",&Jet_corr);                 
+  InputChain->SetBranchAddress("Jet_Eta",&Jet_Eta);                   
+  InputChain->SetBranchAddress("Jet_M",&Jet_M);                       
+  InputChain->SetBranchAddress("Jet_leadTrackPt",&Jet_leadTrackPt);   
+  InputChain->SetBranchAddress("Jet_Flav",&Jet_Flav);                 
 
-  InputTree->SetBranchAddress("Jet_leptonPt",&Jet_leptonPt);         
-  InputTree->SetBranchAddress("Jet_leptonPtRel",&Jet_leptonPtRel);   
-  InputTree->SetBranchAddress("Jet_leptonDeltaR",&Jet_leptonDeltaR); 
+  InputChain->SetBranchAddress("Jet_leptonPt",&Jet_leptonPt);         
+  InputChain->SetBranchAddress("Jet_leptonPtRel",&Jet_leptonPtRel);   
+  InputChain->SetBranchAddress("Jet_leptonDeltaR",&Jet_leptonDeltaR); 
 
-  InputTree->SetBranchAddress("Jet_nHEFrac",&Jet_nHEFrac);           
-  InputTree->SetBranchAddress("Jet_nEmEFrac",&Jet_nEMEFrac);         
-  InputTree->SetBranchAddress("Jet_chargedMult",&Jet_chMult);        
+  InputChain->SetBranchAddress("Jet_nHEFrac",&Jet_nHEFrac);           
+  InputChain->SetBranchAddress("Jet_nEmEFrac",&Jet_nEMEFrac);         
+  InputChain->SetBranchAddress("Jet_chargedMult",&Jet_chMult);        
 
-  InputTree->SetBranchAddress("Jet_vtxPt",&Jet_vtxPt);               
-  InputTree->SetBranchAddress("Jet_vtxMass",&Jet_vtxMass);           
-  InputTree->SetBranchAddress("Jet_vtx3DVal",&Jet_vtx3DVal);         
-  InputTree->SetBranchAddress("Jet_vtxNtracks",&Jet_vtxNtracks);     
-  InputTree->SetBranchAddress("Jet_vtx3DSig",&Jet_vtx3DSig);         
+  InputChain->SetBranchAddress("Jet_vtxPt",&Jet_vtxPt);               
+  InputChain->SetBranchAddress("Jet_vtxMass",&Jet_vtxMass);           
+  InputChain->SetBranchAddress("Jet_vtx3DVal",&Jet_vtx3DVal);         
+  InputChain->SetBranchAddress("Jet_vtxNtracks",&Jet_vtxNtracks);     
+  InputChain->SetBranchAddress("Jet_vtx3DSig",&Jet_vtx3DSig);         
 
-  InputTree->SetBranchAddress("Jet_PartonFlav",&Jet_PartonFlav);     
-  InputTree->SetBranchAddress("Jet_PartonPt",&Jet_PartonPt);         
+  InputChain->SetBranchAddress("Jet_PartonFlav",&Jet_PartonFlav);     
+  InputChain->SetBranchAddress("Jet_PartonPt",&Jet_PartonPt);         
 
 
 
@@ -111,10 +110,10 @@ void MakeTreeforbReg(   )
 
 
   //Fill output tree
-  int nEvents = InputTree->GetEntries();
-  for(int i = 0; i<nEvents; i++) {
+  long nEvents = InputChain->GetEntries();
+  for(long i = 0; i<nEvents; i++) {
     
-    InputTree->GetEvent(i);
+    InputChain->GetEvent(i);
     
     for(int j = 0; j < NJets; j++) {
       E_Odd = Event_Odd;
@@ -145,6 +144,11 @@ void MakeTreeforbReg(   )
     }
   }
 
-  OutputTree->Write("bRegTree.root");
+  OutputTree->Write();
 
+}
+
+
+int main(   ) {
+  MakeTreeforbReg();
 }

@@ -10,6 +10,8 @@ inputfilename = sys.argv[2]
 outpath = sys.argv[3]
 outfile_prefix = sys.argv[4]
 
+if not os.path.exists(outpath):
+    os.makedirs(outpath)
 
 EventsPerFile = 100000
 
