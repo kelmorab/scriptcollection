@@ -11,7 +11,7 @@ programpath=sys.argv[1]
 
 outpath=sys.argv[3]
 scriptpath=sys.argv[2]
-cmsswpath='/nfs/dust/cms/user/kschweig/CMSSW_7_4_15/'
+cmsswpath='/nfs/dust/cms/user/kschweig/CMSSW_7_4_15'
 
 #samples=[('ttbar','/autofs/users/users/schweiger/Documents/Code/scriptcollection/bjetRegression/input/')]
 samples=[('ttbar','/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar/')]
@@ -31,15 +31,17 @@ if not os.path.exists(cmsswpath):
 
 def createScript(scriptname,programpath,processname,filenames,outfilename,maxevents,skipevents,suffix):
     script="#!/bin/bash \n"
+    script+="export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch \n"
+    script+="source $VO_CMS_SW_DIR/cmsset_default.sh \n"
     script+='cd '+cmsswpath+'/src\neval `scram  runtime -sh`\n'
     script+='cd - \n'
     #script+='export PROCESSNAME="'+processname+'"\n'
     script+='export INPUTFILES="'+filenames+'"\n'
-    script+='export OUTFILE="'+outfilename+'"\n'
+    script+='export OUTPUTFILE="'+outfilename+'"\n'
     #script+='export MAXEVENTS="'+str(maxevents)+'"\n'
     #script+='export SKIPEVENTS="'+str(skipevents)+'"\n'
     #script+='export SUFFIX="'+suffix+'"\n'
-    script+=programpath+'\n'
+    script+='root -l -b '+programpath+'\(\)'+'\n'
     f=open(scriptname,'w')
     f.write(script)
     f.close()
