@@ -1,10 +1,8 @@
 #Scripts for b-Jet Regression
 
-=======
-
 ## MakeTreeforbReg.C
 
-Root script, that converts output Trees form the BoostedTTH Framework to Trees for usage in a TMVA Regression training.
+Root script, that converts output Trees form the [BoostedTTH Framework](https://github.com/cms-ttH/BoostedTTH) to Trees for usage in a TMVA Regression training.
      
      export INPUTFILES="path/to/file1.root [path/to/file2.root ..]" 
      export OUTPUTFILE="path/to/outputfile.root"
@@ -12,7 +10,7 @@ Root script, that converts output Trees form the BoostedTTH Framework to Trees f
 
 ## runscriptCreator.py
 
-Create shell scripts for parallel usage of MakeTreeforbReg.C on BIRDCluster atf NAF. 
+Create shell scripts for parallel usage of MakeTreeforbReg.C on BIRDCluster at NAF. 
        
        python runscriptCreator.py path/to/MakeTreeforbReg.C path/to/scriptfolder path/to/outputfolder
 

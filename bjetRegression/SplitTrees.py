@@ -22,9 +22,9 @@ inputTree = inputfile.Get(treename)
 outputTree_num = (inputTree.GetEntries() / EventsPerFile) + 1
 
 outputFiles = []
+#Create output Root files
 for i in range(outputTree_num):
     outputFiles.append(str(outfile_prefix)+"_"+str(i)+".root")
-print outputFiles
 eventnum = 1
 currentoutfileindex = 0
 print "Inputfile has",inputTree.GetEntries(),"Entries --> There will be",outputTree_num,"Trees"

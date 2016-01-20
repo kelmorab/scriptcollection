@@ -63,7 +63,7 @@ void Regressiontraining(   )
    std::cout << "before fname" << endl;
    //Root file for Training
    TFile *input(0);
-   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/testtrees/jetreg_0113_2_nominal_Tree.root";
+   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_bRegTree_nominal.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
 
@@ -77,7 +77,7 @@ void Regressiontraining(   )
 
    std::cout << "--- TMVARegression           : Using input file: " << input->GetName() << std::endl;
 
-   TTree *Tree = (TTree*)input->Get("MVATree");
+   TTree *Tree = (TTree*)input->Get("bRegTree");
    Double_t regWeight = 1.0;
 
    std::cout << "Add RegressionTree" << endl;
@@ -87,10 +87,10 @@ void Regressiontraining(   )
    factory->SetWeightExpression("Weight","Regression");
 
    //Cut on on samples
-   TCut mycut = "Evt_Odd == 1";
+   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_PartonFlav) == 5";
    
    std::cout << "Prepare Training" << endl;
-   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=1000:nTest_Regression=1000:SplitMode=Random:NormMode=NumEvents:!V" );
+   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=1000000:SplitMode=Random:NormMode=NumEvents:!V" );
    //factory->PrepareTrainingAndTestTree( mycut, "nTrain_Regression=0:nTest_Regression=0:SplitMode=Random:NormMode=NumEvents:!V" );
    
    std::cout << "Book MVA" << endl;
