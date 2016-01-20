@@ -1,20 +1,21 @@
-#Usage: python SplitTrees.py inputfile outpath prefix
+#Usage: python SplitTrees.py treename inputfile outpath prefix
 import ROOT
 import sys
 import os
 
 
 #Get system arguments
-inputfilename = sys.argv[1]
-outpath = sys.argv[2]
-outfile_prefix = sys.argv[3]
+treename = sys.argv[1]
+inputfilename = sys.argv[2]
+outpath = sys.argv[3]
+outfile_prefix = sys.argv[4]
 
 
-EventsPerFile = 10000
+EventsPerFile = 100000
 
 
 inputfile = ROOT.TFile(inputfilename)
-inputTree = inputfile.Get("bRegTree")
+inputTree = inputfile.Get(treename)
 
 outputTree_num = (inputTree.GetEntries() / EventsPerFile) + 1
 
