@@ -1,6 +1,6 @@
 #Scripts for workflow improvements
 
-#scpflow.py
+##scpflow.py
 Pythonscript for faster usage of the scp command, when working over ssh. Can be used for upload (-u) and download (-d). Supports SingleFile Mode (-s) and Multifile Modes (-m). 
 The following system arguments have to be set:
 - multiple sourcefiles and one destination
