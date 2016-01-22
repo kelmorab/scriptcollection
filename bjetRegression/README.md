@@ -8,11 +8,24 @@ Root script, that converts output Trees form the [BoostedTTH Framework](https://
      export OUTPUTFILE="path/to/outputfile.root"
      root MakeTreeforbReg.C\(\)
 
-## runscriptCreator.py
+## evalReg.C
 
-Create shell scripts for parallel usage of MakeTreeforbReg.C on BIRDCluster at NAF. 
+Root script for evaluating a Regression with a given weightfile. Returns the original Tree from MakeTreeforbReg.C with the regressed pT.
+
+     export INPUTFILES="path/to/file1.root [path/to/file2.root ..]"
+     export INPUTWEIGHT="path/to/weightfile.xml"
+     export OUTPUTFILE="path/to/outputfile.root"
+     root evalReg.C\(\)
+
+## runscripts
+
+Create shell scripts for parallel usage of MakeTreeforbReg.C on Cluster at NAF: 
        
        python runscriptCreator.py path/to/MakeTreeforbReg.C path/to/scriptfolder path/to/outputfolder
+
+Create shell scripts for parallel usage of evalReg.C on Cluster at NAF: 
+
+       python runscriptCreator_evalReg.py path/to/evalReg.C path/to/scriptfolder path/to/outputfolder path/to/weightfile.xml
 
 Submission can be done with [sup.py](https://github.com/kit-cn-cms/BoostedAnalyzer_runscripts_NAF/blob/master/published_samples/sup.py).
 
