@@ -93,9 +93,16 @@ void Regressiontraining(   )
    factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=1000000:SplitMode=Random:NormMode=NumEvents:!V" );
    //factory->PrepareTrainingAndTestTree( mycut, "nTrain_Regression=0:nTest_Regression=0:SplitMode=Random:NormMode=NumEvents:!V" );
    
-   std::cout << "Book MVA" << endl;
-   factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=2000::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=3" );
-   
+   bool usebdt = true;
+
+   if (usebdt) {
+     std::cout << "Book BTDG" << endl;
+     factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=200::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=3:PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True" );
+     }
+   else {
+     std::cout << "Book ANN" << endl;
+     factory->BookMethod( TMVA::Types::kMLP, "MLP_ANN", "");
+   }
 
    // Train MVAs using the set of training events
    std::cout << "Train MVA" << endl;
