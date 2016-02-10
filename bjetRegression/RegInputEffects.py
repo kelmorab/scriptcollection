@@ -248,13 +248,15 @@ class CatPlots(plots):
         canvas.Update()
         canvas.Write()
 
-
     def makeLegend(self, categorizer, symmetricCats, symmetricColor):
         specialpos = ["Jet_regcorr","Jet_corr"]
         if self.getKey() in specialpos:
             self.leg = ROOT.TLegend(0.1,0.7,0.3,0.9)
         else:
             self.leg = ROOT.TLegend(0.7,0.7,0.9,0.9)
+        #tmplist = []
+        #for key in self.Cathistos:
+        #    tmplist.append(self.Catlookup[key]["left"])
         for key in self.Cathistos:
             self.leg.AddEntry(self.Cathistos[key],str(self.Catlookup[key]["left"])+" <= "+categorizer+" < "+str(self.Catlookup[key]["right"]))
 
