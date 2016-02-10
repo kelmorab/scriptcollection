@@ -1,6 +1,10 @@
 import ROOT
 import array
 
+
+ROOT.gROOT.SetBatch(True)
+
+
 class JetRegression():
     def __init__ (self, wightfile):
         self.name = "BDTG"
@@ -161,23 +165,29 @@ class plots():
 
 class CatPlots(plots):    
 
-    def __init__(self, key, cuts = [], symmetricCats = True, symmetricColor = True):
+    def __init__(self, key, cuts, categorizer, symmetricCats = True, symmetricColor = True):
         plots.__init__(self, key)
         if len(cuts) < 3: 
             print "More cuts needed"
             exit()
-        self.setCatHistos(cuts, symmetricCats)
-        self.setCatColors(symmetricColor)
+        self.setCatHistos(cuts, symmetricCats, categorizer)
+        self.setCatColors(symmetricCats, symmetricColor)
+        self.makeLegend(categorizer,symmetricCats, symmetricColor)
         
-    def setCatHistos(self, cuts, symmetric):
+    def setCatHistos(self, cuts, symmetric, categorizer):
         self.histokeys = []
         fullpostfix = []
         if symmetric:
             for postfix in ["neg","pos"]:
                 for i in range((len(cuts)-1)/2):
-                    self.histokeys.append("histo"+str(i)+postfix)
-                    fullpostfix.append(str(i)+postfix)
-        print fullpostfix
+                    self.histokeys.append("histo"+str(i)+postfix+"_"+categorizer)
+                    fullpostfix.append(str(i)+postfix+"_"+categorizer)
+        
+        else:
+            for i in range(len(cuts)-2):
+                self.histokeys.append("histo"+str(i)+"_"+categorizer)
+                fullpostfix.append(str(i)+"_"+categorizer)
+
         self.Cathistos = {}
         self.Catlookup = {}
         
@@ -187,18 +197,24 @@ class CatPlots(plots):
             self.Cathistos.update({self.histokeys[i] : ROOT.TH1F(self.key+fullpostfix[i],self.key+fullpostfix[i], self.bins,self.xmin,self.xmax) })
             self.Catlookup.update({self.histokeys[i] : {"left": cuts[cutindex], "right": cuts[cutindex+1]} })
             cutindex = cutindex + 1
-
-    def setCatColors(self, symmetric):
+            
+    def setCatColors(self, symmetricCats, symmetricColors):
         #Works only for 6 symmetric Categories
         colorlist = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen]
         colorlist_asym = [ROOT.kGreen+2, ROOT.kBlue+2, ROOT.kRed+2]
+        colorlist_add = [ROOT.kViolet, ROOT.kYellow,ROOT.kOrange]
         self.CatColors = {}
-        if symmetric:
-            colorlist = colorlist + colorlist[::-1]
+        if symmetricCats:
+            if symmetricColors:
+                colorlist = colorlist + colorlist[::-1]
+            else:
+                colorlist = colorlist + colorlist_asym
+            for i, key in enumerate(self.histokeys):
+                self.CatColors.update({ key : colorlist[i] })
         else:
-            colorlist = colorlist + colorlist_asym
-        for i, key in enumerate(self.histokeys):
-            self.CatColors.update({ key : colorlist[i] })
+            colorlist = colorlist + colorlist_add
+            for i,key in enumerate(self.histokeys):
+                self.CatColors.update({ key : colorlist[i] })
 
     def FillCatHistos(self, fillval, catval):
         for key in self.histokeys:
@@ -219,17 +235,34 @@ class CatPlots(plots):
         for i in range(len(self.histokeys)/2):
             self.Stackplot.Add(self.Cathistos[self.histokeys[i]])            
             self.Stackplot.Add(self.Cathistos[self.histokeys[(len(self.histokeys)-1)-i]])
-
+            
     def DrawStack(self):
         self.Stackplot.Draw()
+        self.leg.Draw("same")
         raw_input("press  Ret")
-    def WriteStack(self):
-        self.Stackplot.Write()
 
-        
+    def WriteStack(self, canvas):
+        #self.Stackplot.Write()
+        self.Stackplot.Draw()
+        self.leg.Draw("same")
+        canvas.Update()
+        canvas.Write()
+
+
+    def makeLegend(self, categorizer, symmetricCats, symmetricColor):
+        specialpos = ["Jet_regcorr","Jet_corr"]
+        if self.getKey() in specialpos:
+            self.leg = ROOT.TLegend(0.1,0.7,0.3,0.9)
+        else:
+            self.leg = ROOT.TLegend(0.7,0.7,0.9,0.9)
+        for key in self.Cathistos:
+            self.leg.AddEntry(self.Cathistos[key],str(self.Catlookup[key]["left"])+" <= "+categorizer+" < "+str(self.Catlookup[key]["right"]))
+
+
 inputfile = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbar_nominal.root")
 weightfile = "/afs/desy.de/user/h/hmildner/public/regression_weights/weights_ttbar_quark/TMVARegression_BDTG.weights.xml"
-outputfile = ROOT.TFile("testout1","RECREATE")
+
+outputfileprefix = "testout1"
 
 tree = inputfile.Get("MVATree")
 
@@ -279,32 +312,35 @@ outputvars = {"Jet_regPt": [],
 
 jetreg = JetRegression(weightfile) 
 
-inputplots = {}
-inputplot = {}
-outputplots = {}
+inputplots_regcorr = {}
+inputplot_regcorr = {}
+outputplots_regcorr = {}
+outputplots_pt = {}
+outputplots_leppt = {}
+
+
 #Categorize by regcorr factor
 for key in inputvar:    
-    inputplot_regcorr.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],True,False)})
+    inputplot_regcorr.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],"regcorr",True,False)})
 for key in inputvars:    
-    inputplots_regcorr.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],True,False)})
+    inputplots_regcorr.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],"regcorr",True,False)})
 for key in outputvars:    
-    outputplots_regcorr.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],True,False)})
-"""
+    outputplots_regcorr.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],"regcorr",True,False)})
 #Categorize by Jet_pt
-for key in inputvar:    
-    inputplot_pt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
-for key in inputvars:    
-    inputplots_pt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
+#for key in inputvar:    
+#    inputplot_pt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
+#for key in inputvars:    
+#    inputplots_pt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
 for key in outputvars:    
-    outputplots_pt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
+    outputplots_pt.update({key : CatPlots(key, [0,50,100,150,300,600],"jetpt",False,False)})
 #Categorize by Jet_lepton_pt
-for key in inputvar:    
-    inputplot_leppt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
-for key in inputvars:    
-    inputplots_leppt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
+#for key in inputvar:    
+#    inputplot_leppt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
+#for key in inputvars:    
+#    inputplots_leppt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
 for key in outputvars:    
-    outputplots_leppt.update({key : CatPlots(key, [0,0.8,0.9,1,1.1,1.2,2],False,False)})
-"""
+    outputplots_leppt.update({key : CatPlots(key, [0,30,50,80,100,120],"jetleppt",False,False)})
+
 
 
 
@@ -373,26 +409,56 @@ for iev in range(tree.GetEntries()):
             #outputvars["Jet_regPt"] = jetreg.evalReg(tmpdict)
             outputvars["Jet_regPt"] = tree.Jet_regPt[ijet]
             outputvars["Jet_regcorr"] = outputvars["Jet_regPt"]/inputvars["Jet_Pt"]
-            for key in inputplots:
+            for key in inputplots_regcorr:
                 inputplots_regcorr[key].FillCatHistos(inputvars[key],outputvars["Jet_regcorr"])
-            for key in outputplots:
+            for key in outputplots_regcorr:
                 outputplots_regcorr[key].FillCatHistos(outputvars[key],outputvars["Jet_regcorr"])
+            for key in outputplots_pt:
+                outputplots_pt[key].FillCatHistos(outputvars[key],inputvars["Jet_Pt"])
+            for key in outputplots_leppt:
+                outputplots_leppt[key].FillCatHistos(outputvars[key], inputvars["Jet_leptonPt"])
     if isbjet:
-        for key in inputplot:
+        for key in inputplot_regcorr:
             inputplot_regcorr[key].FillCatHistos(inputvar[key],outputvars["Jet_regcorr"])
-    
+
+
+outputfile = ROOT.TFile(outputfileprefix+"_regcorr"+".root","RECREATE")    
+ROOT.gROOT.SetBatch(True)
 outputfile.cd()
+
+
+c1 = ROOT.TCanvas()
+c1.cd()
 
 for key in inputplot_regcorr:
     inputplot_regcorr[key].makeStack()
-    inputplot_regcorr[key].WriteStack()
+    inputplot_regcorr[key].WriteStack(c1)
 for key in inputplots_regcorr:
     inputplots_regcorr[key].makeStack()
-    inputplots_regcorr[key].WriteStack()
+    inputplots_regcorr[key].WriteStack(c1)
 for key in outputplots_regcorr:
     outputplots_regcorr[key].makeStack()
-    outputplots_regcorr[key].WriteStack()
+    outputplots_regcorr[key].WriteStack(c1)
 
+del outputfile
+
+outputfile = ROOT.TFile(outputfileprefix+"_pt"+".root","RECREATE")    
+outputfile.cd()
+
+for key in outputplots_pt:
+    outputplots_pt[key].makeStack()
+    outputplots_pt[key].WriteStack(c1)
+
+del outputfile
+
+outputfile = ROOT.TFile(outputfileprefix+"_leppt"+".root","RECREATE")    
+outputfile.cd()
+
+for key in outputplots_leppt:
+    outputplots_leppt[key].makeStack()
+    outputplots_leppt[key].WriteStack(c1)
+    
+del outputfile
 
     
 
