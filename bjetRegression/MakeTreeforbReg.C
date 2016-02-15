@@ -34,7 +34,7 @@ void MakeTreeforbReg(   )
 
   int Event_Odd, NJets;
   float rho, Event_Weight;
-  float Jet_pt[20],Jet_corr[20],Jet_Eta[20],Jet_M[20],Jet_leadTrackPt[20],Jet_Flav[20];
+  float Jet_pt[20],Jet_corr[20],Jet_Eta[20],Jet_M[20],Jet_Mt[20],Jet_leadTrackPt[20],Jet_Flav[20];
   float Jet_leptonPt[20],Jet_leptonPtRel[20],Jet_leptonDeltaR[20];
   float Jet_nHEFrac[20],Jet_nEMEFrac[20],Jet_chMult[20];
   float Jet_vtxPt[20],Jet_vtxMass[20],Jet_vtx3DVal[20],Jet_vtxNtracks[20],Jet_vtx3DSig[20];
@@ -51,6 +51,7 @@ void MakeTreeforbReg(   )
   InputChain->SetBranchAddress("Jet_corr",&Jet_corr);                 
   InputChain->SetBranchAddress("Jet_Eta",&Jet_Eta);                   
   InputChain->SetBranchAddress("Jet_M",&Jet_M);                       
+  InputChain->SetBranchAddress("Jet_Mt",&Jet_Mt);                       
   InputChain->SetBranchAddress("Jet_leadTrackPt",&Jet_leadTrackPt);   
   InputChain->SetBranchAddress("Jet_Flav",&Jet_Flav);                 
 
@@ -77,7 +78,7 @@ void MakeTreeforbReg(   )
   outputFile->cd();
   TTree *OutputTree = new TTree("bRegTree","Tree for bJetRegression training");
 
-  float E_Odd, E_Rho, E_Weight,J_Pt,J_corr,J_Eta,J_M,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt;
+  float E_Odd, E_Rho, E_Weight,J_Pt,J_corr,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt;
 
   OutputTree->Branch("Evt_Odd",&E_Odd);                 
   OutputTree->Branch("Evt_Rho",&E_Rho);                       
@@ -87,6 +88,7 @@ void MakeTreeforbReg(   )
   OutputTree->Branch("Jet_corr",&J_corr);                 
   OutputTree->Branch("Jet_Eta",&J_Eta);                   
   OutputTree->Branch("Jet_M",&J_M);                       
+  OutputTree->Branch("Jet_Mt",&J_Mt);                       
   OutputTree->Branch("Jet_leadTrackPt",&J_lTPt);   
   OutputTree->Branch("Jet_Flav",&J_Flav);             
 
@@ -124,6 +126,7 @@ void MakeTreeforbReg(   )
       J_corr = Jet_corr[j];
       J_Eta = Jet_Eta[j];
       J_M = Jet_M[j];
+      J_Mt = Jet_Mt[j];
       J_lTPt = Jet_leadTrackPt[j];
       J_Flav = Jet_Flav[j];
       J_lPt = Jet_leptonPt[j];

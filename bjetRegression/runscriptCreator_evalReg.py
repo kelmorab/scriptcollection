@@ -1,3 +1,4 @@
+
 #Modified from https://github.com/kit-cn-cms/cpp-plotscripts/blob/master/fatjet_data_mc/create_runscripts.py
 #Usage = python runscriptCreator.py progampath scriptpath outpath weightpath
 
@@ -15,7 +16,7 @@ weightpath=sys.argv[4]
 
 cmsswpath='/nfs/dust/cms/user/kschweig/CMSSW_7_4_15'
 
-samples=[('ttbar','/nfs/dust/cms/user/kschweig/JetRegression/trees0113/treesforbReg0120/')]
+samples=[('ttbar','/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbarforbReg0211/')]
 
 events_per_job= 1000000
 files_per_job = 1

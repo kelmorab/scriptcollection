@@ -1,3 +1,4 @@
+
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -35,7 +36,7 @@ void evalReg(   )
 
   int Event_Odd, NJets;
   float rho, Event_Weight;
-  float Jet_pt, Jet_corr, Jet_Eta, Jet_M, Jet_leadTrackPt, Jet_Flav;
+  float Jet_pt, Jet_corr, Jet_Eta, Jet_M,Jet_Mt, Jet_leadTrackPt, Jet_Flav;
   float Jet_leptonPt, Jet_leptonPtRel, Jet_leptonDeltaR;
   float Jet_nHEFrac, Jet_nEMEFrac, Jet_chMult;
   float Jet_vtxPt, Jet_vtxMass, Jet_vtx3DVal, Jet_vtxNtracks, Jet_vtx3DSig;
@@ -51,6 +52,8 @@ void evalReg(   )
   InputChain->SetBranchAddress("Jet_corr",&Jet_corr);                 
   InputChain->SetBranchAddress("Jet_Eta",&Jet_Eta);                   
   InputChain->SetBranchAddress("Jet_M",&Jet_M);                       
+  InputChain->SetBranchAddress("Jet_Mt",&Jet_Mt);                       
+
   InputChain->SetBranchAddress("Jet_leadTrackPt",&Jet_leadTrackPt);   
   InputChain->SetBranchAddress("Jet_Flav",&Jet_Flav);                 
 
@@ -120,13 +123,13 @@ void evalReg(   )
   reader->AddVariable("Jet_corr",&Jet_corr );
   reader->AddVariable("Evt_Rho",&rho);
   reader->AddVariable("Jet_Eta",&Jet_Eta );
-  reader->AddVariable("Jet_M",&Jet_M ); 
+  reader->AddVariable("Jet_Mt",&Jet_Mt ); 
   reader->AddVariable("Jet_leadTrackPt",&Jet_leadTrackPt ); 
   reader->AddVariable("Jet_leptonPtRel",&Jet_leptonPtRel );
   reader->AddVariable("Jet_leptonPt",&Jet_leptonPt ); 
   reader->AddVariable("Jet_leptonDeltaR",&Jet_leptonDeltaR );
-  reader->AddVariable("Jet_nHEFrac",&Jet_nHEFrac ); 
-  reader->AddVariable("Jet_nEmEFrac",&Jet_nEMEFrac );
+  //reader->AddVariable("Jet_nHEFrac",&Jet_nHEFrac ); 
+  //reader->AddVariable("Jet_nEmEFrac",&Jet_nEMEFrac );
   reader->AddVariable("Jet_chargedMult",&Jet_chMult );
   reader->AddVariable("Jet_vtxPt",&Jet_vtxPt );
   reader->AddVariable("Jet_vtxMass",&Jet_vtxMass );

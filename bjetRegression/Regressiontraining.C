@@ -32,7 +32,7 @@ void Regressiontraining(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
   
    
-   TString outfileName( "BReg.root" );
+   TString outfileName( "BReg_0213.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
    
 
@@ -43,13 +43,13 @@ void Regressiontraining(   )
    factory->AddVariable("Jet_corr","Jet_corr","units", 'F');
    factory->AddVariable("Evt_Rho","rho","units", 'F');
    factory->AddVariable("Jet_Eta","Jet_eta","units", 'F');
-   factory->AddVariable("Jet_M","Jet_mt","units", 'F'); 
+   factory->AddVariable("Jet_Mt","Jet_mt","units", 'F'); 
    factory->AddVariable("Jet_leadTrackPt","Jet_leadTrackPt","units", 'F'); 
    factory->AddVariable("Jet_leptonPtRel","Jet_leptonPtRel","units", 'F');
    factory->AddVariable("Jet_leptonPt","Jet_leptonPt","units", 'F'); 
    factory->AddVariable("Jet_leptonDeltaR","Jet_leptonDeltaR","units", 'F');
-   factory->AddVariable("Jet_nHEFrac","Jet_neHEF","units", 'F'); 
-   factory->AddVariable("Jet_nEmEFrac","Jet_neEmEF","units", 'F');
+   //factory->AddVariable("Jet_nHEFrac","Jet_neHEF","units", 'F'); 
+   //factory->AddVariable("Jet_nEmEFrac","Jet_neEmEF","units", 'F');
    factory->AddVariable("Jet_chargedMult","Jet_chargedMult","units", 'F');
    factory->AddVariable("Jet_vtxPt","Jet_vtxPt","units", 'F');
    factory->AddVariable("Jet_vtxMass","Jet_vtxMass","units", 'F');
@@ -59,11 +59,17 @@ void Regressiontraining(   )
    
 
    factory->AddTarget( "Jet_PartonPt" ); 
+   
+   factory->AddSpectator( "Jet_PartonFlav" );
+   factory->AddSpectator( "Jet_Flav" );
+   factory->AddSpectator( "Evt_Odd" );
+   
 
+   
    std::cout << "before fname" << endl;
    //Root file for Training
    TFile *input(0);
-   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_bRegTree_nominal.root";
+   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbarforbReg0211.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
 
@@ -83,8 +89,8 @@ void Regressiontraining(   )
    std::cout << "Add RegressionTree" << endl;
    factory->AddRegressionTree( Tree, regWeight );
    
-   std::cout << "Add weight expression" << endl;
-   factory->SetWeightExpression("Weight","Regression");
+   //std::cout << "Add weight expression" << endl;
+   //factory->SetWeightExpression("1","Regression");
 
    //Cut on on samples
    TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_PartonFlav) == 5";
