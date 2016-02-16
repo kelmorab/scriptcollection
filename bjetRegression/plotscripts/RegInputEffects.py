@@ -1,13 +1,16 @@
+
+
 import ROOT
 from JetRegression import JetRegression
 from plotting import *
+from rootutils import PDFPrinting
 
 ROOT.gROOT.SetBatch(True)
 
-inputfile = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbar_nominal.root")
+inputfile = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttHbb.root")
 weightfile = "/afs/desy.de/user/h/hmildner/public/regression_weights/weights_ttbar_quark/TMVARegression_BDTG.weights.xml"
 
-outputfileprefix = "testout2"
+outputfileprefix = "ttHbb_0214"
 
 tree = inputfile.Get("MVATree")
 
@@ -61,6 +64,7 @@ inputplots_regcorr = {}
 inputplot_regcorr = {}
 outputplots_regcorr = {}
 outputplots_pt = {}
+outputplots_mt = {}
 outputplots_leppt = {}
 outputplots_partonpt = {}
 
@@ -73,7 +77,9 @@ for key in outputvars:
     outputplots_regcorr.update({key : CatPlots(key,[0,0.55,0.65,0.75,0.85,0.95,1,1.05,1.15,1.25,1.35,1.45,2],"regcorr",True,True)})
 #Categorize by Jet_pt
 for key in outputvars:    
-    outputplots_pt.update({key : CatPlots(key, [0,50,100,150,300,600],"jetpt",False,False)})
+    outputplots_pt.update({key : CatPlots(key, [0,50,75,100,150,200,300,600],"jetpt",False,False)})
+for key in outputvars:    
+    outputplots_mt.update({key : CatPlots(key, [0,50,75,100,150,200,400,600],"jetmt",False,False)})
 #Categorize by Jet_lepton_pt
 for key in outputvars:    
     outputplots_leppt.update({key : CatPlots(key, [0,30,50,80,100,120],"jetleppt",False,False)})
@@ -83,7 +89,6 @@ for key in outputvars:
 
 
 
-raw_input("Press Ret")
 
 for iev in range(tree.GetEntries()):
     if iev%10000 == 0:
@@ -155,6 +160,8 @@ for iev in range(tree.GetEntries()):
                 outputplots_regcorr[key].FillCatHistos(outputvars[key],outputvars["Jet_regcorr"])
             for key in outputplots_pt:
                 outputplots_pt[key].FillCatHistos(outputvars[key],inputvars["Jet_Pt"])
+            for key in outputplots_mt:
+                outputplots_mt[key].FillCatHistos(outputvars[key],inputvars["Jet_Mt"])
             for key in outputplots_leppt:
                 outputplots_leppt[key].FillCatHistos(outputvars[key], inputvars["Jet_leptonPt"])
             for key in outputplots_partonpt:
@@ -173,16 +180,20 @@ c1 = ROOT.TCanvas()
 c1.cd()
 
 for key in inputplot_regcorr:
-    inputplot_regcorr[key].makeStack()
+    inputplot_regcorr[key].makeStack(">")
     inputplot_regcorr[key].WriteStack(c1)
 for key in inputplots_regcorr:
-    inputplots_regcorr[key].makeStack()
+    inputplots_regcorr[key].makeStack(">")
     inputplots_regcorr[key].WriteStack(c1)
 for key in outputplots_regcorr:
-    outputplots_regcorr[key].makeStack()
+    outputplots_regcorr[key].makeStack(">")
     outputplots_regcorr[key].WriteStack(c1)
 
+
+PDFPrinting(outputfileprefix+'_regcorr',True,outputfile)
+
 del outputfile
+
 
 outputfile = ROOT.TFile(outputfileprefix+"_pt"+".root","RECREATE")    
 outputfile.cd()
@@ -190,6 +201,19 @@ outputfile.cd()
 for key in outputplots_pt:
     outputplots_pt[key].makeStack()
     outputplots_pt[key].WriteStack(c1)
+
+PDFPrinting(outputfileprefix+'_pt',True,outputfile)
+
+del outputfile
+
+outputfile = ROOT.TFile(outputfileprefix+"_mt"+".root","RECREATE")    
+outputfile.cd()
+
+for key in outputplots_mt:
+    outputplots_mt[key].makeStack()
+    outputplots_mt[key].WriteStack(c1)
+
+PDFPrinting(outputfileprefix+'_mt',True,outputfile)
 
 del outputfile
 
@@ -200,6 +224,8 @@ for key in outputplots_leppt:
     outputplots_leppt[key].makeStack()
     outputplots_leppt[key].WriteStack(c1)
     
+PDFPrinting(outputfileprefix+'_leppt',True,outputfile)
+
 del outputfile
 
 outputfile = ROOT.TFile(outputfileprefix+"_partonpt"+".root","RECREATE")    
@@ -209,6 +235,8 @@ for key in outputplots_partonpt:
     outputplots_partonpt[key].makeStack()
     outputplots_partonpt[key].WriteStack(c1)
     
+PDFPrinting(outputfileprefix+'_partonpt',True,outputfile)
+
 del outputfile
 
 

@@ -1,8 +1,10 @@
 import ROOT
+import rootutils
 ROOT.gROOT.SetBatch(False)
 ROOT.gStyle.SetOptStat(0);
 
-inputfile1 = ROOT.TFile("ttHbb.root")
+
+inputfile1 = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttHbb.root")
 #inputfile1 = ROOT.TFile("ttbar.root")
 
 tree1 = inputfile1.Get("MVATree")
@@ -11,11 +13,14 @@ isttH = True
 
 if isttH:
     histo_noreg = ROOT.TH1F("noreg","bbMass_noreg",125,50,250)
+    histo_noreg.Sumw2()
     histo_reg = ROOT.TH1F("reg","bbMass_reg",125,50,250)
+    histo_reg.Sumw2()
 else:
     histo_noreg = ROOT.TH1F("noreg","hadtopmass_noreg",150,100,300)
+    histo_noreg.Sumw2()
     histo_reg = ROOT.TH1F("reg","hadtopmass_reg",150,100,300)
-
+    histo_reg.Sumw2()
 
 c1 = ROOT.TCanvas()
 
@@ -40,11 +45,15 @@ tree1.Project("noreg",variable_noreg,selection)
 print "Projecting to  reg" 
 tree1.Project("reg",variable_reg,selection)
 
-
 histo_noreg.SetLineColor(ROOT.kBlue)
+histo_noreg.SetLineWidth(1)
+histo_noreg.Scale(1/float(histo_noreg.Integral()))
+#histo_noreg.SetLineColor(ROOT.kBlue)
 histo_reg.SetLineColor(ROOT.kRed)
-
+histo_reg.SetLineWidth(1)
+histo_reg.Scale(1/float(histo_reg.Integral()))
 dofit = True
+
 
 if dofit:
     if isttH:
@@ -76,7 +85,7 @@ if dofit:
     histo_reg.Fit("Fit_reg","","",reg_left,reg_right)
 
 
-leg=ROOT.TLegend(0.6,0.54,0.89,0.89)
+leg=ROOT.TLegend(0.55,0.45,0.89,0.89)
 leg.AddEntry(histo_noreg,"Vor Regression")
 if dofit:
     leg.AddEntry(0,"Fit: #mu="+str(fit_noreg.GetParameter(1))[:6]+"#pm"+str(fit_noreg.GetParError(1))[:6],"")
@@ -89,21 +98,32 @@ if dofit:
 
 #histo_noreg.GetYaxis().SetRangeUser(0,)
 
-cms = ROOT.TLatex(0.1, 0.92, 'CMS private work')
-cms.SetTextFont(42)
-cms.SetTextSize(0.05)
-cms.SetNDC()
 
+simul = ROOT.TLatex(0.125, 0.908, 'CMS simulation')
+simul.SetTextFont(42)
+simul.SetTextSize(0.045)
+simul.SetNDC()
+
+cms = ROOT.TLatex(0.125, 0.86, 'work in progress')
+cms.SetTextFont(42)
+cms.SetTextSize(0.045)
+cms.SetNDC()
 
 histo_reg.Draw("histoe")
 #Make Style
 histo_reg.SetTitle("")
-histo_reg.GetXaxis().SetTitle("m(b#bar{b})")
+if isttH:
+    histo_reg.GetXaxis().SetTitle("m(b#bar{b})")
+    histo_reg.GetYaxis().SetTitleOffset(0.83)
+else:
+    histo_reg.GetXaxis().SetTitle("m(t_{had})")   
+    histo_reg.GetYaxis().SetTitleOffset(0.8)
 histo_reg.GetXaxis().SetTitleSize(0.05)
 histo_reg.GetXaxis().SetTitleOffset(0.7)
-histo_reg.GetYaxis().SetTitle("Ereignisse")
+histo_reg.GetYaxis().SetTitle("Beliebige Einheiten")
 histo_reg.GetYaxis().SetTitleSize(0.05)
-histo_reg.GetYaxis().SetTitleOffset(0.8)
+histo_reg.GetYaxis().SetRangeUser(0,histo_reg.GetBinContent(histo_reg.GetMaximumBin())*1.1)
+
 
 
 histo_noreg.Draw("same histoe")
@@ -113,7 +133,10 @@ if dofit:
     fit_reg.Draw("same")
 leg.Draw("same")
 cms.Draw("same")
+simul.Draw("same")
 c1.Update()
+
+
 
 drawLine = False
 if drawLine:
@@ -123,8 +146,8 @@ if drawLine:
     line.SetLineColor(ROOT.kBlack)
     line.Draw("same")
 
+
 c1.Update()
 
-c1.Print("bbbarmass.pdf","title")
 
 raw_input("Press ret")

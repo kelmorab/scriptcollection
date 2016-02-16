@@ -1,4 +1,7 @@
 
+#Neue print PDF funktion in plots classe
+
+
 import ROOT
 
 class plots():
@@ -39,11 +42,11 @@ class plots():
         elif key == "Jet_regPt":
             self.setTH1(200,0,600)
         elif key == "Jet_regcorr":
-            self.setTH1(60,0.4,1.6)
+            self.setTH1(96,0.4,1.6)
         else:
             print "Key error!",key,"not supported."
             exit()
-            
+
     def getKey(self):
         return self.key
 
@@ -51,9 +54,11 @@ class plots():
         self.bins = bins
         self.xmin = xmin
         self.xmax = xmax
-    
-    
 
+    def setXTitle(self):
+        
+    def setSumw2(self, th1f):
+        th1f.Sumw2()
 
 class CatPlots(plots):    
 
@@ -76,7 +81,7 @@ class CatPlots(plots):
                     self.fullpostfix.append(str(i)+postfix+"_"+categorizer)
         
         else:
-            for i in range(len(cuts)-2):
+            for i in range(len(cuts)-1):
                 self.histokeys.append("histo"+str(i)+"_"+categorizer)
                 self.fullpostfix.append(str(i)+"_"+categorizer)
 
@@ -89,7 +94,10 @@ class CatPlots(plots):
             self.Cathistos.update({self.histokeys[i] : ROOT.TH1F(self.key+self.fullpostfix[i],self.key+self.fullpostfix[i], self.bins,self.xmin,self.xmax) })
             self.Catlookup.update({self.histokeys[i] : {"left": cuts[cutindex], "right": cuts[cutindex+1]} })
             cutindex = cutindex + 1
-            
+
+        for key in self.histokeys:
+            setSumw2(self.Cathistos[key])
+
     def setCatColors(self, symmetricCats, symmetricColors):
         nhistos = len(self.fullpostfix)
         colorlist = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen]
@@ -121,37 +129,62 @@ class CatPlots(plots):
     
     def makeStyle(self):
         for key in self.histokeys:
-            self.Cathistos[key].SetLineColor(self.CatColors[key]) #set Color
+            self.Cathistos[key].SetLineColor(ROOT.kBlack) #set Color
             self.Cathistos[key].SetFillStyle(1001)
             self.Cathistos[key].SetFillColor(self.CatColors[key]) #set Color
 
-    def makeStack(self):
+    def makeStack(self,order = "<"):
+            
         self.makeStyle()
         self.Stackplot = ROOT.THStack("Stack"+self.key,"Stack "+self.key)
+
         
-        for i in range(len(self.histokeys)/2):
-            self.Stackplot.Add(self.Cathistos[self.histokeys[i]])            
-            self.Stackplot.Add(self.Cathistos[self.histokeys[(len(self.histokeys)-1)-i]])
-            
+        
+        #for i in range(len(self.histokeys)/2):
+        #    print self.histokeys[i], self.histokeys[(len(self.histokeys)-1)-i]
+         #   self.Stackplot.Add(self.Cathistos[self.histokeys[i]])            
+          #  self.Stackplot.Add(self.Cathistos[self.histokeys[(len(self.histokeys)-1)-i]])
+        tmplist = []
+        for key in self.Cathistos:
+            tmplist.append(self.Catlookup[key]["left"])
+        tmplist = sorted(tmplist)
+        if order == "<":
+            tmplist = tmplist #tmplist is orderd from left to right category
+        elif order == ">":
+            tmplist = tmplist[::-1] #turn tmplist -> ordered from right to left category
+        else:
+            print "ordering unknown!"
+            exit()
+        for element in tmplist:
+            for key in self.Cathistos:
+                if element == self.Catlookup[key]["left"]:
+                    self.Stackplot.Add(self.Cathistos[key])            
+                    break
+          
+
     def DrawStack(self):
         self.Stackplot.Draw()
         self.leg.Draw("same")
         raw_input("press  Ret")
 
-    def WriteStack(self, canvas):
+    def WriteStack(self, canvas, pdfname = None):
         #self.Stackplot.Write()
         self.Stackplot.Draw()
         self.leg.Draw("same")
         canvas.SetTitle(self.key)
+        canvas.SetName(self.key)
         canvas.Update()
         canvas.Write()
+
 
     def makeLegend(self, categorizer, symmetricCats, symmetricColor):
         specialpos = ["Jet_regcorr","Jet_corr"]
         if self.getKey() in specialpos:
             self.leg = ROOT.TLegend(0.1,0.6,0.4,0.9)
         else:
-            self.leg = ROOT.TLegend(0.6,0.6,0.9,0.9)
+            self.leg = ROOT.TLegend(0.6,0.55,0.9,0.9)
+        self.leg.SetBorderSize(0)
+        self.leg.SetTextFont(42)
         tmplist = []
         for key in self.Cathistos:
             tmplist.append(self.Catlookup[key]["left"])
@@ -161,3 +194,7 @@ class CatPlots(plots):
                 if element == self.Catlookup[key]["left"]:
                     self.leg.AddEntry(self.Cathistos[key],str(self.Catlookup[key]["left"])+" <= "+categorizer+" < "+str(self.Catlookup[key]["right"]))
                     break
+
+
+
+
