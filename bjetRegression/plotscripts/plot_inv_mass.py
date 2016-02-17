@@ -1,15 +1,18 @@
 import ROOT
-import rootutils
-ROOT.gROOT.SetBatch(False)
+from rootutils import PDFPrinting
+ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0);
 
+isttH = True
+german = True
 
-inputfile1 = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttHbb.root")
-#inputfile1 = ROOT.TFile("ttbar.root")
+
+if isttH:
+    inputfile1 = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttHbb.root")
+else:
+    inputfile1 = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttbar.root")
 
 tree1 = inputfile1.Get("MVATree")
-
-isttH = True
 
 if isttH:
     histo_noreg = ROOT.TH1F("noreg","bbMass_noreg",125,50,250)
@@ -21,6 +24,12 @@ else:
     histo_noreg.Sumw2()
     histo_reg = ROOT.TH1F("reg","hadtopmass_reg",150,100,300)
     histo_reg.Sumw2()
+
+if isttH:
+    pdfout = PDFPrinting("bbMass")
+else:
+    pdfout = PDFPrinting("thadMass")
+
 
 c1 = ROOT.TCanvas()
 
@@ -86,11 +95,17 @@ if dofit:
 
 
 leg=ROOT.TLegend(0.55,0.45,0.89,0.89)
-leg.AddEntry(histo_noreg,"Vor Regression")
+if german:
+    leg.AddEntry(histo_noreg,"Vor Regression")    
+else:
+    leg.AddEntry(histo_noreg,"Before Regression")
 if dofit:
     leg.AddEntry(0,"Fit: #mu="+str(fit_noreg.GetParameter(1))[:6]+"#pm"+str(fit_noreg.GetParError(1))[:6],"")
     leg.AddEntry(0,"     #sigma="+str(fit_noreg.GetParameter(2))[:6]+"#pm"+str(fit_noreg.GetParError(2))[:6],"")
-leg.AddEntry(histo_reg,"Nach Regression")
+if german:
+    leg.AddEntry(histo_reg,"Nach Regression")
+else:
+    leg.AddEntry(histo_reg,"After Regression")
 if dofit:
     leg.AddEntry(0,"Fit: #mu="+str(fit_reg.GetParameter(1))[:6]+"#pm"+str(fit_reg.GetParError(1))[:6],"")
     leg.AddEntry(0,"     #sigma="+str(fit_reg.GetParameter(2))[:6]+"#pm"+str(fit_reg.GetParError(2))[:6],"")
@@ -108,19 +123,32 @@ cms = ROOT.TLatex(0.125, 0.86, 'work in progress')
 cms.SetTextFont(42)
 cms.SetTextSize(0.045)
 cms.SetNDC()
+if isttH:
+    label = ROOT.TLatex(0.74,0.908, 't#bar{t}H , H #rightarrow b#bar{b}')
+else:
+    label = ROOT.TLatex(0.88,0.908, 't#bar{t}')
+label.SetTextFont(42)
+label.SetTextSize(0.045)
+label.SetNDC()
 
 histo_reg.Draw("histoe")
 #Make Style
 histo_reg.SetTitle("")
 if isttH:
-    histo_reg.GetXaxis().SetTitle("m(b#bar{b})")
-    histo_reg.GetYaxis().SetTitleOffset(0.83)
+    histo_reg.GetXaxis().SetTitle("m(H #rightarrow b#bar{b})")
+    histo_reg.GetYaxis().SetTitleOffset(0.9)
+    histo_reg.GetXaxis().SetTitleOffset(0.7)
 else:
     histo_reg.GetXaxis().SetTitle("m(t_{had})")   
-    histo_reg.GetYaxis().SetTitleOffset(0.8)
+    histo_reg.GetYaxis().SetTitleOffset(0.9)
+    histo_reg.GetXaxis().SetTitleOffset(0.75)
+
 histo_reg.GetXaxis().SetTitleSize(0.05)
-histo_reg.GetXaxis().SetTitleOffset(0.7)
-histo_reg.GetYaxis().SetTitle("Beliebige Einheiten")
+if german:
+    histo_reg.GetYaxis().SetTitle("Beliebige Einheiten")
+else:
+    histo_reg.GetYaxis().SetTitle("arbitrary units")
+
 histo_reg.GetYaxis().SetTitleSize(0.05)
 histo_reg.GetYaxis().SetRangeUser(0,histo_reg.GetBinContent(histo_reg.GetMaximumBin())*1.1)
 
@@ -134,6 +162,7 @@ if dofit:
 leg.Draw("same")
 cms.Draw("same")
 simul.Draw("same")
+label.Draw("same")
 c1.Update()
 
 
@@ -149,5 +178,7 @@ if drawLine:
 
 c1.Update()
 
+pdfout.addCanvastoPDF(c1)
 
-raw_input("Press ret")
+pdfout.closePDF()
+#raw_input("Press ret")
