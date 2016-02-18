@@ -1,0 +1,5 @@
+export WEIGHTPREFIX="test1" 
+export OUTPUTFILE="testout1.root"
+export REG_BDTG_NTREES="200"
+export REG_BDTG_SHRINK="0.1"
+export REG_BDTG_MAXDEPTH="2"

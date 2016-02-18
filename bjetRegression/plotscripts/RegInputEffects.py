@@ -4,59 +4,27 @@ import ROOT
 from JetRegression import JetRegression
 from plotting import *
 from rootutils import PDFPrinting
+import bRegVars as bR
+
 
 ROOT.gROOT.SetBatch(True)
 
 inputfile = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttHbb.root")
 weightfile = "/afs/desy.de/user/h/hmildner/public/regression_weights/weights_ttbar_quark/TMVARegression_BDTG.weights.xml"
 
-outputfileprefix = "ttHbb_0214"
+outputfileprefix = "ttHbb_0218"
 
 tree = inputfile.Get("MVATree")
 
-readvars = {"N_Jets" : 0,
-            "Evt_Rho": 0,
-            "Jet_Pt" : [],
-            "Jet_corr" : [],
-            "Jet_Eta" : [],
-            "Jet_Mt" : [],
-            "Jet_leadTrackPt" : [],
-            "Jet_Flav" : [],
-            "Jet_leptonPt" : [],
-            "Jet_leptonPtRel" : [],
-            "Jet_leptonDeltaR" : [],
-            "Jet_nHEFrac" : [],
-            "Jet_nEmEFrac" : [],
-            "Jet_chargedMult" : [],
-            "Jet_vtxPt" : [],
-            "Jet_vtxMass" : [],
-            "Jet_vtx3DVal" : [],
-            "Jet_vtxNtracks" : [],
-            "Jet_vtx3DSig" : [],
-            "Jet_PartonFlav" : [],
-            "Jet_PartonPt" : []}
 
-inputvar = {"Evt_Rho": 0}
+#Get Variables from Var Module
+readvars = bR.readvars
 
-inputvars = {"Jet_Pt" : [],
-             "Jet_corr" : [],
-             "Jet_Eta" : [],
-             "Jet_Mt" : [],
-             "Jet_leadTrackPt" : [],
-             "Jet_leptonPt" : [],
-             "Jet_leptonPtRel" : [],
-             "Jet_leptonDeltaR" : [],
-             "Jet_nHEFrac" : [],
-             "Jet_nEmEFrac" : [],
-             "Jet_chargedMult" : [],
-             "Jet_vtxPt" : [],
-             "Jet_vtxMass" : [],
-             "Jet_vtx3DVal" : [],
-             "Jet_vtxNtracks" : [],
-             "Jet_vtx3DSig" : []}
+inputvar = bR.inputvar
 
-outputvars = {"Jet_regPt": [],
-              "Jet_regcorr" : []}
+inputvars = bR.inputvars
+outputvars = bR.outputvars
+
 
 #jetreg = JetRegression(weightfile) 
 
@@ -64,36 +32,45 @@ inputplots_regcorr = {}
 inputplot_regcorr = {}
 outputplots_regcorr = {}
 outputplots_pt = {}
+outputplots_eta = {}
 outputplots_mt = {}
 outputplots_leppt = {}
 outputplots_partonpt = {}
 
 #Categorize by regcorr factor
-for key in inputvar:                           
-    inputplot_regcorr.update({key : CatPlots(key, [0,0.55,0.65,0.75,0.85,0.95,1,1.05,1.15,1.25,1.35,1.45,2],"regcorr",True,True)})
+for key in inputvar:                              
+    inputplot_regcorr.update({key : CatPlots(key, [0,0.65,0.75,0.9,1,1.1,1.2,1.3,1.45,2],"regcorr","p_{T, Reg} / p_{T}",False,False)})
+    #inputplot_regcorr.update({key : CatPlots(key, [0,0.65,0.75,0.9,0.975,1.025,1.1,1.175,1.25,1.35,1.45,2],"regcorr",False,False)})
+    #inputplot_regcorr.update({key : CatPlots(key, [0,0.55,0.65,0.75,0.9,0.975,1.025,1.1,1.25,1.35,1.45,2],"regcorr",False,False)})
 for key in inputvars:    
-    inputplots_regcorr.update({key : CatPlots(key, [0,0.55,0.65,0.75,0.85,0.95,1,1.05,1.15,1.25,1.35,1.45,2],"regcorr",True,True)})
+    inputplots_regcorr.update({key : CatPlots(key, [0,0.65,0.75,0.9,1,1.1,1.2,1.3,1.45,2],"regcorr","p_{T, Reg} / p_{T}",False,False)})
+    #inputplots_regcorr.update({key : CatPlots(key, [0,0.65,0.75,0.9,0.975,1.025,1.1,1.175,1.25,1.35,1.45,2],"regcorr",False,False)})
+    #inputplots_regcorr.update({key : CatPlots(key, [0,0.55,0.65,0.75,0.9,0.975,1.025,1.1,1.25,1.35,1.45,2],"regcorr",False,False)})
 for key in outputvars:    
-    outputplots_regcorr.update({key : CatPlots(key,[0,0.55,0.65,0.75,0.85,0.95,1,1.05,1.15,1.25,1.35,1.45,2],"regcorr",True,True)})
+    outputplots_regcorr.update({key : CatPlots(key,[0,0.65,0.75,0.9,1,1.1,1.2,1.3,1.45,2],"regcorr","p_{T, Reg} / p_{T}",False,False)})
+    #outputplots_regcorr.update({key : CatPlots(key,[0,0.65,0.75,0.9,0.975,1.025,1.1,1.175,1.25,1.35,1.45,2],"regcorr",False,False)})
+    #outputplots_regcorr.update({key : CatPlots(key,[0,0.55,0.65,0.75,0.9,0.975,1.025,1.1,1.25,1.35,1.45,2],"regcorr",False,False)})
 #Categorize by Jet_pt
+for key in outputvars:
+    print "pt"
+    outputplots_pt.update({key : CatPlots(key, [0,50,75,100,150,200,300,600],"jetpt","p_{T}",False,False)})
 for key in outputvars:    
-    outputplots_pt.update({key : CatPlots(key, [0,50,75,100,150,200,300,600],"jetpt",False,False)})
-for key in outputvars:    
-    outputplots_mt.update({key : CatPlots(key, [0,50,75,100,150,200,400,600],"jetmt",False,False)})
+    outputplots_mt.update({key : CatPlots(key, [0,50,75,100,150,200,400,600],"jetmt","m_{T}",False,False)})
 #Categorize by Jet_lepton_pt
 for key in outputvars:    
-    outputplots_leppt.update({key : CatPlots(key, [0,30,50,80,100,120],"jetleppt",False,False)})
+    outputplots_leppt.update({key : CatPlots(key, [0,5,10,30,60,120],"jetleppt","p_{T, Lepton}",False,False)})
 #Categorize by PartonPt
 for key in outputvars:
-    outputplots_partonpt.update({key : CatPlots(key, [0,50,75,100,150,200,300,800],"jetpartonpt",False,False)})
-
+    outputplots_partonpt.update({key : CatPlots(key, [0,50,75,100,150,200,300,800],"jetpartonpt","p_{T, Parton}",False,False)})
+for key in outputvars:
+    outputplots_eta.update({key : CatPlots(key, [-2.4,-1.5,-0.75,-0.25,0.25,0.75,1.5,2.4],"jeteta","#eta",False,False)})
 
 
 
 for iev in range(tree.GetEntries()):
     if iev%10000 == 0:
         print iev
-    if iev == 100000:
+    if iev == 200000:
         break
     tree.GetEvent(iev)
     
@@ -138,6 +115,7 @@ for iev in range(tree.GetEntries()):
             inputvars["Jet_Mt"] = readvars["Jet_Mt"][ijet]
             inputvars["Jet_leadTrackPt"] = readvars["Jet_leadTrackPt"][ijet]
             inputvars["Jet_leptonPt"] = readvars["Jet_leptonPt"][ijet]
+            inputvars["Jet_leptonPt_all"] = readvars["Jet_leptonPt"][ijet]
             inputvars["Jet_leptonPtRel"] = readvars["Jet_leptonPtRel"][ijet]
             inputvars["Jet_leptonDeltaR"] = readvars["Jet_leptonDeltaR"][ijet]
             inputvars["Jet_nHEFrac"] = readvars["Jet_nHEFrac"][ijet]
@@ -160,6 +138,8 @@ for iev in range(tree.GetEntries()):
                 outputplots_regcorr[key].FillCatHistos(outputvars[key],outputvars["Jet_regcorr"])
             for key in outputplots_pt:
                 outputplots_pt[key].FillCatHistos(outputvars[key],inputvars["Jet_Pt"])
+            for key in outputplots_eta:
+                outputplots_eta[key].FillCatHistos(outputvars[key],inputvars["Jet_Eta"])
             for key in outputplots_mt:
                 outputplots_mt[key].FillCatHistos(outputvars[key],inputvars["Jet_Mt"])
             for key in outputplots_leppt:
@@ -203,6 +183,18 @@ for key in outputplots_pt:
     outputplots_pt[key].WriteStack(c1)
 
 PDFPrinting(outputfileprefix+'_pt',True,outputfile)
+
+del outputfile
+
+
+outputfile = ROOT.TFile(outputfileprefix+"_eta"+".root","RECREATE")    
+outputfile.cd()
+
+for key in outputplots_eta:
+    outputplots_eta[key].makeStack()
+    outputplots_eta[key].WriteStack(c1)
+
+PDFPrinting(outputfileprefix+'_eta',True,outputfile)
 
 del outputfile
 

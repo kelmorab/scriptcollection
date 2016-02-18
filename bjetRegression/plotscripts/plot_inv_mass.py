@@ -3,12 +3,12 @@ from rootutils import PDFPrinting
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0);
 
-isttH = True
+isttH = False
 german = True
-
+leptons = "none" # all, two, one, none
 
 if isttH:
-    inputfile1 = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttHbb.root")
+    inputfile1 = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0218/ttHbb.root")
 else:
     inputfile1 = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttbar.root")
 
@@ -25,24 +25,46 @@ else:
     histo_reg = ROOT.TH1F("reg","hadtopmass_reg",150,100,300)
     histo_reg.Sumw2()
 
-if isttH:
-    pdfout = PDFPrinting("bbMass")
-else:
-    pdfout = PDFPrinting("thadMass")
 
+if isttH:
+    pdfout = PDFPrinting("bbMass_ger_"+leptons)
+else:
+    pdfout = PDFPrinting("thadMass_ger")
 
 c1 = ROOT.TCanvas()
 
 selection_Odd = "Evt_Odd == 0"
-selection_ttH = "Evt_bbarMass > 0"
+if leptons is "all":
+    selection_ttH = "Evt_bbMass > 0"
+elif leptons is "two":
+    selection_ttH = "Evt_bbMass2Lep > 0"
+elif leptons is "one":
+    selection_ttH = "Evt_bbMass1Lep > 0"
+elif leptons is "none":
+    selection_ttH = "Evt_bbMass0Lep > 0"
+else:
+    print "error with leptons"
+    exit()
+
 selection_ttbar = "Evt_hadtopmass > 0"
 
 
 selection = "1"
 if isttH:
     selection = selection+ " && "+selection_ttH
-    variable_noreg = "Evt_bbarMass"
-    variable_reg = "Evt_regbbarMass"
+    if leptons is "all":
+        variable_noreg = "Evt_bbMass"
+        variable_reg = "Evt_regbbMass"
+    elif leptons is "two":
+        variable_noreg = "Evt_bbMass2Lep"
+        variable_reg = "Evt_regbbMass2Lep"
+    elif leptons is "one":
+        variable_noreg = "Evt_bbMass1Lep"
+        variable_reg = "Evt_regbbMass1Lep"
+    elif leptons is "none":
+        variable_noreg = "Evt_bbMass0Lep"
+        variable_reg = "Evt_regbbMass0Lep"
+
 else:
     selection = selection+ " && "+selection_Odd+" && "+selection_ttbar
     variable_noreg = "Evt_hadtopmass"
@@ -124,9 +146,9 @@ cms.SetTextFont(42)
 cms.SetTextSize(0.045)
 cms.SetNDC()
 if isttH:
-    label = ROOT.TLatex(0.74,0.908, 't#bar{t}H , H #rightarrow b#bar{b}')
+    label = ROOT.TLatex(0.6275,0.908, 'Sample: t#bar{t}H , H #rightarrow b#bar{b}')
 else:
-    label = ROOT.TLatex(0.88,0.908, 't#bar{t}')
+    label = ROOT.TLatex(0.77,0.908, 'Sample: t#bar{t}')
 label.SetTextFont(42)
 label.SetTextSize(0.045)
 label.SetNDC()

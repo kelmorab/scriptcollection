@@ -83,7 +83,7 @@ cms.SetTextFont(42)
 cms.SetTextSize(0.045)
 cms.SetNDC()
 
-label = ROOT.TLatex(0.74,0.908, 't#bar{t}H , H #rightarrow b#bar{b}')
+label = ROOT.TLatex(0.6275,0.908, 'Sample: t#bar{t}H , H #rightarrow b#bar{b}')
 label.SetTextFont(42)
 label.SetTextSize(0.045)
 label.SetNDC()
