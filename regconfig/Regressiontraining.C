@@ -25,12 +25,12 @@ void Regressiontraining(   )
   TMVA::Tools::Instance();
   
   // to get access to the GUI and all tmva macro
-  TString tmva_dir(TString(gRootDir) + "/tmva");
+  /*TString tmva_dir(TString(gRootDir) + "/tmva");
   if(gSystem->Getenv("TMVASYS"))
     tmva_dir = TString(gSystem->Getenv("TMVASYS"));
   gROOT->SetMacroPath(tmva_dir + "/test/:" + gROOT->GetMacroPath() );
   gROOT->ProcessLine(".L TMVARegGui.C");
-  
+  */
   
   char* outfileName = getenv("OUTPUTFILE");
   TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
@@ -69,7 +69,8 @@ void Regressiontraining(   )
    std::cout << "before fname" << endl;
    //Root file for Training
    TFile *input(0);
-   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbarforbReg0211.root";
+   TString fname = getenv("INPUTFILE");
+   //TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbarforbReg0211.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
 
@@ -93,7 +94,8 @@ void Regressiontraining(   )
    //factory->SetWeightExpression("1","Regression");
 
    //Cut on on samples
-   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_PartonFlav) == 5";
+   //TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_PartonFlav) == 5";
+   TCut mycut = getenv("REG_CUTS");
    
    std::cout << "Prepare Training" << endl;
    factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=1000000:SplitMode=Random:NormMode=NumEvents:!V" );
@@ -105,13 +107,11 @@ void Regressiontraining(   )
      std::cout << "Book BTDG" << endl;
 
      TString nTrees    = getenv("REG_BDTG_NTREES");
-     TString shrinkage = getenv("REG_BDTG_SHRK");
+     TString shrinkage = getenv("REG_BDTG_SHRINK");
      TString maxdepth  = getenv("REG_BDTG_MAXDEPTH");
      TString ncuts     = getenv("REG_BDTG_NCUTS");
      
-     std::cout << "nTrees" << nTrees << std::endl;
-
-     TString bookmethodstring = "!H:V:VerbosityLevel=Debug:NTrees="+nTrees+"::BoostType=Grad:Shrinkage="+shrinkage+":UseBaggedBoost:BaggedSampleFraction=0.5:nCuts="+ncuts+":MaxDepth="+maxdepth+":PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True";
+     TString bookmethodstring = "!H:NTrees="+nTrees+"::BoostType=Grad:Shrinkage="+shrinkage+":UseBaggedBoost:BaggedSampleFraction=0.5:nCuts="+ncuts+":MaxDepth="+maxdepth+":PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5";
      
      factory->BookMethod( TMVA::Types::kBDT, "BDTG", bookmethodstring);
      }
