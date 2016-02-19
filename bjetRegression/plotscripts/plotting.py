@@ -10,6 +10,9 @@ class plots():
     def __init__(self, key):
         self.key = key
         self.Titlestring = "title"
+        self.additionalLabels = []
+        self.manualLegendright = False
+        self.manualLegendleft = False
         if key == "Jet_Pt":
             self.setTH1(200,0,600)
             self.Titlestring = "Jet p_{T}"
@@ -96,6 +99,13 @@ class plots():
         label.SetNDC()
         return label    
 
+    def addLabel(self,xpos,ypos,text,angle,size = 0.045):
+        label = ROOT.TLatex(xpos,ypos,text)
+        label.SetTextFont(42)
+        label.SetTextSize(size)
+        label.SetNDC()
+        label.SetTextAngle(angle)
+        self.additionalLabels.append(label)
             
     def makeCMSstuff(self):
         simul = ROOT.TLatex(0.135, 0.908, 'CMS simulation')
@@ -120,7 +130,21 @@ class plots():
 
     def setSumw2(self, th1f):
         th1f.Sumw2()
-
+        
+    def setmanualegendsize(self,pos,x1,y1,x2,y2):
+        if pos is "right":
+            self.manualLegendright = True
+            self.legenx1r = x1
+            self.legeny1r = y1
+            self.legenx2r = x2
+            self.legeny2r = y2
+        if pos is "left":
+            self.manualLegendleft = True
+            self.legenx1l = x1
+            self.legeny1l = y1
+            self.legenx2l = x2
+            self.legeny2l = y2
+    
 class CatPlots(plots):    
 
     def __init__(self, key, cuts, categorizer, legendtext, symmetricCats = True, symmetricColor = True, sample = None):
@@ -311,7 +335,7 @@ class normPlots(plots):
 
     
     def makeStyle(self, maxyval, dofilling = False):
-        colorlist = [ROOT.kBlue, ROOT.kViolet-3,ROOT.kGreen+3,ROOT.kTeal-6]
+        colorlist = [ROOT.kViolet+9,ROOT.kViolet+1,ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen-3,ROOT.kGreen,ROOT.kGreen+2,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2,ROOT.kMagenta+2,ROOT.kPink+2,ROOT.kRed-4, ROOT.kBlue-5, ROOT.kYellow-6]
         self.setXTitle(self.key,self.histos[0])
         self.setYTitle(self.histos[0])
         self.histos[0].GetYaxis().SetRangeUser(0,maxyval*1.1)
@@ -331,9 +355,15 @@ class normPlots(plots):
                 legendtext.append(self.key+" "+str(i))
         specialpos = ["Jet_regcorr","Jet_corr"]
         if self.getKey() in specialpos:
-            leg = ROOT.TLegend(0.13,0.70,0.43,0.83)
+            if self.manualLegendleft:
+                leg = ROOT.TLegend(self.legenx1l,self.legeny1l,self.legenx2l,self.legeny2l)
+            else:    
+                leg = ROOT.TLegend(0.13,0.70,0.43,0.83)
         else:
-            leg = ROOT.TLegend(0.6,0.70,0.88,0.88)
+            if self.manualLegendright:
+                leg = ROOT.TLegend(self.legenx1r, self.legeny1r,self.legenx2r,self.legeny2r)
+            else:    
+                leg = ROOT.TLegend(0.6,0.70,0.88,0.88)
         leg.SetBorderSize(0)
         leg.SetTextFont(42)
         leg.SetFillStyle(0)
@@ -358,7 +388,6 @@ class normPlots(plots):
         legend = self.makeLegend(self.legendtext)
         stuff = "histoe"
         for histo in self.histos:
-            print stuff
             histo.Draw(stuff)
             if not stuff.endswith("same"):
                 stuff = stuff + " same"
@@ -372,6 +401,9 @@ class normPlots(plots):
         else:
             label = self.makeSampletext(samplestring)
             label.Draw("same")
+        if len(self.additionalLabels) > 0:
+            for label in self.additionalLabels:
+                label.Draw("same")
         canvas.SetTitle(self.key)
         canvas.SetName(self.key)
         canvas.Update()
