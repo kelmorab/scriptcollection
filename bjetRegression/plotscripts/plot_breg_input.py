@@ -24,16 +24,20 @@ for key in inputevtvars:
     inputevthistos.update({key : normPlots(key, True, 2, ["t#bar{t}H, H #rightarrow b#bar{b}","t#bar{t}"])})
 
 corr_eta_list = [{"Jet_corr": CatPlots("Jet_corr", [-2.4,-1.5,-0.75,-0.25,0.25,0.75,1.5,2.4],"jeteta","#eta",False,False, "ttHbb")},
-                 {"Jet_corr": CatPlots("Jet_corr", [-2.4,-1.5,-0.75,-0.25,0.25,0.75,1.5,2.4],"jeteta","#eat",False,False, "ttbar")}]
+                 {"Jet_corr": CatPlots("Jet_corr", [-2.4,-1.5,-0.75,-0.25,0.25,0.75,1.5,2.4],"jeteta","#eta",False,False, "ttbar")}]
 
 
 for ikey,key in enumerate(inputfile):
     tree = inputfile[key].Get("MVATree")
     print "Procession Sample:",key
     for iev in range(tree.GetEntries()):
-        if iev%10000 == 0:
-            print iev
-        if iev == 200000:
+        if iev <= 100000:
+            if iev%10000 == 0:
+                print iev
+        else:
+            if iev%50000 == 0:
+                print iev
+        if iev == 2000000:
             break
         tree.GetEvent(iev)
 

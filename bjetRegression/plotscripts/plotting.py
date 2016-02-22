@@ -8,6 +8,7 @@ from rootutils import PDFPrinting
 
 class plots():
     def __init__(self, key):
+        self.language = 0 #0: Englisch, 1: German
         self.key = key
         self.Titlestring = "title"
         self.additionalLabels = []
@@ -15,58 +16,94 @@ class plots():
         self.manualLegendleft = False
         if key == "Jet_Pt":
             self.setTH1(200,0,600)
-            self.Titlestring = "Jet p_{T}"
+            self.Titlestring = "Jet p_{T} (GeV)"
         elif key == "Jet_corr":
             self.setTH1(100,0.8,1.2)
             self.Titlestring = "Jet jecFactor('Uncorrected')"
         elif key == "Evt_Rho":
             self.setTH1(40,0,60)
-            self.Titlestring = "Event #rho"
+            if self.language == 1:
+                self.Titlestring = "#rho (GeV/Einheitsflaeche)"
+            else:
+                self.Titlestring = "Event #rho (GeV/unit area)"
         elif key == "Jet_Eta":
             self.setTH1(40,-2.4,2.4)
             self.Titlestring = "Jet #eta"
         elif key == "Jet_Mt":
             self.setTH1(200,0,600)
-            self.Titlestring = "Jet m_{T}"
+            self.Titlestring = "Jet m_{T} (GeV)"
         elif key == "Jet_leadTrackPt":
             self.setTH1(100,0,300)
-            self.Titlestring = "p_{T} of leading Track in Jet"
+            if self.language == 1:
+                self.Titlestring = "p_{T} der haertesten Spur im Jet (GeV)"
+            else:
+                self.Titlestring = "p_{T} of leading Track in Jet (GeV)"
         elif key == "Jet_leptonPt":
             self.setTH1(60,0,120)
-            self.Titlestring = "p_{T} of Lepton matched to Jet"
+            if self.language == 1:
+                self.Titlestring = "p_{T} des dem Jet zugeordneten Lepton (GeV)"
+            else:
+                self.Titlestring = "p_{T} of Lepton matched to Jet (GeV)"
         elif key == "Jet_leptonPtRel":
             self.setTH1(30,0,60)
-            self.Titlestring = "Rel. p_{T} of Lepton matched to Jet"
+            if self.language == 1:
+                self.Titlestring = "Rel. p_{T} zwischen Jet und zugeordnetem Lepton (GeV)"
+            else:
+                self.Titlestring = "Rel. p_{T} of Lepton matched and Jet (GeV)"
         elif key == "Jet_leptonDeltaR":
             self.setTH1(20,0,0.5)
-            self.Titlestring = "#Delta R of Lepton matched to Jet"
+            if self.language == 1:
+                self.Titlestring = "#Delta R zwischen Jet und zugeordnetem Lepton (GeV)"
+            else:
+                self.Titlestring = "#Delta R between Jet and matched Lepton"
         elif key == "Jet_leptonPt_all":
             self.setTH1(140,-120,120)
-            self.Titlestring = "p_{T} of Lepton matched to Jet"
+            if self.language == 1:
+                self.Titlestring = "p_{T} des dem Jet zugeordneten Lepton (GeV)"
+            else:
+                self.Titlestring = "p_{T} of Lepton matched to Jet (GeV)"
         elif key == "Jet_nHEFrac" or key == "Jet_nEmEFrac":
             self.setTH1(20,0,1)
             self.Titlestring = key
         elif key == "Jet_chargedMult":
             self.setTH1(35,0,70)
-            self.Titlestring = "Charged Multiplicity of Jet"
+            if self.language == 1:
+                self.Titlestring = "Anzahl geladener Teilchen im Jet"
+            else:
+                self.Titlestring = "Charged Multiplicity of Jet"
         elif key == "Jet_vtxPt":
             self.setTH1(100,0,200)
-            self.Titlestring = "p_{T} of Vertex"
+            self.Titlestring = "Vertex p_{T} (GeV)"
         elif key == "Jet_vtxMass":
             self.setTH1(14,0,7)
-            self.Titlestring = "Mass of Vertex"
+            if self.language == 1:
+                self.Titlestring = "Vertex Masse (GeV)"
+            else:
+                self.Titlestring = "Vertex Mass (GeV)"
         elif key == "Jet_vtx3DVal":
             self.setTH1(30,0,15)
-            self.Titlestring = "3D decay length value of Vertex"
+            if self.language == 1:
+                self.Titlestring = "3D Fluglaenge des Vertex (cm)"
+            else:
+                self.Titlestring = "3D decay length value of Vertex (cm)"
         elif key == "Jet_vtxNtracks":
             self.setTH1(13,-0.5,12.5)
-            self.Titlestring = "N_{tracks} of Vertex"
+            if self.language == 1:
+                self.Titlestring = "N_{Spuren} des Vertex"
+            else:
+                self.Titlestring = "N_{tracks} of Vertex"
         elif key == "Jet_vtx3DSig":
             self.setTH1(150,0,300)
-            self.Titlestring = "#sigma of 3D decay length value of Vertex"
+            if self.language == 1:
+                self.Titlestring = "#sigma der 3D Fluglaenge des Vertex (cm)"
+            else:
+                self.Titlestring = "#sigma of 3D decay length value of Vertex (cm)"
         elif key == "Jet_regPt":
             self.setTH1(200,0,600)
-            self.Titlestring = "Regressed Jet p_{T}"
+            if self.language == 1:
+                self.Titlestring = "Jet p_{T} nach Regression (GeV)"
+            else:
+                self.Titlestring = "Regressed Jet p_{T} (GeV)"
         elif key == "Jet_regcorr":
             self.setTH1(96,0.4,1.6)
             self.Titlestring = "p_{T, reg} / p_{T}"
@@ -82,7 +119,10 @@ class plots():
         th1f.SetTitle("")
     
     def setYTitle(self, th1f):
-        th1f.GetYaxis().SetTitle("arbitrary units")
+        if self.language == 1:
+            th1f.GetYaxis().SetTitle("Beliebige Einheiten")
+        else:
+            th1f.GetYaxis().SetTitle("arbitrary units")
         th1f.GetYaxis().SetTitleSize(0.05)
         th1f.GetYaxis().SetTitleOffset(0.75)
 
@@ -398,9 +438,9 @@ class normPlots(plots):
         if self.nHistos > 1:
             print "drawing legend"
             legend.Draw("same")
-        else:
-            label = self.makeSampletext(samplestring)
-            label.Draw("same")
+        if samplestring is not None:
+            samplelabel = self.makeSampletext(samplestring)
+            samplelabel.Draw("same")
         if len(self.additionalLabels) > 0:
             for label in self.additionalLabels:
                 label.Draw("same")

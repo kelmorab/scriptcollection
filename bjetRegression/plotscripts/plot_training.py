@@ -1,5 +1,5 @@
 import ROOT
-from plotting import *
+from plotting2 import *
 from rootutils import PDFPrinting
 import bRegVars as bR
 from JetRegression import JetRegression 
@@ -56,10 +56,9 @@ for isample,sample in enumerate(inputfile):
         for iev in range(tree.GetEntries()):
             if iev%10000 == 0:
                 print iev
-            if iev == 10000:
+            if iev == 150000:
                 break
             tree.GetEvent(iev)
-
 
             inputevtvars["Evt_Rho"] = tree.Evt_Rho
             for ijet in range(tree.N_Jets):
@@ -103,9 +102,14 @@ for isample,sample in enumerate(inputfile):
     outputfile.cd()
 
     pdfout = PDFPrinting(sample+"trainingcomp"+postfix)
-
+    
+    print sample
+    
     for histokey  in outputhistos:
         outputhistos[histokey].WriteHisto(c1, sample, False, False, pdfout)
 
     pdfout.closePDF()
+    
+    del c1
+
 

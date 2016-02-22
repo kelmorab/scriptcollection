@@ -4,8 +4,8 @@ ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0);
 
 isttH = False
-german = True
-leptons = "none" # all, two, one, none
+german = False
+leptons = "two" # all, two, one, none
 
 if isttH:
     inputfile1 = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0218/ttHbb.root")
@@ -29,7 +29,7 @@ else:
 if isttH:
     pdfout = PDFPrinting("bbMass_ger_"+leptons)
 else:
-    pdfout = PDFPrinting("thadMass_ger")
+    pdfout = PDFPrinting("thadMass")
 
 c1 = ROOT.TCanvas()
 
@@ -157,11 +157,11 @@ histo_reg.Draw("histoe")
 #Make Style
 histo_reg.SetTitle("")
 if isttH:
-    histo_reg.GetXaxis().SetTitle("m(H #rightarrow b#bar{b})")
+    histo_reg.GetXaxis().SetTitle("m(H #rightarrow b#bar{b}) (GeV)")
     histo_reg.GetYaxis().SetTitleOffset(0.9)
     histo_reg.GetXaxis().SetTitleOffset(0.7)
 else:
-    histo_reg.GetXaxis().SetTitle("m(t_{had})")   
+    histo_reg.GetXaxis().SetTitle("m(t_{had}) (GeV)")   
     histo_reg.GetYaxis().SetTitleOffset(0.9)
     histo_reg.GetXaxis().SetTitleOffset(0.75)
 
