@@ -41,7 +41,7 @@ class plots():
         elif key == "Jet_leptonPt":
             self.setTH1(60,0,120)
             if self.language == 1:
-                self.Titlestring = "p_{T} des dem Jet zugeordneten Lepton (GeV)"
+                self.Titlestring = "p_{T} des dem Jet zugeordneten Lepton (Ge^1V)"
             else:
                 self.Titlestring = "p_{T} of Lepton matched to Jet (GeV)"
         elif key == "Jet_leptonPtRel":
@@ -107,25 +107,49 @@ class plots():
         elif key == "Jet_regcorr":
             self.setTH1(96,0.4,1.6)
             self.Titlestring = "p_{T, reg} / p_{T}"
+        elif key == "Jet_PtRatioPartonJet":
+            self.setTH1(60,0,3)
+            self.Titlestring = "p_{T, Parton} / p_{T, Jet} "
+        elif key == "Jet_PartonPt" or key == "Jet_MatchedPartonPt":
+            self.setTH1(200,0,600)
+            self.Titlestring = "Matched Parton p_{T} (GeV)"
         else:
             print "Key error!",key,"not supported."
             exit()
+        
+    #call from script, to change language caption
+    def changeLanguage(lang):
+        if lang == "german":
+            self.language = 1
+        elif lang == "english":
+            self.language = 0
+        else:
+            print "Not supported language. Set back to default (english)"
+            self.language = 0
 
-            
-    def setXTitle(self, key, th1f):
-        th1f.GetXaxis().SetTitle(self.Titlestring)
+    #is called in memberfunction
+    def setXTitle(self, key, th1f, string = None):
+        if string is None:
+            th1f.GetXaxis().SetTitle(self.Titlestring)
+        else:
+            th1f.GetXaxis().SetTitle(string)
         th1f.GetXaxis().SetTitleSize(0.05)
         th1f.GetXaxis().SetTitleOffset(0.75)
         th1f.SetTitle("")
-    
-    def setYTitle(self, th1f):
-        if self.language == 1:
-            th1f.GetYaxis().SetTitle("Beliebige Einheiten")
+
+    #is called in memberfunction
+    def setYTitle(self, th1f, string = None):
+        if string is None:
+            if self.language == 1:
+                th1f.GetYaxis().SetTitle("Beliebige Einheiten")
+            else:
+                th1f.GetYaxis().SetTitle("arbitrary units")
         else:
-            th1f.GetYaxis().SetTitle("arbitrary units")
+            th1f.GetYaxis().SetTitle(string)
         th1f.GetYaxis().SetTitleSize(0.05)
         th1f.GetYaxis().SetTitleOffset(0.75)
 
+    #is called in memberfunction
     def makeSampletext(self,samplestring):
         if samplestring is "ttHbb":
             label = ROOT.TLatex(0.6275,0.908, 'Sample: t#bar{t}H , H #rightarrow b#bar{b}')
@@ -138,7 +162,8 @@ class plots():
         label.SetTextSize(0.045)
         label.SetNDC()
         return label    
-
+        
+    #call from script, to add additional labels to plot
     def addLabel(self,xpos,ypos,text,angle,size = 0.045):
         label = ROOT.TLatex(xpos,ypos,text)
         label.SetTextFont(42)
@@ -146,7 +171,8 @@ class plots():
         label.SetNDC()
         label.SetTextAngle(angle)
         self.additionalLabels.append(label)
-            
+
+    #is called in memberfunction
     def makeCMSstuff(self):
         simul = ROOT.TLatex(0.135, 0.908, 'CMS simulation')
         simul.SetTextFont(42)
@@ -163,14 +189,17 @@ class plots():
     def getKey(self):
         return self.key
 
+    #is called, then initializing histograms
     def setTH1(self, bins, xmin, xmax):
         self.bins = bins
         self.xmin = xmin
         self.xmax = xmax
 
+    #is called in memberfunction
     def setSumw2(self, th1f):
         th1f.Sumw2()
         
+    #call in script, to change position of legend
     def setmanualegendsize(self,pos,x1,y1,x2,y2):
         if pos is "right":
             self.manualLegendright = True
@@ -184,7 +213,9 @@ class plots():
             self.legeny1l = y1
             self.legenx2l = x2
             self.legeny2l = y2
-    
+
+
+#Class to make stackplots    
 class CatPlots(plots):    
 
     def __init__(self, key, cuts, categorizer, legendtext, symmetricCats = True, symmetricColor = True, sample = None):
@@ -287,9 +318,6 @@ class CatPlots(plots):
             
         self.makeStyle()
         self.Stackplot = ROOT.THStack("Stack"+self.key,"Stack "+self.key)
-
-        
-        
         #for i in range(len(self.histokeys)/2):
         #    print self.histokeys[i], self.histokeys[(len(self.histokeys)-1)-i]
          #   self.Stackplot.Add(self.Cathistos[self.histokeys[i]])            
@@ -353,8 +381,17 @@ class CatPlots(plots):
                 if element == self.Catlookup[key]["left"]:
                     self.leg.AddEntry(self.Cathistos[key],str(self.Catlookup[key]["left"])+" <= "+categorizer+" < "+str(self.Catlookup[key]["right"]))
                     break
+                    
+    def getHistos(self, getstack = True):
+        hlist = []
+        if getstack:
+            hlist = [self.Stackplot]
+        else:
+            for key in self.Cathistos:
+                hlist.append(self.Cathistos[key])
+        return hlist
 
-
+#Class to make "normal" histogramms
 class normPlots(plots):
     def __init__(self, key, comparison = False, nComparisons = 2, legendtext = []):
         plots.__init__(self, key)
@@ -451,6 +488,57 @@ class normPlots(plots):
         if pdfout is not None:
             pdfout.addCanvastoPDF(canvas)
         
+    def getHistos(self):
+        hlist = []
+        for histo in self.histos:
+            hlist.append(histo)
+        return hlist
+
+
+class TwoDplot(plots):
+    def __init__(self, key1, key2):
+        plots.__init__(self, key1)
+        self.key1bins = self.bins
+        self.key1min = self.xmin
+        self.key1max = self.xmax
+        self.key1title = self.Titlestring
+        plots.__init__(self, key2)
+        self.key2bins = self.bins
+        self.key2min = self.xmin
+        self.key2max = self.xmax
+        self.key2title = self.Titlestring
+        
+        self.combinedkey = key1+"__"+key2
+        
+        self.histo = ROOT.TH2F(self.combinedkey,self.combinedkey,self.key1bins,self.key1min,self.key1max,self.key2bins,self.key2min,self.key2max)
+
+        self.makeStyle()
+
+    def makeStyle(self):
+        self.setXTitle(None,self.histo,self.key1title )
+        self.setYTitle(self.histo, self.key2title)
+        
+    def FillTwoDplot(self, key1val, key2val):
+        self.histo.Fill(key1val, key2val)
+
+    def WriteTwoDPlot(self, canvas, pdfout = None):
+        self.histo.Draw("colz")
+        simul, cms = self.makeCMSstuff()
+        simul.Draw("same")
+        cms.Draw("same")
+        canvas.SetTitle(self.combinedkey)
+        canvas.SetName(self.combinedkey)
+        canvas.Update()
+        canvas.Write()
+        
+
+    def GetTH2F(self):
+        return self.histo
+        
+    def GetCombinedKey(self):
+        return self.combinedkey
+
+    
 
 def ScaletoInt(th1f):
     th1f.Scale(1/float(th1f.Integral()))

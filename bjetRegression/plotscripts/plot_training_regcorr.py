@@ -1,9 +1,11 @@
 import ROOT
-from plotting2 import *
+from plotting import *
 from rootutils import PDFPrinting
 import bRegVars as bR
 from JetRegression import JetRegression 
 import glob
+from exporthistos import *
+
 
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0);
@@ -17,32 +19,21 @@ inputevtvars = bR.inputvar
 inputfile = {"ttHbb" : ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttHbb.root")}
 #             "ttbar" : ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0214/ttbar.root")}
 
-weightpath = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbarbReg0211_testing/weights"
+weightpath = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/weights"
 
 
 weightfiles = glob.glob(weightpath+"/*.xml")
 print weightfiles
 
-trainings = []
+trainings = ["Target: p_{T, Parton}, nCuts: 20", "Target: p_{T,Jet} / p_{T,Parton}, nCuts: 20","Target: p_{T, Parton}, nCuts: 40"]
+flag = [False, True, False]
 
-nTrees_list = [" 200"," 600","1000","1400"]
-Shrinkage_list = [0.1,0.5]
-nCuts_list = [20]
-MaxDepth_list = [2,3]
-
-for nTrees in nTrees_list:
-    for shrink in Shrinkage_list:
-        for maxdepth in MaxDepth_list:
-            for nCuts in nCuts_list:
-                trainings.append("1: "+str(nTrees)+" | 2: "+str(shrink)+ " | 3: "+str(maxdepth)+" | 4: "+str(nCuts))
-print trainings
-print len(trainings)
 outputhistos = {}
 for key in outputvars:
-    outputhistos.update({key : normPlots(key, True, len(trainings), trainings)})
-    outputhistos[key].addLabel(0.92,0.325,"1: nTrees, 2: Shrinkage, 3: MaxDepth, 4:nCuts",90,0.03)
-    outputhistos[key].setmanualegendsize("right",0.6,0.3,0.88,0.88)
-    outputhistos[key].setmanualegendsize("left",0.13,0.3,0.43,0.83)
+    outputhistos.update({key : normPlots(key, True, len(trainings), trainings )})
+    outputhistos[key].addLabel(0.92,0.325,"nTrees: 200, Shrinkage: 0.1, MaxDepth: 3",90,0.03)
+    #outputhistos[key].setmanualegendsize("right",0.6,0.3,0.88,0.88)
+    #outputhistos[key].setmanualegendsize("left",0.13,0.3,0.43,0.83)
 
 
 raw_input("Press Ret")
@@ -57,7 +48,7 @@ for isample,sample in enumerate(inputfile):
         for iev in range(tree.GetEntries()):
             if iev%10000 == 0:
                 print iev
-            if iev == 150000:
+            if iev == 10000:
                 break
             tree.GetEvent(iev)
 
@@ -85,10 +76,13 @@ for isample,sample in enumerate(inputfile):
                     inputvars = inputjetvars
                     inputvars.update(inputevtvars)
 
-                    regpt = regression.evalReg(inputvars)
-
-                    outputhistos["Jet_regPt"].FillnormHisto(regpt,iweight)
-                    outputhistos["Jet_regcorr"].FillnormHisto(regpt/inputjetvars["Jet_Pt"],iweight)
+                    regout = regression.evalReg(inputvars)
+                    if flag[iweight]:
+                        outputhistos["Jet_regPt"].FillnormHisto((1/regout)*inputjetvars["Jet_Pt"],iweight)
+                        outputhistos["Jet_regcorr"].FillnormHisto(1/regout,iweight)
+                    else:
+                        outputhistos["Jet_regPt"].FillnormHisto(regout,iweight)
+                        outputhistos["Jet_regcorr"].FillnormHisto(regout/inputjetvars["Jet_Pt"],iweight)
                     
         del regression
         #if iweight == 0:
@@ -97,19 +91,26 @@ for isample,sample in enumerate(inputfile):
     c1 = ROOT.TCanvas()
     c1.cd()
 
-    postfix = ""
+    postfix = "4"
     
-    outputfile = ROOT.TFile(key+"inputvars"+postfix+".root","RECREATE")
+    outputfile = ROOT.TFile(key+"regcorrtraining"+postfix+".root","RECREATE")
     outputfile.cd()
+    
 
-    pdfout = PDFPrinting(sample+"trainingcomp"+postfix)
+    
+    pdfout = PDFPrinting(sample+"regcorrtraining"+postfix)
     
     print sample
     
+    histosforexport = []
+
     for histokey  in outputhistos:
         outputhistos[histokey].WriteHisto(c1, sample, False, False, pdfout)
+        histosforexport.append(outputhistos[histokey])
 
     pdfout.closePDF()
+
+    exporthistos("exported", histosforexport)
     
     del c1
 

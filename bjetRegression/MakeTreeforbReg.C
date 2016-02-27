@@ -16,19 +16,19 @@ void MakeTreeforbReg(   )
 {
   
   //Create file for output
-  //TString outfilename("bRegTree.root");
+  //TString outfilename("test.root");
   char* outfilename = getenv("OUTPUTFILE");
   TFile* outputFile = new TFile( outfilename, "RECREATE" );
-
+  
 
   //Set up input tree
   TChain* InputChain = new TChain("MVATree");
-  //TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/testtrees/jetreg_0113_1_nominal_Tree.root";
+  //TString filenames = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbar_nominal.root";
   char* filenames = getenv("INPUTFILES");
   string buf;
   stringstream ss(filenames); 
   while (ss >> buf){
-    InputChain->Add(buf.c_str());
+    InputChain->Add(buf.c_str());  
   }
 
 
@@ -78,7 +78,7 @@ void MakeTreeforbReg(   )
   outputFile->cd();
   TTree *OutputTree = new TTree("bRegTree","Tree for bJetRegression training");
 
-  float E_Odd, E_Rho, E_Weight,J_Pt,J_corr,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt;
+  float E_Odd, E_Rho, E_Weight,J_Pt,J_corr,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt, J_RPJ, J_RLJ, J_RVJ;
 
   OutputTree->Branch("Evt_Odd",&E_Odd);                 
   OutputTree->Branch("Evt_Rho",&E_Rho);                       
@@ -109,7 +109,9 @@ void MakeTreeforbReg(   )
   OutputTree->Branch("Jet_PartonFlav",&J_PF);     
   OutputTree->Branch("Jet_PartonPt",&J_PPt);
 
-
+  OutputTree->Branch("Jet_PtRatioPartonJet",&J_RPJ);
+  OutputTree->Branch("Jet_PtRatioLeptonJet",&J_RLJ);
+  OutputTree->Branch("Jet_PtRatioVertexJet",&J_RVJ);
 
   //Fill output tree
   long nEvents = InputChain->GetEntries();
@@ -142,7 +144,9 @@ void MakeTreeforbReg(   )
       J_vS = Jet_vtx3DSig[j];
       J_PF = Jet_PartonFlav[j];
       J_PPt = Jet_PartonPt[j];
-      
+      J_RPJ = Jet_PartonPt[j] / Jet_pt[j];
+      J_RLJ = Jet_leptonPt[j] / Jet_pt[j];
+      J_RVJ = Jet_vtxPt[j] / Jet_pt[j];
       OutputTree->Fill();
     }
   }

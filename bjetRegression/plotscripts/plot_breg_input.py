@@ -2,6 +2,8 @@ import ROOT
 from plotting import *
 from rootutils import PDFPrinting
 import bRegVars as bR
+from exporthistos import *
+
 
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0);
@@ -37,7 +39,7 @@ for ikey,key in enumerate(inputfile):
         else:
             if iev%50000 == 0:
                 print iev
-        if iev == 2000000:
+        if iev == 200:
             break
         tree.GetEvent(iev)
 
@@ -77,7 +79,9 @@ inputhistos.update(inputevthistos)
 c1 = ROOT.TCanvas()
 c1.cd()
 
-postfix = "_test"
+histosforexport = []
+
+postfix = "_test_1"
 
 outputfile = ROOT.TFile(sample+"inputvars"+postfix+".root","RECREATE")
 outputfile.cd()
@@ -88,6 +92,7 @@ fillhisto = False
 
 for key in inputhistos:
     inputhistos[key].WriteHisto(c1, None, fillhisto, True, pdfout)
+    histosforexport.append(inputhistos[key])
 
 keylist = []
 for key in inputfile:
@@ -96,6 +101,9 @@ for key in inputfile:
 for ih, Cathist in enumerate(corr_eta_list):
     Cathist["Jet_corr"].makeStack()
     Cathist["Jet_corr"].WriteStack(c1, pdfout)
+    histosforexport.append(Cathist["Jet_corr"])
+
+exporthistos("exported_input", histosforexport)
 
 pdfout.closePDF()
 

@@ -32,11 +32,11 @@ void Regressiontraining(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
   
    
-   TString outfileName( "BReg_0213.root" );
+   TString outfileName( "BReg_0225_nCuts40.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
    
 
-   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression", outputFile,"V:!Silent:Color:DrawProgressBar" );
+   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_nCuts40", outputFile,"V:!Silent:Color:DrawProgressBar" );
    
    //Add Variables to factory
    factory->AddVariable("Jet_Pt","Jet_pt","units", 'F'); 
@@ -103,7 +103,7 @@ void Regressiontraining(   )
 
    if (usebdt) {
      std::cout << "Book BTDG" << endl;
-     factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=200::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=3:PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True" );
+     factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=200::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=40:MaxDepth=3:PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True" );
      }
    else {
      std::cout << "Book ANN" << endl;

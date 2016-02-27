@@ -24,6 +24,9 @@ class JetRegression():
         self.Jet_vtx3DVal = array.array('f',[0])
         self.Jet_vtxNtracks= array.array('f',[0])
         self.Jet_vtx3DSig = array.array('f',[0])
+        self.sepc = array.array('f',[0])
+
+        
         if(False):
             reader.AddVariable("Jet_pt",self.Jet_pt ); 
             reader.AddVariable("Jet_corr",self.Jet_corr );
@@ -60,10 +63,14 @@ class JetRegression():
             reader.AddVariable("Jet_vtx3DVal",self.Jet_vtx3DVal );
             reader.AddVariable("Jet_vtxNtracks",self.Jet_vtxNtracks );
             reader.AddVariable("Jet_vtx3DSig",self.Jet_vtx3DSig );
+
+            reader.AddSpectator("Jet_PartonFlav",self.sepc);
+            reader.AddSpectator("Jet_Flav", self.sepc);
+            reader.AddSpectator("Evt_Odd", self.sepc);
         reader.BookMVA(self.name,self.weights)
         self.reader=reader
 
-    def evalReg(self, inputvars):
+    def evalReg(self, inputvars, printresult = False):
         self.Jet_pt[0] = inputvars["Jet_Pt"]
         self.Jet_corr[0] = inputvars["Jet_corr"]
         self.rho[0] = inputvars["Evt_Rho"]
@@ -81,4 +88,7 @@ class JetRegression():
         self.Jet_vtx3DVal[0] = inputvars["Jet_vtx3DVal"]
         self.Jet_vtxNtracks[0] = inputvars["Jet_vtxNtracks"]
         self.Jet_vtx3DSig[0] = inputvars["Jet_vtx3DSig"]
-        return self.reader.EvaluateRegression(self.name)[0]
+        result  = self.reader.EvaluateRegression(self.name)[0]
+        if printresult:
+            print result
+        return result
