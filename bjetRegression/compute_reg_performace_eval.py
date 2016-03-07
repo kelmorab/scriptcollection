@@ -4,6 +4,7 @@ import sys
 from plotscripts.plotting import *
 from plotscripts.rootutils import PDFPrinting
 from regressionTools import computeMutualInfo
+from array import array
 
 ROOT.gStyle.SetOptStat(0);
 ROOT.gROOT.SetBatch(True)
@@ -19,22 +20,28 @@ for key in inputfile.GetListOfKeys():
         testtreekey = key
     if key.GetName() == "TrainTree":
         traintreekey = key
-    print key
+    #print key
 
 inputvardir = inputfile.Get(idir.GetName())
 
-usetesttree = False
+usetesttree = True
 useboth = False
-keylist = ["Jet_regPt"]
+keylist = []
+arraydict = {}
 for key in inputvardir.GetListOfKeys():
     if key.GetClassName() == 'TH1F':
         keylist.append(inputvardir.Get(key.GetName()).GetName().split("__")[0]) #Get key for plotting module from inputvar histo
-
+        arraydict.update({ inputvardir.Get(key.GetName()).GetName().split("__")[0] : array('f',[0])})
+keylist.append("Jet_regPt")
+arraydict.update({"Jet_regPt" : array('f',[0])})
 
 print keylist
 
+    
 
 
+print ""
+print ""
 
 TwoDdic = {}
 
@@ -57,33 +64,56 @@ else:
 
 
 
-
+nEntries = 0
 
 for tree in trees:
     print "Starting with tree",tree
     nEntries = tree.GetEntries()
-    for ie in range(nEntries):
+    for key in keylist:
+        if key == "Jet_regPt":
+            tree.SetBranchAddress("BDTG", arraydict[key])
+        else:
+            tree.SetBranchAddress(key, arraydict[key])
+    
+    xmin = 1000000000
+    xmax = -1000000000
+    
+    rV = []
+    tV = []
+    wV = []
 
+    for ie in range(nEntries):
+    
         if ie%10000 == 0:
             print ie
             
         entryValues = {}
         tree.GetEvent(ie)
-    
-        for branch in tree.GetListOfBranches():
-            if branch.GetName() in keylist:
-                entryValues.update({branch.GetName() : branch.GetLeaf(branch.GetName()).GetValue()})
-                if branch.GetName() == "BDTG":
-                    print "hallo"
-                    entryValues.update({"Jet_regPt" : branch.GetLeaf(branch.GetName()).GetValue()})
-            
-        #print entryValues
         for key in TwoDdic:
             name0 = key.split("__")[0]
             name1 = key.split("__")[1]
-            TwoDdic[key].FillTwoDplot(entryValues[name0],entryValues[name1])
+            TwoDdic[key].FillTwoDplot(arraydict[name0][0],arraydict[name1][0])
+        #find max/min
+        xmin = min(xmin, min(arraydict["Jet_PartonPt"][0],arraydict["Jet_regPt"][0]))
+        xmax = max(xmax, max(arraydict["Jet_PartonPt"][0],arraydict["Jet_regPt"][0]))
+        
+        tV.append(arraydict["Jet_PartonPt"][0])
+        rV.append(arraydict["Jet_regPt"][0])
+        wV.append(1)
 
 
+hist  = ROOT.TH2F( "hist",  "hist",  150, xmin, xmax, 100, xmin, xmax );
+#histT = ROOT.TH2F( "histT", "histT", 150, xmin, xmax, 100, xmin, xmax );
+
+for iev in range(nEntries):
+    #d = rV[iev]-tV[iev]
+    hist.Fill(rV[iev],tV[iev],wV[iev])
+    
+
+print computeMutualInfo(hist)
+
+
+exit()
 
 """
 c1 = ROOT.TCanvas()
@@ -119,3 +149,5 @@ for i in range(len(milist)):
     res = res + milist[i][1]
 
 print res/(len(milist)-1)
+
+

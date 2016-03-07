@@ -14,8 +14,8 @@ def computeMutualInfo( TH2F ):
     mutualinfo = 0
     maxBinX = h.GetNbinsX()
     maxBinY = h.GetNbinsY()
-    for x in range(maxBinX):
-        for y in range(maxBinY):
+    for x in range(maxBinX+1):
+        for y in range(maxBinY+1):
             pxy = h.GetBinContent(x,y)/integral
             px = h.Integral(x,x,1,maxBinY)/integral
             py = h.Integral(1,maxBinX,y,y)/integral
