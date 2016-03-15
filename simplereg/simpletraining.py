@@ -22,6 +22,7 @@ factory = TMVA.Factory( "TMVARegression"+prefix, outputFile,"V:!Silent:Color:Dra
 
 #Add Variables
 factory.AddVariable("var0","var0","units",'F')
+#factory.AddVariable("var3","var3","units",'F')
 factory.AddVariable("var1","var1","units",'F')
 #factory.AddVariable("var2","var2","units",'F')
 #Add Target
@@ -35,7 +36,7 @@ factory.AddRegressionTree( tree, weight )
 
 cut = TCut("Evt_Odd == 1")
 
-factory.PrepareTrainingAndTestTree( cut, "V:VerboseLevel=Debug:nTrain_Regression=10000:nTest_Regression=100000:SplitMode=Random:NormMode=NumEvents:!V" )
+factory.PrepareTrainingAndTestTree( cut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=500000:SplitMode=Random:NormMode=NumEvents:!V" )
 
 #Book all methods
 if useBDT:

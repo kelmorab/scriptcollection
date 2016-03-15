@@ -7,7 +7,7 @@ from rootutils import PDFPrinting
 
 
 class plots():
-    def __init__(self, key):
+    def __init__(self, key, customparam = None):
         self.language = 0 #0: Englisch, 1: German
         self.key = key
         self.Titlestring = "title"
@@ -114,8 +114,16 @@ class plots():
             self.setTH1(200,0,600)
             self.Titlestring = "Matched Parton p_{T} (GeV)"
         else:
-            print "Key error!",key,"not supported."
-            exit()
+            if customparam is not None:
+                if len(customparam) == 3:
+                    self.setTH1(customparam[0],customparam[1],customparam[2])
+                    self.Titlestring = key
+                else:
+                    print "Error with custom parameters! Use exactly 3 parameters."
+                    exit()
+            else:
+                print "Key error!",key,"not supported."
+                exit()
         
     #call from script, to change language caption
     def changeLanguage(lang):
@@ -218,8 +226,8 @@ class plots():
 #Class to make stackplots    
 class CatPlots(plots):    
 
-    def __init__(self, key, cuts, categorizer, legendtext, symmetricCats = True, symmetricColor = True, sample = None):
-        plots.__init__(self, key)
+    def __init__(self, key, cuts, categorizer, legendtext, symmetricCats = True, symmetricColor = True, sample = None, customparam = None):
+        plots.__init__(self, key, customparam)
         self.samplestring = sample
         if len(cuts) < 3: 
             print "More cuts needed"
@@ -393,8 +401,8 @@ class CatPlots(plots):
 
 #Class to make "normal" histogramms
 class normPlots(plots):
-    def __init__(self, key, comparison = False, nComparisons = 2, legendtext = []):
-        plots.__init__(self, key)
+    def __init__(self, key, comparison = False, nComparisons = 2, legendtext = [], customparam = None):
+        plots.__init__(self, key, customparam)
         if comparison:
             self.nHistos = nComparisons
         else:
@@ -496,13 +504,13 @@ class normPlots(plots):
 
 
 class TwoDplot(plots):
-    def __init__(self, key1, key2):
-        plots.__init__(self, key1)
+    def __init__(self, key1, key2, customparam1 = None,  customparam2 = None):
+        plots.__init__(self, key1,customparam1)
         self.key1bins = self.bins
         self.key1min = self.xmin
         self.key1max = self.xmax
         self.key1title = self.Titlestring
-        plots.__init__(self, key2)
+        plots.__init__(self, key2,customparam2)
         self.key2bins = self.bins
         self.key2min = self.xmin
         self.key2max = self.xmax
