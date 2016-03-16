@@ -17,4 +17,4 @@ Training script for b-Jet Regression
 
 1. Edit config.py
 2. python genescrips.py config.py
-3. change to outputdir and use sup.py to submit
+3. change to outputdir and use sup.py to submit (change memory!)

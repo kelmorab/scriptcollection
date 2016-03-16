@@ -131,9 +131,24 @@ void MakeTreeforbReg(   )
       J_Mt = Jet_Mt[j];
       J_lTPt = Jet_leadTrackPt[j];
       J_Flav = Jet_Flav[j];
-      J_lPt = Jet_leptonPt[j];
+      if (Jet_leptonPt[j] == -99){
+	J_lPt = -9;
+      }
+      else {
+	J_lPt = Jet_leptonPt[j];
+      }
+      if (Jet_leptonPtRel[j] == -99) {
+	J_lPtRel = -9;
+      }
+      else {
       J_lPtRel = Jet_leptonPtRel[j];
-      J_lDR = Jet_leptonDeltaR[j];
+      }
+      if (Jet_leptonDeltaR[j] == -99) {
+	J_lDR = -9;
+      }
+      else {
+	J_lDR = Jet_leptonDeltaR[j];
+      }
       J_nhef = Jet_nHEFrac[j];
       J_nemef = Jet_nEMEFrac[j];
       J_chM = Jet_chMult[j];
