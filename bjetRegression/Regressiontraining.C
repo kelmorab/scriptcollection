@@ -33,11 +33,11 @@ void Regressiontraining(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
   
    
-   TString outfileName( "BReg_0323_ratiotest_Jet_D_Parton_2.root" );
+   TString outfileName( "BReg_0329_oldVars.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
    
 
-   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0323_ratiotest_Jet_D_Parton_2", outputFile,"V:!Silent:Color:DrawProgressBar" );
+   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0329_oldVars", outputFile,"V:!Silent:Color:DrawProgressBar" );
    
    //Add Variables to factory
    factory->AddVariable("Jet_Pt","Jet_pt","units", 'F'); 
@@ -58,19 +58,20 @@ void Regressiontraining(   )
    factory->AddVariable("Jet_vtxNtracks","Jet_vtxNtrk","units", 'F');
    factory->AddVariable("Jet_vtx3DSig","Jet_vtx3deL","units", 'F');
    
-   factory->AddTarget( "Jet_PartonPt / Jet_Pt" ); 
+   factory->AddTarget( "Jet_MatchedPartonPt" ); 
 
-   factory->AddSpectator( "Jet_PartonPt");
-   factory->AddSpectator( "Jet_PartonFlav" );
+   //factory->AddSpectator( "Jet_PartonPt");
+   factory->AddSpectator( "Jet_MatchedPartonFlav" );
    factory->AddSpectator( "Jet_Flav" );
    factory->AddSpectator( "Evt_Odd" );
-   
-
+   factory->AddSpectator("N_PrimaryVertices");
+   factory->AddSpectator("Jet_totHEFrac"); 
+   factory->AddSpectator("Jet_nEmEFrac");
    
    std::cout << "before fname" << endl;
    //Root file for Training
    TFile *input(0);
-   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbarforbReg0315.root";
+   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0329/ttbarinclforbReg0329.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
 
@@ -94,10 +95,10 @@ void Regressiontraining(   )
    factory->SetWeightExpression("Weight","Regression");
 
    //Cut on on samples
-   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_PartonFlav) == 5 && Jet_Eta <= 2.4";
+   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_MatchedPartonFlav) == 5 && Jet_Eta <= 2.4";
    
    std::cout << "Prepare Training" << endl;
-   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=200000:SplitMode=Random:NormMode=NumEvents:!V" );
+   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=300000:SplitMode=Random:NormMode=NumEvents:!V" );
    //factory->PrepareTrainingAndTestTree( mycut, "nTrain_Regression=0:nTest_Regression=0:SplitMode=Random:NormMode=NumEvents:!V" );
    
    bool usebdt = true;
