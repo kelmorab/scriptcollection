@@ -20,26 +20,33 @@ from regressionTools import *
 #-------------------------------------------------------------------------------------#
 # Set Variables
 singlemode = False
+useglob = False
 
 if not singlemode:
-    filenames = glob(str(sys.argv[1])+"/*.root")
-    inputfiles = map(lambda x : ROOT.TFile(x), filenames)
+    if useglob:
+        filenames = glob(str(sys.argv[3])+"/*.root")
+    else:
+        filenames = sys.argv[3:] 
+    #inputfiles = map(lambda x : ROOT.TFile(x), filenames)
     names = map(lambda x : x.split("/")[-1][:-5], filenames)
     
 else:
-    filenames = [sys.argv[1]]
-    inputfiles = [ROOT.TFile(sys.argv[1])]
+    filenames = [sys.argv[3]]
+    #inputfiles = [ROOT.TFile(sys.argv[3])]
     names = map(lambda x : x.split("/")[-1][:-5], filenames)
     
 
+#print inputfiles
 
-usetesttree = True
+usetesttree = True #if False use train tree
+ 
+outputfolder = "/nfs/dust/cms/user/kschweig/Code/scriptcollection/bjetRegression/output_5/" #has to be created first
 
-outputfolder = "output/"
+tableprefix = "firstrun_"+sys.argv[2]+"_"
 
-targetname = "Jet_PartonPt"
+targetname = "Jet_PartonPt" #name of Regression target
 
-maxevts = 9999999999999
+maxevts = 100000000
 
 ROOT.gStyle.SetOptStat(0);
 ROOT.gROOT.SetBatch(True)
@@ -49,8 +56,8 @@ ROOT.gROOT.SetBatch(True)
 errordic = {}
 testdic = {}
 
-for ifile, inputfile in enumerate(inputfiles):
-
+for ifile, filename in enumerate(filenames):
+    inputfile = ROOT.TFile(filename)
     for key in inputfile.GetListOfKeys():
         if key.GetName() == "InputVariables_Id":
             idir = key
@@ -185,44 +192,69 @@ for ifile, inputfile in enumerate(inputfiles):
 
 
 
-
-    hist  = ROOT.TH2F( "hist for mutinf",  "hist for mutinf",  150, xmin, xmax, 100, xmin, xmax )
+    mutinfoH = TwoDplot("BDTG Output","Jet_PartonPt",[150, xmin, xmax], [100, xmin, xmax])
+    #hist  = ROOT.TH2F( "hist for mutinf",  "hist for mutinf",  150, xmin, xmax, 100, xmin, xmax )
     #histT = ROOT.TH2F( "histT", "histT", 150, xmin, xmax, 100, xmin, xmax );
 
     for iev in range(nEntries):
         if iev == maxevts:
             break
         #d = rV[iev]-tV[iev]
-        hist.Fill(rV[iev],tV[iev],wV[iev])
+        #hist.Fill(rV[iev],tV[iev],wV[iev])
+        mutinfoH.FillTwoDplot(rV[iev],tV[iev])
 
 
 
-
-    pdfout = PDFPrinting(outputfolder+sys.argv[2]+names[ifile])
-    outputfile = ROOT.TFile(outputfolder+sys.argv[2]+names[ifile]+".root","RECREATE")
+    pdfout = PDFPrinting(outputfolder+sys.argv[1]+names[ifile])
+    outputfile = ROOT.TFile(outputfolder+sys.argv[1]+names[ifile]+".root","RECREATE")
+    outputfile.cd()
     c1 = ROOT.TCanvas()
 
-    hist.Draw("colz")
-    c1.Update()
-    c1.Write()
+    #hist.Draw("colz")
+    #c1.Update()
+    #c1.Write()
 
     #print xmin, xmax
 
-    pdfout.addCanvastoPDF(c1)
+    #pdfout.addCanvastoPDF(c1)
+
+    #-----------------------------------------------------------------------------------------------------------------------------------#
+    # Remove for other files
+    tmplist = names[ifile].split("_") 
+    nTree = tmplist[-4]
+    shrink = tmplist[-3]
+    maxDepth = tmplist[-2]
+    nCuts = tmplist[-1]
+    
+    targetvsBDTGH.addLabel(0.925,0.115,"nTrees: "+nTree+", Shrinkage: "+shrink+", MaxDepth: "+maxDepth+", nCuts: "+nCuts,90,0.032)
+    targetvsvar1H.addLabel(0.925,0.115,"nTrees: "+nTree+", Shrinkage: "+shrink+", MaxDepth: "+maxDepth+", nCuts: "+nCuts,90,0.032)
+    for key in keylist:
+        normHdic[key].addLabel(0.925,0.115,"nTrees: "+nTree+", Shrinkage: "+shrink+", MaxDepth: "+maxDepth+", nCuts: "+nCuts,90,0.032)
+    for key in performanceHdic:
+        performanceHdic[key].addLabel(0.925,0.115,"nTrees: "+nTree+", Shrinkage: "+shrink+", MaxDepth: "+maxDepth+", nCuts: "+nCuts,90,0.032)
+    mutinfoH.addLabel(0.89,0.115,"nTrees: "+nTree+", Shrinkage: "+shrink+", MaxDepth: "+maxDepth+", nCuts: "+nCuts,90,0.032)
+    #-----------------------------------------------------------------------------------------------------------------------------------#
+    
+
+    mutinfoH.WriteTwoDPlot(c1,"ttbar",pdfout)
 
     for key in keylist:
-        normHdic[key].WriteHisto(c1,None,False,False, pdfout)
-
+        normHdic[key].WriteHisto(c1,"ttbar",False,False, pdfout)
+        for i in range(normHdic[key].getNumOfHistos()):
+            normHdic[key].getHistos()[i].Write()
+        
     for key in performanceHdic:
-        performanceHdic[key].WriteHisto(c1,None,False,False, pdfout)
+        performanceHdic[key].WriteHisto(c1,"ttbar",False,False, pdfout)
+        for i in range(performanceHdic[key].getNumOfHistos()):
+            performanceHdic[key].getHistos()[i].Write()
 
-    targetvsBDTGH.WriteHisto(c1,None,False,False, pdfout)
-    targetvsvar1H.WriteHisto(c1,None,False,False, pdfout)
+    targetvsBDTGH.WriteHisto(c1,"ttbar",False,False, pdfout)
+    targetvsvar1H.WriteHisto(c1,"ttbar",False,False, pdfout)
 
 
     pdfout.closePDF()
     
-    tests.computeMutualInfo(hist)
+    tests.computeMutualInfo(mutinfoH.GetTH2F())
     tests.runDiviationtests(normHdic[targetname].getHistos()[0],normHdic["BDTG"].getHistos()[0])
 
     errors.computeerr()
@@ -236,17 +268,49 @@ for ifile, inputfile in enumerate(inputfiles):
     
     
     #Delete variables that could lead to memory problems
-    del c1, pdfout, normHdic, performanceHdic, hist, targetvsBDTGH, targetvsvar1H, outputfile
+    del c1, pdfout, normHdic, performanceHdic, targetvsBDTGH, targetvsvar1H, outputfile, mutinfoH, tests, errors, tree, inputfile
 
 
-
+writevaluetopy(errordic,outputfolder+tableprefix+"error_values")
+writevaluetopy(testdic,outputfolder+tableprefix+"test_values")
+         
 #Save error and test results in latex tables
-writevaluetable(errordic,outputfolder+"table_error_all","script",["all"])
-writevaluetable(errordic,outputfolder+"table_error_errors","script",["RSE", "R^2", "err_squared_loss", "err_abs_loss"])
-writevaluetable(errordic,outputfolder+"table_error_R2","script",["R^2","RSS","TSS"])
+writevaluetable(errordic,outputfolder+tableprefix+"table_error_all","script",["all"])
+writevaluetable(errordic,outputfolder+tableprefix+"table_error_errors","script",["RSE", "R^2", "err_squared_loss", "err_abs_loss"])
+writevaluetable(errordic,outputfolder+tableprefix+"table_error_R2","script",["R^2","RSS","TSS"])
 
-writevaluetable(testdic,outputfolder+"table_test_all","script",["all"])
-writevaluetable(testdic,outputfolder+"table_test_run","script",["runtest-r","runtest-r_exp","runtest-r_div_sig"])
-writevaluetable(testdic,outputfolder+"table_test_div","script",["max_div_abs_up", "max_div_abs_down", "max_div_percent_up", "max_div_percent_down"])
-writevaluetable(testdic,outputfolder+"table_test_rest","script",[ "chi2", "KS", "Binned_div", "mutualinfo"])
+writevaluetable(testdic,outputfolder+tableprefix+"table_test_all","script",["all"])
+writevaluetable(testdic,outputfolder+tableprefix+"table_test_run","script",["runtest-r","runtest-r_exp","runtest-r_div_sig"])
+writevaluetable(testdic,outputfolder+tableprefix+"table_test_div","script",["max_div_abs_up", "max_div_abs_down", "max_div_percent_up", "max_div_percent_down"])
+writevaluetable(testdic,outputfolder+tableprefix+"table_test_rest","script",[ "chi2", "KS", "Binned_div", "mutualinfo"])
 
+"""
+
+pylines = [writevaliedotpy(errordic,outputfolder+tableprefix+"error_values")
+             writevaliedotpy(testdic,outputfolder+tableprefix+"test_values")]
+         
+         #Save error and test results in latex tables
+filelines = [writevaluetable(errordic,outputfolder+tableprefix+"table_error_all","script",["all"]),
+             writevaluetable(errordic,outputfolder+tableprefix+"table_error_errors","script",["RSE", "R^2", "err_squared_loss", "err_abs_loss"]),
+             writevaluetable(errordic,outputfolder+tableprefix+"table_error_R2","script",["R^2","RSS","TSS"]),
+             
+             writevaluetable(testdic,outputfolder+tableprefix+"table_test_all","script",["all"]),
+             writevaluetable(testdic,outputfolder+tableprefix+"table_test_run","script",["runtest-r","runtest-r_exp","runtest-r_div_sig"]),
+             writevaluetable(testdic,outputfolder+tableprefix+"table_test_div","script",["max_div_abs_up", "max_div_abs_down", "max_div_percent_up", "max_div_percent_down"]),
+             writevaluetable(testdic,outputfolder+tableprefix+"table_test_rest","script",[ "chi2", "KS", "Binned_div", "mutualinfo"])]
+
+for fl in filelines:
+    with open(fl[0]+'.txt', 'w') as f:
+        for line in fl[1:]:
+            f.write(line)
+    f.close
+    del f
+
+for fl in pylines:
+    with open(fl[0]+'.py', 'w') as f:
+        for line in fl[1:]:
+            f.write(line)
+    f.close
+    del f
+"""
+print "saving tables to",outputfolder+tableprefix+"table*"

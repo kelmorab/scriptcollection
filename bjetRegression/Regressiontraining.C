@@ -1,3 +1,4 @@
+
 #include <cstdlib>
 #include <iostream>
 #include <map>
@@ -32,11 +33,11 @@ void Regressiontraining(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
   
    
-   TString outfileName( "BReg_0225_nCuts40.root" );
+   TString outfileName( "BReg_0323_ratiotest_Jet_D_Parton_2.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
    
 
-   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_nCuts40", outputFile,"V:!Silent:Color:DrawProgressBar" );
+   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0323_ratiotest_Jet_D_Parton_2", outputFile,"V:!Silent:Color:DrawProgressBar" );
    
    //Add Variables to factory
    factory->AddVariable("Jet_Pt","Jet_pt","units", 'F'); 
@@ -50,16 +51,16 @@ void Regressiontraining(   )
    factory->AddVariable("Jet_leptonDeltaR","Jet_leptonDeltaR","units", 'F');
    //factory->AddVariable("Jet_nHEFrac","Jet_neHEF","units", 'F'); 
    //factory->AddVariable("Jet_nEmEFrac","Jet_neEmEF","units", 'F');
-   factory->AddVariable("Jet_chargedMult","Jet_chargedMult","units", 'F');
+   //factory->AddVariable("Jet_chargedMult","Jet_chargedMult","units", 'F');
    factory->AddVariable("Jet_vtxPt","Jet_vtxPt","units", 'F');
    factory->AddVariable("Jet_vtxMass","Jet_vtxMass","units", 'F');
    factory->AddVariable("Jet_vtx3DVal","Jet_vtx3dL","units", 'F');
    factory->AddVariable("Jet_vtxNtracks","Jet_vtxNtrk","units", 'F');
    factory->AddVariable("Jet_vtx3DSig","Jet_vtx3deL","units", 'F');
    
+   factory->AddTarget( "Jet_PartonPt / Jet_Pt" ); 
 
-   factory->AddTarget( "Jet_PartonPt" ); 
-   
+   factory->AddSpectator( "Jet_PartonPt");
    factory->AddSpectator( "Jet_PartonFlav" );
    factory->AddSpectator( "Jet_Flav" );
    factory->AddSpectator( "Evt_Odd" );
@@ -69,7 +70,7 @@ void Regressiontraining(   )
    std::cout << "before fname" << endl;
    //Root file for Training
    TFile *input(0);
-   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbarforbReg0211.root";
+   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbarforbReg0315.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
 
@@ -89,21 +90,22 @@ void Regressiontraining(   )
    std::cout << "Add RegressionTree" << endl;
    factory->AddRegressionTree( Tree, regWeight );
    
-   //std::cout << "Add weight expression" << endl;
-   //factory->SetWeightExpression("1","Regression");
+   std::cout << "Add weight expression" << endl;
+   factory->SetWeightExpression("Weight","Regression");
 
    //Cut on on samples
-   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_PartonFlav) == 5";
+   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_PartonFlav) == 5 && Jet_Eta <= 2.4";
    
    std::cout << "Prepare Training" << endl;
-   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=1000000:SplitMode=Random:NormMode=NumEvents:!V" );
+   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=200000:SplitMode=Random:NormMode=NumEvents:!V" );
    //factory->PrepareTrainingAndTestTree( mycut, "nTrain_Regression=0:nTest_Regression=0:SplitMode=Random:NormMode=NumEvents:!V" );
    
    bool usebdt = true;
 
    if (usebdt) {
      std::cout << "Book BTDG" << endl;
-     factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=200::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=40:MaxDepth=3:PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True" );
+     //factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=1000::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=5:PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True" );
+     factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=1200::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=30:MaxDepth=5:PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True:VarTransform=U(Jet_leptonDeltaR)" );
      }
    else {
      std::cout << "Book ANN" << endl;

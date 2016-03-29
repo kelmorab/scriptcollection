@@ -318,3 +318,33 @@ def writevaluetable(objdic, filename, sampleprefix, values = [] ):
         for line in lines:
             f.write(line+"\n")
     f.close()
+    out =[ filename,title+"\n"]+lines
+    return out
+
+def writevaluetopy(objdic, filename):
+    lines = ["alldic = {"]
+    samples = "samplelist = ["
+    values = "vallist = ["
+    valuesset = False
+    for key in objdic:
+        samples += '"'+str(key)+'",'
+        valdic = objdic[key].getvalues()
+        for valkey in valdic:
+            if not valuesset:
+                values += '"'+str(valkey)+'",'
+            lines.append('"'+str(key)+"_"+str(valkey)+'"'+" : "+str(valdic[valkey])+",")
+        if not valuesset:
+            values = values[:-1] + "]"
+            valuesset = True
+    lines.append("}")
+    samples = samples[:-1]+"]"
+    with open(filename+'.py','w') as f:
+        f.write(samples+"\n")
+        f.write(values+"\n")
+        for line in lines:
+            f.write(line+"\n")
+    f.close()
+    out = [ filename,samples+"\n",values+"\n"]+lines
+    return out
+
+    

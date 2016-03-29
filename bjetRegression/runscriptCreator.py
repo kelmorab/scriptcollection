@@ -11,7 +11,7 @@ programpath=sys.argv[1]
 
 outpath=sys.argv[3]
 scriptpath=sys.argv[2]
-cmsswpath='/nfs/dust/cms/user/kschweig/CMSSW_7_4_15'
+cmsswpath='/nfs/dust/cms/user/kschweig/CMSSW_7_6_3'
 
 samples=[('ttbar','/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbar/')]
 

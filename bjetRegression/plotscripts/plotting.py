@@ -1,10 +1,12 @@
 
 #Neue print PDF funktion in plots classe
-
+import copy
 
 import ROOT
 from rootutils import PDFPrinting
 
+
+myrnd = ROOT.TRandom3()
 
 class plots():
     def __init__(self, key, customparam = None):
@@ -14,6 +16,8 @@ class plots():
         self.additionalLabels = []
         self.manualLegendright = False
         self.manualLegendleft = False
+        self.manualcolors = False
+        self.uselogscale = False
         if key == "Jet_Pt":
             self.setTH1(200,0,600)
             self.Titlestring = "Jet p_{T} (GeV)"
@@ -111,8 +115,17 @@ class plots():
             self.setTH1(60,0,3)
             self.Titlestring = "p_{T, Parton} / p_{T, Jet} "
         elif key == "Jet_PartonPt" or key == "Jet_MatchedPartonPt":
-            self.setTH1(200,0,600)
+            if customparam is None:
+                self.setTH1(200,0,600)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             self.Titlestring = "Matched Parton p_{T} (GeV)"
+        elif key == "Jet_PartonPt_D_Jet_Pt":
+            self.setTH1(60,0,3)
+            self.Titlestring = "Matched Parton P_{T} / Jet P_{T}"
+        elif key == "Jet_Pt_D_Jet_PartonPt":
+            self.setTH1(60,0,2.5)
+            self.Titlestring = "Jet P_{T} / Matched Parton P_{T}"
         else:
             if customparam is not None:
                 if len(customparam) == 3:
@@ -126,7 +139,7 @@ class plots():
                 exit()
         
     #call from script, to change language caption
-    def changeLanguage(lang):
+    def changeLanguage(self,lang):
         if lang == "german":
             self.language = 1
         elif lang == "english":
@@ -134,6 +147,11 @@ class plots():
         else:
             print "Not supported language. Set back to default (english)"
             self.language = 0
+    
+    def changeColorlist(self, colorlist = []):
+        if len(colorlist) != 0:
+            self.manualcolors = True
+            self.manualcolorlist = colorlist
 
     #is called in memberfunction
     def setXTitle(self, key, th1f, string = None):
@@ -182,7 +200,7 @@ class plots():
 
     #is called in memberfunction
     def makeCMSstuff(self):
-        simul = ROOT.TLatex(0.135, 0.908, 'CMS simulation')
+        simul = ROOT.TLatex(0.135, 0.908, '#scale[1.2]{#bf{CMS}} #it{simulation}')
         simul.SetTextFont(42)
         simul.SetTextSize(0.045)
         simul.SetNDC()
@@ -234,9 +252,13 @@ class CatPlots(plots):
             exit()
         self.categorizer = categorizer
         self.legendtext = legendtext
+        self.extrath1f = []
+        self.drawextrath1f = False
+        self.symmetricCats = symmetricCats
+        self.symmetricColor = symmetricColor
         self.setCatHistos(cuts, symmetricCats, categorizer)
         self.setCatColors(symmetricCats, symmetricColor)
-        self.makeLegend(legendtext,symmetricCats, symmetricColor)
+        #self.makeLegend(self.legendtext,symmetricCats, symmetricColor)
 
         
 
@@ -294,6 +316,7 @@ class CatPlots(plots):
         else:
             print nhistos
             if nhistos == 7:
+                #colorlist = [ROOT.kBlue+2,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed+2]
                 colorlist = [ROOT.kBlue+2,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed+2]
                 colorlist = colorlist[::-1]
             elif nhistos == 5:
@@ -307,15 +330,20 @@ class CatPlots(plots):
                 colorlist[::-1]
             else:
                 colorlist = [ROOT.kViolet+7,ROOT.kViolet+6,ROOT.kViolet+1,ROOT.kViolet,ROOT.kViolet-4,ROOT.kViolet-8,ROOT.kMagenta+1,ROOT.kMagenta-10]
+            self.colorlist = colorlist
             for i,key in enumerate(self.histokeys):
                 self.CatColors.update({ key : colorlist[i] })
-
+                
     def FillCatHistos(self, fillval, catval):
         for key in self.histokeys:
             if catval >= self.Catlookup[key]["left"] and catval < self.Catlookup[key]["right"]:
                 self.Cathistos[key].Fill(fillval)
                 break
-    
+
+    def getColorlist(self):
+        return self.colorlist
+
+
     def makeStyle(self):
         for key in self.histokeys:
             self.Cathistos[key].SetLineColor(ROOT.kBlack) #set Color
@@ -323,7 +351,6 @@ class CatPlots(plots):
             self.Cathistos[key].SetFillColor(self.CatColors[key]) #set Color
 
     def makeStack(self,order = "<"):
-            
         self.makeStyle()
         self.Stackplot = ROOT.THStack("Stack"+self.key,"Stack "+self.key)
         #for i in range(len(self.histokeys)/2):
@@ -341,12 +368,19 @@ class CatPlots(plots):
         else:
             print "ordering unknown!"
             exit()
+        self.sortedHistos = []
         for element in tmplist:
             for key in self.Cathistos:
                 if element == self.Catlookup[key]["left"]:
                     self.Stackplot.Add(self.Cathistos[key])            
+                    self.sortedHistos.append(self.Cathistos[key])
                     break
         #self.setXTitle(self.key,self.Stackplot)
+    def AddTH1FtoStack(self, th1f):
+        th1f.SetLineWidth(3)
+        th1f.SetLineColor(ROOT.kRed)
+        self.extrath1f.append(th1f)
+        self.drawextrath1f = True
 
     def DrawStack(self):
         self.Stackplot.Draw()
@@ -355,12 +389,16 @@ class CatPlots(plots):
 
     def WriteStack(self, canvas, pdfout = None):
         #self.Stackplot.Write()
+        self.makeLegend(self.legendtext,self.symmetricCats, self.symmetricColor)
         self.Stackplot.Draw("histoe")
         self.setXTitle(self.key,self.Stackplot)
         self.leg.Draw("same")
         simul, cms = self.makeCMSstuff()
         simul.Draw("same")
         cms.Draw("same")
+        if self.drawextrath1f:
+            for th1f in self.extrath1f:
+                th1f.Draw("same")
         if self.samplestring is not None:
             label = self.makeSampletext(self.samplestring)
             label.Draw("same")
@@ -371,6 +409,41 @@ class CatPlots(plots):
         if pdfout is not None:
             pdfout.addCanvastoPDF(canvas)
 
+    def WriteNotStacked(self, canvas, pdfout = None, DrawNormalized = True):
+        self.makeLegend(self.legendtext,self.symmetricCats, self.symmetricColor)
+        histos = copy.deepcopy(self.sortedHistos)
+        if DrawNormalized:
+            for histo in histos:
+                ScaletoInt(histo)
+        stuff = "histoe"
+        for ih,histo in enumerate(histos):
+            histo.SetLineColor(self.colorlist[ih])
+            histo.SetLineWidth(2)
+            histo.SetFillStyle(0)
+            histo.Draw(stuff)
+            if not stuff.endswith("same"):
+                stuff = stuff + " same"
+        self.leg.Draw("same")
+        simul, cms = self.makeCMSstuff()
+        simul.Draw("same")
+        cms.Draw("same")
+        if self.drawextrath1f:
+            for th1f in self.extrath1f:
+                th = copy.deepcopy(th1f)
+                if DrawNormalized:
+                    ScaletoInt(th)
+                th.Draw("same")
+        if self.samplestring is not None:
+            label = self.makeSampletext(self.samplestring)
+            label.Draw("same")
+        canvas.SetTitle(self.key)
+        canvas.SetName(self.key)
+        canvas.Update()
+        canvas.Write()
+        if pdfout is not None:
+            pdfout.addCanvastoPDF(canvas)
+
+        
     def makeLegend(self, categorizer, symmetricCats, symmetricColor):
         specialpos = ["Jet_regcorr","Jet_corr"]
         if self.getKey() in specialpos:
@@ -411,7 +484,8 @@ class normPlots(plots):
         if comparison:
             self.histos = []
             for i in range(nComparisons):
-                self.histos.append(ROOT.TH1F(self.key+"_"+str(i),self.key+"_"+str(i), self.bins,self.xmin,self.xmax))
+                tmpstr = (self.key+"_"+str(i)+"_"+str(ROOT.gRandom.Integer(10000))).replace(" ","_")
+                self.histos.append(ROOT.TH1F(tmpstr,tmpstr, self.bins,self.xmin,self.xmax))
         else:
             self.histos = [ROOT.TH1F(self.key,self.key, self.bins,self.xmin,self.xmax)]
         for histo in self.histos:
@@ -421,6 +495,9 @@ class normPlots(plots):
     
     def makeStyle(self, maxyval, dofilling = False):
         colorlist = [ROOT.kViolet+9,ROOT.kViolet+1,ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen-3,ROOT.kGreen,ROOT.kGreen+2,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2,ROOT.kMagenta+2,ROOT.kPink+2,ROOT.kRed-4, ROOT.kBlue-5, ROOT.kYellow-6]
+        if self.manualcolors:
+            if len(self.manualcolorlist) >= len(self.histos):
+                colorlist = self.manualcolorlist
         self.setXTitle(self.key,self.histos[0])
         self.setYTitle(self.histos[0])
         self.histos[0].GetYaxis().SetRangeUser(0,maxyval*1.1)
@@ -443,7 +520,7 @@ class normPlots(plots):
             if self.manualLegendleft:
                 leg = ROOT.TLegend(self.legenx1l,self.legeny1l,self.legenx2l,self.legeny2l)
             else:    
-                leg = ROOT.TLegend(0.13,0.70,0.43,0.83)
+                leg = ROOT.TLegend(0.13,0.65,0.41,0.83)
         else:
             if self.manualLegendright:
                 leg = ROOT.TLegend(self.legenx1r, self.legeny1r,self.legenx2r,self.legeny2r)
@@ -453,13 +530,25 @@ class normPlots(plots):
         leg.SetTextFont(42)
         leg.SetFillStyle(0)
         for ihisto, histo in enumerate(self.histos):
-            print "adding", legendtext[ihisto]
+            #print "adding", legendtext[ihisto]
             leg.AddEntry(histo, legendtext[ihisto])
         return leg
 
     def FillnormHisto(self,fillval,nHisto = 0):
         self.histos[nHisto].Fill(fillval)
         
+    def AddTH1F(self, th1f, nHisto):
+        self.setSumw2(th1f)
+        self.histos[nHisto] = copy.deepcopy(th1f)
+
+    def projecttoHisto(self, nHisto, tree, varexp, select = "", option = ""):
+        tmpstr = "tmp_"+str(ROOT.gRandom.Integer(1000))
+        tmph = ROOT.TH1F(tmpstr,tmpstr, self.bins,self.xmin,self.xmax)
+        self.setSumw2(tmph)
+        tree.Project(tmpstr, varexp, select)
+        self.histos[nHisto] = copy.deepcopy(tmph)
+        del tmph
+
     def WriteHisto(self, canvas, samplestring = None, dofilling = False, Drawnormalized = False, pdfout = None):
         if Drawnormalized:
             for histo in self.histos:
@@ -473,6 +562,7 @@ class normPlots(plots):
         legend = self.makeLegend(self.legendtext)
         stuff = "histoe"
         for histo in self.histos:
+            #print "adding", histo
             histo.Draw(stuff)
             if not stuff.endswith("same"):
                 stuff = stuff + " same"
@@ -481,7 +571,7 @@ class normPlots(plots):
         simul.Draw("same")
         cms.Draw("same")
         if self.nHistos > 1:
-            print "drawing legend"
+            #print "drawing legend"
             legend.Draw("same")
         if samplestring is not None:
             samplelabel = self.makeSampletext(samplestring)
@@ -501,6 +591,9 @@ class normPlots(plots):
         for histo in self.histos:
             hlist.append(histo)
         return hlist
+        
+    def getNumOfHistos(self):
+        return len(self.histos)
 
 
 class TwoDplot(plots):
@@ -529,16 +622,23 @@ class TwoDplot(plots):
     def FillTwoDplot(self, key1val, key2val):
         self.histo.Fill(key1val, key2val)
 
-    def WriteTwoDPlot(self, canvas, pdfout = None):
+    def WriteTwoDPlot(self, canvas, samplestring = None, pdfout = None):
         self.histo.Draw("colz")
         simul, cms = self.makeCMSstuff()
+        if samplestring is not None:
+            samplelabel = self.makeSampletext(samplestring)
+            samplelabel.Draw("same")
         simul.Draw("same")
         cms.Draw("same")
+        if len(self.additionalLabels) > 0:
+            for label in self.additionalLabels:
+                label.Draw("same")
         canvas.SetTitle(self.combinedkey)
         canvas.SetName(self.combinedkey)
         canvas.Update()
         canvas.Write()
-        
+        if pdfout is not None:
+            pdfout.addCanvastoPDF(canvas)
 
     def GetTH2F(self):
         return self.histo
@@ -550,5 +650,3 @@ class TwoDplot(plots):
 
 def ScaletoInt(th1f):
     th1f.Scale(1/float(th1f.Integral()))
-
-
