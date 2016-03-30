@@ -21,7 +21,7 @@
 using namespace TMVA;
 
 
-void Regressiontraining(   )
+void Regressiontraining_newVars(   )
 {
   TMVA::Tools::Instance();
   
@@ -33,24 +33,25 @@ void Regressiontraining(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
   
    
-   TString outfileName( "BReg_0329_oldVars.root" );
+   TString outfileName( "BReg_0329_newVars.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
    
 
-   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0329_oldVars", outputFile,"V:!Silent:Color:DrawProgressBar" );
+   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0329_newVars", outputFile,"V:!Silent:Color:DrawProgressBar" );
    
    //Add Variables to factory
    factory->AddVariable("Jet_Pt","Jet_pt","units", 'F'); 
    factory->AddVariable("Jet_corr","Jet_corr","units", 'F');
-   factory->AddVariable("Evt_Rho","rho","units", 'F');
+   factory->AddVariable("N_PrimaryVertices","N_PrimaryVertices","units", 'F');
+
    factory->AddVariable("Jet_Eta","Jet_eta","units", 'F');
    factory->AddVariable("Jet_Mt","Jet_mt","units", 'F'); 
    factory->AddVariable("Jet_leadTrackPt","Jet_leadTrackPt","units", 'F'); 
    factory->AddVariable("Jet_leptonPtRel","Jet_leptonPtRel","units", 'F');
    factory->AddVariable("Jet_leptonPt","Jet_leptonPt","units", 'F'); 
    factory->AddVariable("Jet_leptonDeltaR","Jet_leptonDeltaR","units", 'F');
-   //factory->AddVariable("Jet_nHEFrac","Jet_neHEF","units", 'F'); 
-   //factory->AddVariable("Jet_nEmEFrac","Jet_neEmEF","units", 'F');
+   factory->AddVariable("Jet_totHEFrac","Jet_totHEFrac","units", 'F'); 
+   factory->AddVariable("Jet_nEmEFrac","Jet_neEmEF","units", 'F');
    //factory->AddVariable("Jet_chargedMult","Jet_chargedMult","units", 'F');
    factory->AddVariable("Jet_vtxPt","Jet_vtxPt","units", 'F');
    factory->AddVariable("Jet_vtxMass","Jet_vtxMass","units", 'F');
@@ -60,13 +61,13 @@ void Regressiontraining(   )
    
    factory->AddTarget( "Jet_MatchedPartonPt" ); 
 
-   //factory->AddSpectator( "Jet_PartonPt");
+   //factory->AddSpectator( "Jet_MatchedPartonPt");
    factory->AddSpectator( "Jet_MatchedPartonFlav" );
+   factory->AddSpectator( "Jet_PartonFlav" );
    factory->AddSpectator( "Jet_Flav" );
    factory->AddSpectator( "Evt_Odd" );
-   factory->AddSpectator("N_PrimaryVertices");
-   factory->AddSpectator("Jet_totHEFrac"); 
-   factory->AddSpectator("Jet_nEmEFrac");
+   factory->AddSpectator("Evt_Rho");   
+
    
    std::cout << "before fname" << endl;
    //Root file for Training
