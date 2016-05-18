@@ -52,17 +52,24 @@ if not os.path.exists(config.cmsswpath):
 ##############################################################################
 
 
+
 nTrees_list = []
-for i in range(int(config.nTrees_end)/int(config.nTrees_steps) + 1):
-    tmp = config.nTrees_start + i * config.nTrees_steps
-    if tmp <= config.nTrees_end:
-        nTrees_list.append(tmp)
+if len(config.tree_list) == 0:
+    for i in range(int(config.nTrees_end)/int(config.nTrees_steps) + 1):
+        tmp = config.nTrees_start + i * config.nTrees_steps
+        if tmp <= config.nTrees_end:
+            nTrees_list.append(tmp)
+else:
+    nTrees_list = config.tree_list
 
 Shrinkage_list = []
-for i in range(int(config.shrink_end/config.shrink_steps)+1):
-    tmp = config.shrink_start + i * config.shrink_steps
-    if tmp <= config.shrink_end:
-        Shrinkage_list.append(tmp)
+if len(config.shrink_list) == 0:
+    for i in range(int(config.shrink_end/config.shrink_steps)+1):
+        tmp = config.shrink_start + i * config.shrink_steps
+        if tmp <= config.shrink_end:
+            Shrinkage_list.append(tmp)
+else:
+    Shrinkage_list = config.shrink_list
 
 MaxDepth_list = []
 for i in range(int(config.MaxD_end)/int(config.MaxD_steps) + 1):

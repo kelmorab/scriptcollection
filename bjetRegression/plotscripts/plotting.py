@@ -1,6 +1,7 @@
 
 #Neue print PDF funktion in plots classe
 import copy
+from array import array
 
 import ROOT
 from rootutils import PDFPrinting
@@ -162,7 +163,7 @@ class plots():
         th1f.GetXaxis().SetTitleSize(0.05)
         th1f.GetXaxis().SetTitleOffset(0.75)
         th1f.SetTitle("")
-
+        
     #is called in memberfunction
     def setYTitle(self, th1f, string = None):
         if string is None:
@@ -173,7 +174,7 @@ class plots():
         else:
             th1f.GetYaxis().SetTitle(string)
         th1f.GetYaxis().SetTitleSize(0.05)
-        th1f.GetYaxis().SetTitleOffset(0.75)
+        th1f.GetYaxis().SetTitleOffset(0.8)
 
     #is called in memberfunction
     def makeSampletext(self,samplestring):
@@ -239,6 +240,19 @@ class plots():
             self.legeny1l = y1
             self.legenx2l = x2
             self.legeny2l = y2
+
+    def getLine(self, x1, y1, x2 ,y2, horizontal = False, vertical = False, canvas = None):
+        if canvas is not None and vertical:
+            line = ROOT.TLine(x1,y1,x2,canvas.GetUymax())
+        elif canvas is not None and horizontal:
+            line = ROOT.TLine(x1,y1,canvas.GetUxmax(), y2)
+        else:
+            line = ROOT.TLine(x1,y1,x2, y2)
+        line.SetLineWidth(1)
+        line.SetLineStyle(2)
+        line.SetLineColor(ROOT.kBlack)
+        return line
+
 
 
 #Class to make stackplots    
@@ -500,7 +514,7 @@ class normPlots(plots):
                 colorlist = self.manualcolorlist
         self.setXTitle(self.key,self.histos[0])
         self.setYTitle(self.histos[0])
-        self.histos[0].GetYaxis().SetRangeUser(0,maxyval*1.1)
+        self.histos[0].GetYaxis().SetRangeUser(10,maxyval*1.1)
         for iHisto, histo in enumerate(self.histos):
             histo.SetLineWidth(2)
             histo.SetLineColor(colorlist[iHisto])
@@ -534,6 +548,15 @@ class normPlots(plots):
             leg.AddEntry(histo, legendtext[ihisto])
         return leg
 
+    def setLineStyle(self, nHisto, style = 1):
+        if type(nHisto) is list:
+            for h in nHisto:
+                if style >= 1 and style <= 10:
+                    self.histos[h].SetLineStyle(style)
+        else:
+            self.histos[nHisto].SetLineStyle(style)
+
+
     def FillnormHisto(self,fillval,nHisto = 0):
         self.histos[nHisto].Fill(fillval)
         
@@ -549,7 +572,17 @@ class normPlots(plots):
         self.histos[nHisto] = copy.deepcopy(tmph)
         del tmph
 
-    def WriteHisto(self, canvas, samplestring = None, dofilling = False, Drawnormalized = False, pdfout = None):
+
+    def WriteHisto(self, canvas, samplestring = None, dofilling = False, Drawnormalized = False, pdfout = None, savehisto = False, plotlogx = False, plotlogy = False):
+        c1 = ROOT.TCanvas()
+        c1.cd(1)
+        c1.SetLogy(0)
+        c1.SetLogx(0)
+        if plotlogy:
+            c1.SetLogy(1)
+        if plotlogx:
+            c1.SetLogx(1)
+        
         if Drawnormalized:
             for histo in self.histos:
                 ScaletoInt(histo)
@@ -563,10 +596,12 @@ class normPlots(plots):
         stuff = "histoe"
         for histo in self.histos:
             #print "adding", histo
+            if savehisto:
+                histo.Write()
             histo.Draw(stuff)
             if not stuff.endswith("same"):
                 stuff = stuff + " same"
-        canvas.Update()
+        #canvas.Update()
         simul, cms = self.makeCMSstuff()
         simul.Draw("same")
         cms.Draw("same")
@@ -579,9 +614,13 @@ class normPlots(plots):
         if len(self.additionalLabels) > 0:
             for label in self.additionalLabels:
                 label.Draw("same")
+        c1.Update()
+        canvas = c1
         canvas.SetTitle(self.key)
         canvas.SetName(self.key)
-        canvas.Update()
+        
+
+        #Xcanvas.Update()
         canvas.Write()
         if pdfout is not None:
             pdfout.addCanvastoPDF(canvas)
@@ -608,12 +647,21 @@ class TwoDplot(plots):
         self.key2min = self.xmin
         self.key2max = self.xmax
         self.key2title = self.Titlestring
+
+        if customparam1 or customparam2:
+            self.customparamused = True
+        else:
+            self.customparamused = False
         
         self.combinedkey = key1+"__"+key2
         
-        self.histo = ROOT.TH2F(self.combinedkey,self.combinedkey,self.key1bins,self.key1min,self.key1max,self.key2bins,self.key2min,self.key2max)
+        ranstr = "_"+str(ROOT.gRandom.Integer(10000))
+        
+        self.histo = ROOT.TH2F(self.combinedkey+ranstr,self.combinedkey+ranstr,self.key1bins,self.key1min,self.key1max,self.key2bins,self.key2min,self.key2max)
 
-        self.makeStyle()
+        self.customAxisTitle = False
+
+        #self.makeStyle()
 
     def makeStyle(self):
         self.setXTitle(None,self.histo,self.key1title )
@@ -622,7 +670,17 @@ class TwoDplot(plots):
     def FillTwoDplot(self, key1val, key2val):
         self.histo.Fill(key1val, key2val)
 
-    def WriteTwoDPlot(self, canvas, samplestring = None, pdfout = None):
+    def WriteTwoDplot(self, canvas, samplestring = None, printStatBox = False, StatBoxNames = None,  pdfout = None, plotlogx = False, plotlogy = False):
+        c1 = ROOT.TCanvas()
+        c1.cd(1)
+        c1.SetLogy(0)
+        c1.SetLogx(0)
+        if plotlogy:
+            c1.SetLogy(1)
+        if plotlogx:
+            c1.SetLogx(1)
+        
+        self.histo.SetTitle("")
         self.histo.Draw("colz")
         simul, cms = self.makeCMSstuff()
         if samplestring is not None:
@@ -630,9 +688,22 @@ class TwoDplot(plots):
             samplelabel.Draw("same")
         simul.Draw("same")
         cms.Draw("same")
+        if printStatBox:
+            if StatBoxNames is not None:
+                legend = self.printStats(StatBoxNames[0],StatBoxNames[1])
+            else:
+                if self.customparamused:
+                    legend = self.printStats()
+                else:
+                    legend = self.printStats(self.key1title,self.key2title)
+            legend.Draw("same")
+        if self.customAxisTitle:
+            self.setXTitle("", self.histo, self.Xcustom)
+            self.setYTitle(self.histo, self.Ycustom)        
         if len(self.additionalLabels) > 0:
             for label in self.additionalLabels:
                 label.Draw("same")
+        canvas = c1
         canvas.SetTitle(self.combinedkey)
         canvas.SetName(self.combinedkey)
         canvas.Update()
@@ -646,7 +717,147 @@ class TwoDplot(plots):
     def GetCombinedKey(self):
         return self.combinedkey
 
-    
+    def projecttoTwoDplot(self, tree, varexp, select = "", option = ""):
+        tmpstr = "tmp_"+str(ROOT.gRandom.Integer(1000))
+        tmph = ROOT.TH2F(tmpstr,tmpstr,self.key1bins,self.key1min,self.key1max,self.key2bins,self.key2min,self.key2max)
+        self.setSumw2(tmph)
+        tree.Project(tmpstr, varexp, select)
+        self.histo = copy.deepcopy(tmph)
+        del tmph
+
+    def setAxisTitle(self, yAxis, xAxis):
+        self.customAxisTitle = True
+        self.Xcustom = xAxis
+        self.Ycustom = yAxis
+
+
+    def printStats(self, xaxis = "x", yaxis = "y"):
+        leg = ROOT.TLegend(0.7,0.70,0.88,0.88)
+        leg.AddEntry(0,"Mean "+str(xaxis)+": "+str(self.histo.GetMean(1))[:6],"")  
+        leg.AddEntry(0,"Mean "+str(yaxis)+": "+str(self.histo.GetMean(2))[:6],"")  
+        leg.AddEntry(0,"RMS "+str(xaxis)+": "+str(self.histo.GetRMS(1))[:6],"")  
+        leg.AddEntry(0,"RMS "+str(yaxis)+": "+str(self.histo.GetRMS(2))[:6],"")  
+        leg.SetMargin(leg.GetMargin()*0.4)
+        #leg.SetBorderSize(0)
+        leg.SetTextFont(42)
+        #leg.SetFillStyle(0)
+        return leg
+
+class PointPlot(plots):
+    def __init__(self, nPoints, YLabel, legendtext = []):
+        tmpstr = "_"+str(ROOT.gRandom.Integer(1000))
+        self.histo = ROOT.TH1F("pointplot"+tmpstr,"pointplot"+tmpstr,100,0,nPoints+0.7)
+        self.pointsadded = 0;
+        self.grapherrorlist = []
+        self.maxPoints = nPoints
+        self.Pointvalues = []
+        self.manualcolors = False
+        self.YLabel = YLabel
+        self.Legendtext = legendtext
+        self.additionalLabels = []
+        self.manualLegendright = False
+        self.manualLegendleft = False
+
+        
+    def addPoint(self, m, em = 0):
+        #tmpgraph = ROOT.TGraphErrors(1,array('f',[self.pointsadded+0.5]),array('f',[m]),array('f',[0]),array('f',[em]))
+        #tmpgraph.SetPoint(1,self.pointsadded+0.5,m)
+        #tmpgraph.SetPointError(1,0,em)
+        #tmpgraph.Draw()
+        self.grapherrorlist.append(ROOT.TGraphErrors(1,array('f',[self.pointsadded+0.5]),array('f',[m]),array('f',[0]),array('f',[em])))
+        self.Pointvalues.append(m)
+        self.pointsadded += 1
+        #del tmpgraph
+
+    def makeStyle(self, fixedy):
+        if self.manualcolors:
+            colorlist = self.manualcolorlist
+        else:
+            colorlist =  [ROOT.kViolet+9,ROOT.kViolet+1,ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen-3,ROOT.kGreen,ROOT.kGreen+2,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2,ROOT.kMagenta+2,ROOT.kPink+2,ROOT.kRed-4, ROOT.kBlue-5, ROOT.kYellow-6]
+        maxP = -99999999999
+        minP = 99999999999
+        for n in range(self.maxPoints):
+            if self.Pointvalues[n] < minP:
+                minP = self.Pointvalues[n]
+            if self.Pointvalues[n] > maxP:
+                maxP = self.Pointvalues[n]
+            self.grapherrorlist[n].SetMarkerColor(colorlist[n])
+            self.grapherrorlist[n].SetMarkerSize(1.)
+            self.grapherrorlist[n].SetMarkerStyle(21)
+        a = minP-(minP*0.05)
+        b = maxP+(maxP*0.125)
+        self.minimum = minP
+        self.maximum = maxP
+        if fixedy is not None:
+            self.histo.GetYaxis().SetRangeUser(fixedy[0],fixedy[1])
+        else:
+            self.histo.GetYaxis().SetRangeUser(a,b)
+        self.histo.GetXaxis().SetNdivisions(000)
+        self.histo.GetXaxis().SetLabelSize(0)
+        self.setYTitle(self.histo, self.YLabel)
+        self.setXTitle("",self.histo, "")
+        self.histo.SetTitle("")
+
+    def makeLegend(self):
+        if self.manualLegendleft:
+            leg = ROOT.TLegend(self.legenx1l,self.legeny1l,self.legenx2l,self.legeny2l)
+        elif self.manualLegendright:
+            leg = ROOT.TLegend(self.legenx1r,self.legeny1r,self.legenx2r,self.legeny2r)
+        else:    
+            leg = ROOT.TLegend(0.6,0.70,0.88,0.88)
+        for n in range(self.maxPoints):
+            leg.AddEntry(self.grapherrorlist[n],self.Legendtext[n],"p")
+        leg.SetBorderSize(0)
+        leg.SetTextFont(42)
+        leg.SetFillStyle(0)
+        return leg
+
+
+    def WritePointPlot(self, canvas, samplestring = None, pdfout = None, fixedy = None, showwline = "Min"):
+        if self.pointsadded == self.maxPoints:
+            c1 = ROOT.TCanvas()
+            c1.cd(1)
+            c1.SetLogy(0)
+            c1.SetLogx(0)
+            self.makeStyle(fixedy)
+            self.histo.Draw("")
+            for nP in range(self.maxPoints):
+                #print "Drawing point",nP
+                self.grapherrorlist[nP].Draw("P")
+            legend = self.makeLegend()
+            legend.Draw("same")
+            if samplestring is not None:
+                samplelabel = self.makeSampletext(samplestring)
+                samplelabel.Draw("same")
+            simul, cms = self.makeCMSstuff()
+            if len(self.additionalLabels) > 0:
+                for label in self.additionalLabels:
+                    label.Draw("same")
+            if showwline is not None:
+                    if showwline == "Min":
+                        line = self.getLine(0,self.minimum,self.maxPoints+0.7,self.minimum,True,False)
+                        drawline = True
+                    elif showwline == "Max":
+                        line = self.getLine(0,self.maximum,self.maxPoints+0.7,self.maximum,True,False)
+                        drawline = True
+                    else:
+                        drawline = False
+            else:
+                drawline = False
+            if drawline:
+                line.Draw("same")
+            simul.Draw("same")
+            cms.Draw("same")
+            canvas = c1
+            canvas.SetTitle("blubb")
+            canvas.SetName("blubb")
+            canvas.Update()
+            canvas.Write()
+            if pdfout is not None:
+                pdfout.addCanvastoPDF(canvas)
+        else:
+            print "Added Points and set Point at initialisation are different"
 
 def ScaletoInt(th1f):
-    th1f.Scale(1/float(th1f.Integral()))
+    if th1f.GetNbinsX() != 1:
+        th1f.Scale(1/float(th1f.Integral()))

@@ -2,6 +2,7 @@
 
 readvars = {"N_Jets" : 0,
             "Evt_Rho": 0,
+            "N_PrimaryVertices": 0,
             "Jet_Pt" : [],
             "Jet_corr" : [],
             "Jet_Eta" : [],
@@ -12,6 +13,7 @@ readvars = {"N_Jets" : 0,
             "Jet_leptonPtRel" : [],
             "Jet_leptonDeltaR" : [],
             "Jet_nHEFrac" : [],
+            "Jet_cHEFrac" : [],
             "Jet_nEmEFrac" : [],
             "Jet_chargedMult" : [],
             "Jet_vtxPt" : [],
@@ -19,10 +21,11 @@ readvars = {"N_Jets" : 0,
             "Jet_vtx3DVal" : [],
             "Jet_vtxNtracks" : [],
             "Jet_vtx3DSig" : [],
-            "Jet_PartonFlav" : [],
-            "Jet_PartonPt" : []}
+            "Jet_MatchedPartonFlav" : [],
+            "Jet_matchedPartonPt" : []}
 
-inputvar = {"Evt_Rho": 0}
+inputvar = {"Evt_Rho": 0,
+            "N_PrimaryVertices" : 0}
 
 inputvars = {"Jet_Pt" : [],
              "Jet_corr" : [],
@@ -34,6 +37,7 @@ inputvars = {"Jet_Pt" : [],
              "Jet_leptonPtRel" : [],
              "Jet_leptonDeltaR" : [],
              "Jet_nHEFrac" : [],
+             "Jet_cHEFrac" : [],
              "Jet_nEmEFrac" : [],
              "Jet_chargedMult" : [],
              "Jet_vtxPt" : [],

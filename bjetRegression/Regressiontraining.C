@@ -33,11 +33,11 @@ void Regressiontraining(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
   
    
-   TString outfileName( "BReg_0329_oldVars.root" );
+   TString outfileName( "BReg_0330_oldVars.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
    
 
-   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0329_oldVars", outputFile,"V:!Silent:Color:DrawProgressBar" );
+   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0330_oldVars", outputFile,"V:!Silent:Color:DrawProgressBar" );
    
    //Add Variables to factory
    factory->AddVariable("Jet_Pt","Jet_pt","units", 'F'); 
@@ -58,9 +58,9 @@ void Regressiontraining(   )
    factory->AddVariable("Jet_vtxNtracks","Jet_vtxNtrk","units", 'F');
    factory->AddVariable("Jet_vtx3DSig","Jet_vtx3deL","units", 'F');
    
-   factory->AddTarget( "Jet_MatchedPartonPt" ); 
+   factory->AddTarget( "Jet_MatchedPartonPt / Jet_Pt" ); 
 
-   //factory->AddSpectator( "Jet_PartonPt");
+   factory->AddSpectator( "Jet_MatchedPartonPt");
    factory->AddSpectator( "Jet_MatchedPartonFlav" );
    factory->AddSpectator( "Jet_Flav" );
    factory->AddSpectator( "Evt_Odd" );

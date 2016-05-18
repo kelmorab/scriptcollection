@@ -33,10 +33,10 @@ void MakeTreeforbReg(   )
 
 
   int Event_Odd, NJets, NPV;
-  float rho, Event_Weight;
+  float rho, Event_Weight, PU_Weight;
   float Jet_pt[20],Jet_rawpt[20],Jet_corr[20],Jet_corr_raw[20],Jet_Eta[20],Jet_M[20],Jet_Mt[20],Jet_leadTrackPt[20],Jet_Flav[20],Jet_PFlav[20];
   float Jet_leptonPt[20],Jet_leptonPtRel[20],Jet_leptonDeltaR[20];
-  float Jet_nHEFrac[20],Jet_cHEFrac[20],Jet_nEMEFrac[20],Jet_chMult[20];
+  float Jet_nHEFrac[20],Jet_cHEFrac[20],Jet_nEMEFrac[20],Jet_totHEFrac[20], Jet_chMult[20];
   float Jet_vtxPt[20],Jet_vtxMass[20],Jet_vtx3DVal[20],Jet_vtxNtracks[20],Jet_vtx3DSig[20];
   float Jet_PartonFlav[20],Jet_PartonPt[20],Jet_PartonDeltaR[20];
 
@@ -45,9 +45,9 @@ void MakeTreeforbReg(   )
   InputChain->SetBranchAddress("Evt_Odd",&Event_Odd);            
   InputChain->SetBranchAddress("N_Jets",&NJets);                      
   InputChain->SetBranchAddress("Evt_Rho",&rho);                       
-  InputChain->SetBranchAddress("Weight",&Event_Weight);               
+  InputChain->SetBranchAddress("Weight",&Event_Weight);
+  InputChain->SetBranchAddress("Weight_PU",&PU_Weight);
   InputChain->SetBranchAddress("N_PrimaryVertices", &NPV);
-
 
   InputChain->SetBranchAddress("Jet_Pt",&Jet_pt);                     
   InputChain->SetBranchAddress("Jet_rawPt",&Jet_rawpt);                     
@@ -65,7 +65,8 @@ void MakeTreeforbReg(   )
   InputChain->SetBranchAddress("Jet_leptonDeltaR",&Jet_leptonDeltaR); 
 
   InputChain->SetBranchAddress("Jet_nHEFrac",&Jet_nHEFrac);           
-  InputChain->SetBranchAddress("Jet_cHEFrac",&Jet_cHEFrac);           
+  InputChain->SetBranchAddress("Jet_cHEFrac",&Jet_cHEFrac);
+  InputChain->SetBranchAddress("Jet_totHEFrac",&Jet_totHEFrac);           
   InputChain->SetBranchAddress("Jet_nEmEFrac",&Jet_nEMEFrac);         
   InputChain->SetBranchAddress("Jet_chargedMult",&Jet_chMult);        
 
@@ -85,11 +86,13 @@ void MakeTreeforbReg(   )
   outputFile->cd();
   TTree *OutputTree = new TTree("bRegTree","Tree for bJetRegression training");
 
-  float E_Odd, E_Rho, N_PV,  E_Weight,J_Pt,J_rawPt,J_corr,J_corr_raw,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_chef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt, J_RPJ, J_RLJ, J_RVJ,J_PDR,J_PFlav,J_tothef;
+  float E_Odd, E_Rho, N_PV,  E_Weight,P_Weight,J_Pt,J_rawPt,J_corr,J_corr_raw,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_chef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt, J_RPJ, J_RLJ, J_RVJ,J_PDR,J_PFlav,J_tothef;
 
   OutputTree->Branch("Evt_Odd",&E_Odd);                 
   OutputTree->Branch("Evt_Rho",&E_Rho);                       
-  OutputTree->Branch("Weight",&E_Weight);               
+  OutputTree->Branch("Weight",&E_Weight);          
+  OutputTree->Branch("Weight_PU",&P_Weight);          
+  
   OutputTree->Branch("N_PrimaryVertices",&N_PV);
 
   OutputTree->Branch("Jet_Pt",&J_Pt);                     
@@ -139,6 +142,7 @@ void MakeTreeforbReg(   )
       E_Odd = Event_Odd;
       E_Rho = rho;
       E_Weight = Event_Weight;  
+      P_Weight = PU_Weight;
       N_PV = NPV;
       J_Pt = Jet_pt[j];
       J_rawPt = Jet_rawpt[j];

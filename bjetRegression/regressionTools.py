@@ -224,14 +224,17 @@ class Errors():
             self.useabs = False
         
     def computeloss(self,x,y,func):
+        #print x,y
         if func == "squared":
             self.RSS = self.RSS + (y-x)*(y-x)
             self.nsquared = self.nsquared + 1 
+            #print self.RSS
         if func == "abs":
             self.abssum = self.abssum + abs(y-x)
             self.nabs = self.nabs + 1
 
     def addevent(self,x,y):
+        #print x,y
         self.eventvals.append([x,y])
         if self.usesquared:
             self.computeloss(x,y,"squared")
@@ -266,6 +269,7 @@ class Errors():
         self.R2 = 1 - (self.RSS/self.TSS)
 
     def printerr(self, lossfunc = ["squared","abs"]):
+        self.computeerr()
         if "squared" in lossfunc:
             self.computeTSS()
             self.calculateR2()
@@ -276,6 +280,21 @@ class Errors():
             print "Error with squared Error loss function:",self.squaredtesterr
         if "abs" in lossfunc:
             print "Error with absolute Error loss function:",self.abstesterr
+
+    def getandCalcall(self, lossfunc = ["squared","abs"]):
+        self.computeerr()
+        if "squared" in lossfunc:
+            self.computeTSS()
+            self.calculateR2()
+        if "abs" in lossfunc:
+            self.abstesterr
+
+        return {"RSS" : self.RSS,
+                "RSE" : (sqrt((1/(self.nsquared - 2)) * self.RSS)),
+                "TSS" : self.TSS,
+                "R^2" : self.R2,
+                "err_squared_loss" : self.squaredtesterr,
+                "err_abs_loss" : self.abstesterr }
 
     def getvalues(self):
         return {"RSS" : self.RSS,
@@ -293,6 +312,17 @@ class Errors():
                "err_squared_loss",
                "err_abs_loss"]
         
+
+
+def getAvQuadDevfromHisto(th1f):
+    mean = th1f.GetMean()
+    rms = th1f.GetRMS()
+    entries = th1f.GetEntries()
+    
+    AvDev = sqrt(mean)
+    AvDevError = rms / sqrt(entries*2*mean)
+    #print AvDev, AvDevError    
+    return AvDev, AvDevError
 
 
 

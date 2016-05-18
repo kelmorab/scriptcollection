@@ -33,11 +33,11 @@ void Regressiontraining_newVars(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
   
    
-   TString outfileName( "BReg_0329_newVars.root" );
+   TString outfileName( "BReg_0509_changedSettings.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
    
 
-   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0329_newVars", outputFile,"V:!Silent:Color:DrawProgressBar" );
+   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0509_changedSettings", outputFile,"V:!Silent:Color:DrawProgressBar" );
    
    //Add Variables to factory
    factory->AddVariable("Jet_Pt","Jet_pt","units", 'F'); 
@@ -59,20 +59,21 @@ void Regressiontraining_newVars(   )
    factory->AddVariable("Jet_vtxNtracks","Jet_vtxNtrk","units", 'F');
    factory->AddVariable("Jet_vtx3DSig","Jet_vtx3deL","units", 'F');
    
-   factory->AddTarget( "Jet_MatchedPartonPt" ); 
-
-   //factory->AddSpectator( "Jet_MatchedPartonPt");
+   factory->AddTarget( "Jet_MatchedPartonPt / Jet_Pt" ); 
+   
+   /*
+   factory->AddSpectator( "Jet_MatchedPartonPt");
    factory->AddSpectator( "Jet_MatchedPartonFlav" );
    factory->AddSpectator( "Jet_PartonFlav" );
    factory->AddSpectator( "Jet_Flav" );
    factory->AddSpectator( "Evt_Odd" );
    factory->AddSpectator("Evt_Rho");   
-
+   */
    
    std::cout << "before fname" << endl;
    //Root file for Training
    TFile *input(0);
-   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0329/ttbarinclforbReg0329.root";
+   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0413/ttbarforbReg.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
 
@@ -93,7 +94,7 @@ void Regressiontraining_newVars(   )
    factory->AddRegressionTree( Tree, regWeight );
    
    std::cout << "Add weight expression" << endl;
-   factory->SetWeightExpression("Weight","Regression");
+   factory->SetWeightExpression("Weight * Weight_PU","Regression");
 
    //Cut on on samples
    TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_MatchedPartonFlav) == 5 && Jet_Eta <= 2.4";
@@ -106,8 +107,8 @@ void Regressiontraining_newVars(   )
 
    if (usebdt) {
      std::cout << "Book BTDG" << endl;
-     //factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=1000::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=5:PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True" );
-     factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=1200::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=30:MaxDepth=5:PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True:VarTransform=U(Jet_leptonDeltaR)" );
+     //factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=1200::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=30:MaxDepth=5:PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5:UseBaggedBoost=True:VarTransform=U(Jet_leptonDeltaR)" );
+     factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:!V:NTrees=1200:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=30:MaxDepth=5:PruneMethod=CostComplexity:PruneStrength=30" );
      }
    else {
      std::cout << "Book ANN" << endl;

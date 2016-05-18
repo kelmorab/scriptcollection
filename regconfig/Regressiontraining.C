@@ -91,14 +91,14 @@ void Regressiontraining(   )
    factory->AddRegressionTree( Tree, regWeight );
    
    //std::cout << "Add weight expression" << endl;
-   //factory->SetWeightExpression("1","Regression");
+   factory->SetWeightExpression("Weight","Regression");
 
    //Cut on on samples
    //TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_PartonFlav) == 5";
    TCut mycut = getenv("REG_CUTS");
    
    std::cout << "Prepare Training" << endl;
-   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=1000000:SplitMode=Random:NormMode=NumEvents:!V" );
+   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=1000000:nTest_Regression=2000000:SplitMode=Random:NormMode=NumEvents:!V" );
    //factory->PrepareTrainingAndTestTree( mycut, "nTrain_Regression=0:nTest_Regression=0:SplitMode=Random:NormMode=NumEvents:!V" );
    
    bool usebdt = true;
