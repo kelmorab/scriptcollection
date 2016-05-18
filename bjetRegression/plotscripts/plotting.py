@@ -19,6 +19,7 @@ class plots():
         self.manualLegendleft = False
         self.manualcolors = False
         self.uselogscale = False
+        self.noCMS = False
         if key == "Jet_Pt":
             self.setTH1(200,0,600)
             self.Titlestring = "Jet p_{T} (GeV)"
@@ -212,6 +213,10 @@ class plots():
         cms.SetNDC()
         
         return simul, cms
+
+    #call from script
+    def donotmakeCMSstuff(self):
+        self.noCMS = True
         
     def getKey(self):
         return self.key
@@ -507,14 +512,22 @@ class normPlots(plots):
 
 
     
-    def makeStyle(self, maxyval, dofilling = False):
+    def makeStyle(self, maxyval, dofilling = False , ytitle = None):
         colorlist = [ROOT.kViolet+9,ROOT.kViolet+1,ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen-3,ROOT.kGreen,ROOT.kGreen+2,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2,ROOT.kMagenta+2,ROOT.kPink+2,ROOT.kRed-4, ROOT.kBlue-5, ROOT.kYellow-6]
         if self.manualcolors:
             if len(self.manualcolorlist) >= len(self.histos):
                 colorlist = self.manualcolorlist
         self.setXTitle(self.key,self.histos[0])
+<<<<<<< HEAD
         self.setYTitle(self.histos[0])
         self.histos[0].GetYaxis().SetRangeUser(10,maxyval*1.1)
+=======
+        if ytitle != None:
+            self.setYTitle(self.histos[0], ytitle)
+        else:
+            self.setYTitle(self.histos[0])
+        self.histos[0].GetYaxis().SetRangeUser(0,maxyval*1.1)
+>>>>>>> 504f81a64bdb2b51fb63d2baea6b9ef019913c66
         for iHisto, histo in enumerate(self.histos):
             histo.SetLineWidth(2)
             histo.SetLineColor(colorlist[iHisto])
@@ -582,7 +595,7 @@ class normPlots(plots):
             c1.SetLogy(1)
         if plotlogx:
             c1.SetLogx(1)
-        
+
         if Drawnormalized:
             for histo in self.histos:
                 ScaletoInt(histo)
@@ -591,7 +604,7 @@ class normPlots(plots):
             tmpval = histo.GetBinContent(histo.GetMaximumBin())
             if tmpval > maxy:
                 maxy = tmpval
-        self.makeStyle(maxy, dofilling)
+        self.makeStyle(maxy, dofilling, ytitle)
         legend = self.makeLegend(self.legendtext)
         stuff = "histoe"
         for histo in self.histos:
@@ -603,8 +616,9 @@ class normPlots(plots):
                 stuff = stuff + " same"
         #canvas.Update()
         simul, cms = self.makeCMSstuff()
-        simul.Draw("same")
-        cms.Draw("same")
+        if not self.noCMS:
+            simul.Draw("same")
+            cms.Draw("same")
         if self.nHistos > 1:
             #print "drawing legend"
             legend.Draw("same")
