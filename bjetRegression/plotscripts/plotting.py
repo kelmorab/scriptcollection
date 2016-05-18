@@ -518,16 +518,11 @@ class normPlots(plots):
             if len(self.manualcolorlist) >= len(self.histos):
                 colorlist = self.manualcolorlist
         self.setXTitle(self.key,self.histos[0])
-<<<<<<< HEAD
-        self.setYTitle(self.histos[0])
-        self.histos[0].GetYaxis().SetRangeUser(10,maxyval*1.1)
-=======
         if ytitle != None:
             self.setYTitle(self.histos[0], ytitle)
         else:
             self.setYTitle(self.histos[0])
         self.histos[0].GetYaxis().SetRangeUser(0,maxyval*1.1)
->>>>>>> 504f81a64bdb2b51fb63d2baea6b9ef019913c66
         for iHisto, histo in enumerate(self.histos):
             histo.SetLineWidth(2)
             histo.SetLineColor(colorlist[iHisto])
