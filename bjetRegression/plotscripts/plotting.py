@@ -495,6 +495,8 @@ class CatPlots(plots):
 class normPlots(plots):
     def __init__(self, key, comparison = False, nComparisons = 2, legendtext = [], customparam = None):
         plots.__init__(self, key, customparam)
+        self.graph = False
+        self.ROCCurve = False
         if comparison:
             self.nHistos = nComparisons
         else:
@@ -512,20 +514,30 @@ class normPlots(plots):
 
 
     
-    def makeStyle(self, maxyval, dofilling = False , ytitle = None):
+    def makeStyle(self, maxyval, dofilling = False , ytitle = None, yoffsetTop = None):
         colorlist = [ROOT.kViolet+9,ROOT.kViolet+1,ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen-3,ROOT.kGreen,ROOT.kGreen+2,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2,ROOT.kMagenta+2,ROOT.kPink+2,ROOT.kRed-4, ROOT.kBlue-5, ROOT.kYellow-6]
         if self.manualcolors:
             if len(self.manualcolorlist) >= len(self.histos):
                 colorlist = self.manualcolorlist
-        self.setXTitle(self.key,self.histos[0])
-        if ytitle != None:
-            self.setYTitle(self.histos[0], ytitle)
+        if self.ROCCurve:
+            self.setXTitle(self.key,self.histos[0],"Signal Eff.")
+            self.setYTitle(self.histos[0], self.ROCYTitle)
         else:
-            self.setYTitle(self.histos[0])
-        self.histos[0].GetYaxis().SetRangeUser(0,maxyval*1.1)
+            self.setXTitle(self.key,self.histos[0])
+            if ytitle != None:
+                self.setYTitle(self.histos[0], ytitle)
+            else:
+                self.setYTitle(self.histos[0])
+        if yoffsetTop is None:
+            self.histos[0].GetYaxis().SetRangeUser(0,maxyval*1.1)
+        else:
+            self.histos[0].GetYaxis().SetRangeUser(0,maxyval*(1.0 + yoffsetTop))
         for iHisto, histo in enumerate(self.histos):
             histo.SetLineWidth(2)
             histo.SetLineColor(colorlist[iHisto])
+            if self.graph:
+                histo.SetMarkerColor(colorlist[iHisto])
+                histo.SetFillColor(0)
             if dofilling:
                 histo.SetFillStyle(1001)
                 histo.SetFillColor(ROOT.kCyan-10)
@@ -568,8 +580,9 @@ class normPlots(plots):
     def FillnormHisto(self,fillval,nHisto = 0):
         self.histos[nHisto].Fill(fillval)
         
-    def AddTH1F(self, th1f, nHisto):
-        self.setSumw2(th1f)
+    def AddTH1F(self, th1f, nHisto, dosumw2 = True):
+        if dosumw2:
+            self.setSumw2(th1f)
         self.histos[nHisto] = copy.deepcopy(th1f)
 
     def projecttoHisto(self, nHisto, tree, varexp, select = "", option = ""):
@@ -581,7 +594,7 @@ class normPlots(plots):
         del tmph
 
 
-    def WriteHisto(self, canvas, samplestring = None, dofilling = False, Drawnormalized = False, pdfout = None, savehisto = False, plotlogx = False, plotlogy = False):
+    def WriteHisto(self, canvas, samplestring = None, dofilling = False, Drawnormalized = False, pdfout = None, savehisto = False, ytitle = None, plotlogx = False, plotlogy = False, yoffsetTop = None):
         c1 = ROOT.TCanvas()
         c1.cd(1)
         c1.SetLogy(0)
@@ -590,18 +603,22 @@ class normPlots(plots):
             c1.SetLogy(1)
         if plotlogx:
             c1.SetLogx(1)
-
+            
         if Drawnormalized:
             for histo in self.histos:
                 ScaletoInt(histo)
         maxy = 0
-        for histo in self.histos:
-            tmpval = histo.GetBinContent(histo.GetMaximumBin())
-            if tmpval > maxy:
-                maxy = tmpval
-        self.makeStyle(maxy, dofilling, ytitle)
+        if not self.graph:
+            for histo in self.histos:
+                tmpval = histo.GetBinContent(histo.GetMaximumBin())
+                if tmpval > maxy:
+                    maxy = tmpval
+        self.makeStyle(maxy, dofilling, ytitle, yoffsetTop)
         legend = self.makeLegend(self.legendtext)
-        stuff = "histoe"
+        if not self.graph:
+            stuff = "histoe"
+        else:
+            stuff = "AL"
         for histo in self.histos:
             #print "adding", histo
             if savehisto:
@@ -609,6 +626,8 @@ class normPlots(plots):
             histo.Draw(stuff)
             if not stuff.endswith("same"):
                 stuff = stuff + " same"
+                if self.graph:
+                    stuff = "L"
         #canvas.Update()
         simul, cms = self.makeCMSstuff()
         if not self.noCMS:
@@ -642,6 +661,65 @@ class normPlots(plots):
         
     def getNumOfHistos(self):
         return len(self.histos)
+
+
+    def converttoROC(self, nHisto, tree_sig,tree_bkg, varexp_sig, varexp_bkg, select_sig = "", select_bkg = "", varbinning = [10,-1,1], rej= True):
+        tmpstr = "tmp_"+str(ROOT.gRandom.Integer(1000))
+        tmpstr_sig = "tmp_"+str(ROOT.gRandom.Integer(1000))
+        tmpstr_bkg = "tmp_"+str(ROOT.gRandom.Integer(1000))
+        tmph_sig = ROOT.TH1F(tmpstr_sig,tmpstr_sig, varbinning[0],varbinning[1],varbinning[2])
+        tmph_bkg = ROOT.TH1F(tmpstr_bkg,tmpstr_bkg, varbinning[0],varbinning[1],varbinning[2])
+        self.setSumw2(tmph_sig)
+        self.setSumw2(tmph_bkg)
+        tree_sig.Project(tmpstr_sig, varexp_sig, select_sig)
+        tree_bkg.Project(tmpstr_bkg, varexp_bkg, select_bkg)
+
+        #Compute Values for ROC Curve
+        nBins=tmph_sig.GetNbinsX()
+        nBins2=tmph_bkg.GetNbinsX()
+        integral1=tmph_sig.Integral(0,nBins+1)
+        integral2=tmph_bkg.Integral(0,nBins2+1)
+
+
+
+        nonZeroBins=[]
+        for i in range(nBins,-1,-1):
+            if tmph_sig.GetBinContent(i)>0. or tmph_bkg.GetBinContent(i)>0.:
+                nonZeroBins.append(i)  
+        roc = ROOT.TGraphAsymmErrors(len(nonZeroBins)+1)
+
+        if rej:
+            roc.SetPoint(0,0,1)
+        else:
+            roc.SetPoint(0,0,0)
+        point=1
+        for i in nonZeroBins:
+            eff1=0
+            eff2=0
+            if integral1 > 0:
+                eff1=tmph_sig.Integral(i,nBins+1)/integral1
+            if integral2 > 0:
+                eff2=tmph_bkg.Integral(i,nBins+1)/integral2
+            if rej:
+                roc.SetPoint(point,eff1,1-eff2)
+            else:
+                roc.SetPoint(point,eff1,eff2)
+            point+=1
+            
+        tmph = roc
+        self.graph = True
+        
+        self.ROCCurve = True
+        if rej:
+            self.ROCYTitle = "Background Rej."
+        else:
+            self.ROCYTitle = "Background Eff."
+
+        self.histos[nHisto] = copy.deepcopy(tmph)
+        del tmph
+
+
+
 
 
 class TwoDplot(plots):
@@ -867,6 +945,8 @@ class PointPlot(plots):
         else:
             print "Added Points and set Point at initialisation are different"
 
+
+            
 def ScaletoInt(th1f):
     if th1f.GetNbinsX() != 1:
         th1f.Scale(1/float(th1f.Integral()))

@@ -5,6 +5,7 @@ import ROOT
 import sys
 import os
 from copy import deepcopy
+from glob import glob
 #
 #-------------------------------------------------------------------------------------#
 # Import custom modules
@@ -12,43 +13,51 @@ from plotting import *
 from rootutils import PDFPrinting
 
 sys.path.append("/nfs/dust/cms/user/kschweig/pyroot-plotscripts")
-from plotutils import getSepaTests3
+from plotutils import getSepaTests3, getROClist
 #-------------------------------------------------------------------------------------#
 #
-ROOT.gROOT.SetBatch(True)
+#ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0);
 #
 #-------------------------------------------------------------------------------------#
 # Set Variables
 
-inputfile = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0408/ttHbb_nominal_2.root")
-inputfile_bkg = ROOT.TFile("/nfs/dust/cms/user/kschweig/JetRegression/trees0408/ttbar.root")
+path = "/nfs/dust/cms/user/kschweig/JetRegression/trees0524/"
+
+inputtree_sig = ROOT.TChain("MVATree")
+inputtree_bkg = ROOT.TChain("MVATree")
+
+for f in glob(path+"ttHbb/*.root"):
+    inputtree_sig.Add(f)
+for f in glob(path+"ttbar_incl/*.root"):
+    inputtree_bkg.Add(f)
+
 #outputname = "ttHbb_commonbdt5_comp"
-outputname = "commonbdt5_comp"
+outputname = "commonbdt5_0525_comp"
 
 Evt = "Evt_Odd == 0"
-weight = "(Weight * Weight_PU)"
+weight = "(Weight * Weight_PU * Weight_LeptonSF * Weight_CSV)"
 boosted="(BoostedTopHiggs_TopHadCandidate_TopMVAOutput>=-0.485&&BoostedTopHiggs_HiggsCandidate_HiggsTag>=0.8925)"                        
 #boosted= "0"
-categoriesSELECTION=[Evt+"&&"+weight+"&&((N_Jets>=6&&N_BTagsM==2)&&!"+boosted+")",
-                     Evt+"&&"+weight+"*((N_Jets==4&&N_BTagsM==3)&&!"+boosted+")",
+categoriesSELECTION=[#Evt+"&&"+weight+"&&((N_Jets>=6&&N_BTagsM==2)&&!"+boosted+")",
+                     #Evt+"&&"+weight+"*((N_Jets==4&&N_BTagsM==3)&&!"+boosted+")",
                      Evt+"&&"+weight+"*((N_Jets==5&&N_BTagsM==3)&&!"+boosted+")",
-                     Evt+"&&"+weight+"*((N_Jets>=6&&N_BTagsM==3)&&!"+boosted+")",
+                     #Evt+"&&"+weight+"*((N_Jets>=6&&N_BTagsM==3)&&!"+boosted+")",
                      Evt+"&&"+weight+"*((N_Jets==4&&N_BTagsM>=4)&&!"+boosted+")",
                      Evt+"&&"+weight+"*((N_Jets==5&&N_BTagsM>=4)&&!"+boosted+")",             
-                     Evt+"&&"+weight+"*((N_Jets>=6&&N_BTagsM>=4)&&!"+boosted+")",
-                    Evt+"&&"+weight+"*((N_Jets>=4&&N_BTagsM>=2)&&"+boosted+")"]
+                     Evt+"&&"+weight+"*((N_Jets>=6&&N_BTagsM>=4)&&!"+boosted+")",]
+                     #Evt+"&&"+weight+"*((N_Jets>=4&&N_BTagsM>=2)&&"+boosted+")"]
 
 
 
-categorieslegend=["6j2t",
-                   "4j3t",
-                   "5j3t",
-                   "6j3t",
-                   "4j4t",
-                   "5j4t",             
-                   "6j4t",
-                   "boosted"]
+categorieslegend=[#"6j2t",
+                  # "4j3t",
+                  "5j3t",
+                  # "6j3t",
+                  "4j4t",
+                  "5j4t",             
+                  "6j4t",]
+                  #"boosted"]
 
 binning = {'Evt_CSV_Average':[17,0.3,1],
             'Evt_Deta_JetsAverage':[20,0,4],
@@ -91,7 +100,7 @@ binning = {'Evt_CSV_Average':[17,0.3,1],
 #
 #-------------------------------------------------------------------------------------#
 
-tree = inputfile.Get("MVATree")
+tree = inputtree_sig
 
 common5_input = []
 reg_common5_input = []
@@ -116,6 +125,10 @@ if False:
     noreg_output = normPlots(  "BDT Output" , True , len(categorieslegend) , categorieslegend , [10,-1,1]  )
     reg_output = normPlots(  "BDT Output" , True , len(categorieslegend) , categorieslegend , [10,-1,1]  )
 
+    noreg_ROC = normPlots(  "ROC Curve" , True , len(categorieslegend) , categorieslegend , [20,0,1]  )
+    reg_ROC = normPlots(  "ROC Curve" , True , len(categorieslegend) , categorieslegend , [20,0,1]  )
+
+    
 
     for icat, cat in enumerate(categoriesSELECTION):
         for variable in common5_input:
@@ -198,7 +211,7 @@ if True:
     pdfout = PDFPrinting(outputname+"_noregVreg")
 
 
-    tree_bkg = inputfile_bkg.Get("MVATree")
+    tree_bkg = inputtree_bkg
 
     for icat, cat in enumerate(categoriesSELECTION):
         plots = {}
@@ -210,8 +223,11 @@ if True:
             plots.update(  {  var : normPlots(  var , True , 4,  legend_all , binning[var]  )  }  )
             
         output = normPlots(  "BDT Output" , True , 4 , legend_all , [10,-1,1]  )
+        
+        ROC = normPlots( "ROC Curve" , True , 2, ["No Regression","Regression"], [10,0,1] )
 
         for variable in common5_input:
+            break
             var = variable[len("BDT_common5_input_"):]
             var_reg = "BDT_reg_common5_input_"+variable[len("BDT_common5_input_"):]
             
@@ -251,13 +267,31 @@ if True:
         output.projecttoHisto(2, tree_bkg,"BDT_reg_common5_output" , cat)
         output.projecttoHisto(3, tree,"BDT_reg_common5_output" , cat)
 
-        histos = plots[var].getHistos()
+        histos = output.getHistos()
+
 
         noreg_text = getSepaTests3([histos[0]],histos[1])[0]
         reg_text = getSepaTests3([histos[2]],histos[3])[0]
         
+        #noreg_roc = getROClist(histos[1],histos[0])
+        #reg_roc = getROClist(histos[3],histos[2])
+
+        #rocnoreg = ROOT.TH1F("rocnoreg","rocnoreg",20,0,1)
+        #rocreg = ROOT.TH1F("rocreg","rocreg",20,0,1)
+        
+        #print len(noreg_roc)
+        #print len(reg_roc)
         
         
+        ROC.converttoROC(0,tree, tree_bkg, "BDT_common5_output","BDT_common5_output", cat, cat, [1000,-1,1])
+        ROC.converttoROC(1,tree, tree_bkg, "BDT_reg_common5_output","BDT_reg_common5_output", cat, cat, [1000,-1,1])
+
+        ROC.changeColorlist([ROOT.kAzure-3,ROOT.kRed])
+        
+        ROC.addLabel(0.04,0.03,categorieslegend[icat],0,0.045)
+        ROC.WriteHisto(c1 ,None, False, False, pdfout)
+
+
         output.addLabel(0.13,0.8, "No Regression: "+noreg_text,0,0.04)
         output.addLabel(0.13,0.75, "Regression: "+reg_text,0,0.04)
 
@@ -265,7 +299,9 @@ if True:
         output.setLineStyle([0,1],2)
 
         output.addLabel(0.04,0.03,categorieslegend[icat],0,0.045)
-        output.WriteHisto(c1,None, False, True, pdfout)
+        output.WriteHisto(c1,None, False, True, pdfout,False,None,False,False,0.35)
+
+        del output, ROC, histos
 
     pdfout.closePDF()
 
