@@ -19,5 +19,6 @@ exist bevor. For unmounting use:
     fusermount -u /path/to/mount/
 
 Works best, when using with a small shell script saved in ~/bin:
+
     #!/bin/bash
     python path/to/cmsswmount.py $1 [USERNAME] [SERVER] [SERVERROOT]
