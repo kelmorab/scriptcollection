@@ -37,32 +37,44 @@ void Regressiontraining(   )
   
   char* jobname = getenv("WEIGHTPREFIX");
   TMVA::Factory *factory = new TMVA::Factory( jobname, outputFile,"V:!Silent:Color:DrawProgressBar" );
-   
-   //Add Variables to factory
-   factory->AddVariable("Jet_Pt","Jet_pt","units", 'F'); 
-   factory->AddVariable("Jet_corr","Jet_corr","units", 'F');
-   factory->AddVariable("Evt_Rho","rho","units", 'F');
-   factory->AddVariable("Jet_Eta","Jet_eta","units", 'F');
-   factory->AddVariable("Jet_Mt","Jet_mt","units", 'F'); 
-   factory->AddVariable("Jet_leadTrackPt","Jet_leadTrackPt","units", 'F'); 
-   factory->AddVariable("Jet_leptonPtRel","Jet_leptonPtRel","units", 'F');
-   factory->AddVariable("Jet_leptonPt","Jet_leptonPt","units", 'F'); 
-   factory->AddVariable("Jet_leptonDeltaR","Jet_leptonDeltaR","units", 'F');
-   //factory->AddVariable("Jet_nHEFrac","Jet_neHEF","units", 'F'); 
-   //factory->AddVariable("Jet_nEmEFrac","Jet_neEmEF","units", 'F');
-   factory->AddVariable("Jet_chargedMult","Jet_chargedMult","units", 'F');
-   factory->AddVariable("Jet_vtxPt","Jet_vtxPt","units", 'F');
-   factory->AddVariable("Jet_vtxMass","Jet_vtxMass","units", 'F');
-   factory->AddVariable("Jet_vtx3DVal","Jet_vtx3dL","units", 'F');
-   factory->AddVariable("Jet_vtxNtracks","Jet_vtxNtrk","units", 'F');
-   factory->AddVariable("Jet_vtx3DSig","Jet_vtx3deL","units", 'F');
-   
-
-   factory->AddTarget( "Jet_PartonPt" ); 
-   
-   //factory->AddSpectator( "Jet_PartonFlav" );
-   //factory->AddSpectator( "Jet_Flav" );
-   //factory->AddSpectator( "Evt_Odd" );
+  
+  TString useVar00 = getenv("REG_USEVAR00");
+  TString useVar01 = getenv("REG_USEVAR01");
+  TString useVar02 = getenv("REG_USEVAR02");
+  TString useVar03 = getenv("REG_USEVAR03");
+  TString useVar04 = getenv("REG_USEVAR04");
+  TString useVar05 = getenv("REG_USEVAR05");
+  TString useVar06 = getenv("REG_USEVAR06");
+  TString useVar07 = getenv("REG_USEVAR07");
+  TString useVar08 = getenv("REG_USEVAR08");
+  TString useVar09 = getenv("REG_USEVAR09");
+  TString useVar10 = getenv("REG_USEVAR10");
+  TString useVar11 = getenv("REG_USEVAR11");
+  TString useVar12 = getenv("REG_USEVAR12");
+  TString useVar13 = getenv("REG_USEVAR13");
+  TString useVar14 = getenv("REG_USEVAR14");
+  TString useVar15 = getenv("REG_USEVAR15");
+  
+  //Add Variables to factory
+  if( useVar00 == "True" ){  factory->AddVariable("Jet_Pt","Jet_pt","units", 'F'); }
+  if( useVar01 == "True" ){  factory->AddVariable("Jet_corr","Jet_corr","units", 'F'); }
+  if( useVar02 == "True" ){  factory->AddVariable("N_PrimaryVertices","N_PrimaryVertices","units", 'F'); }
+  if( useVar03 == "True" ){  factory->AddVariable("Jet_Eta","Jet_eta","units", 'F'); }
+  if( useVar04 == "True" ){  factory->AddVariable("Jet_Mt","Jet_mt","units", 'F');  }
+  if( useVar05 == "True" ){  factory->AddVariable("Jet_leadTrackPt","Jet_leadTrackPt","units", 'F');  }
+  if( useVar06 == "True" ){  factory->AddVariable("Jet_leptonPtRel","Jet_leptonPtRel","units", 'F'); }
+  if( useVar07 == "True" ){  factory->AddVariable("Jet_leptonPt","Jet_leptonPt","units", 'F');  }
+  if( useVar08 == "True" ){  factory->AddVariable("Jet_leptonDeltaR","Jet_leptonDeltaR","units", 'F'); }
+  if( useVar09 == "True" ){  factory->AddVariable("Jet_totHEFrac","Jet_totHEFrac","units", 'F');  }
+  if( useVar10 == "True" ){  factory->AddVariable("Jet_nEmEFrac","Jet_neEmEF","units", 'F'); }
+  if( useVar11 == "True" ){  factory->AddVariable("Jet_vtxPt","Jet_vtxPt","units", 'F'); }
+  if( useVar12 == "True" ){  factory->AddVariable("Jet_vtxMass","Jet_vtxMass","units", 'F'); }
+  if( useVar13 == "True" ){  factory->AddVariable("Jet_vtx3DVal","Jet_vtx3dL","units", 'F'); }
+  if( useVar14 == "True" ){  factory->AddVariable("Jet_vtxNtracks","Jet_vtxNtrk","units", 'F'); }
+  if( useVar15 == "True" ){  factory->AddVariable("Jet_vtx3DSig","Jet_vtx3deL","units", 'F'); }
+  
+  factory->AddTarget( "Jet_MatchedPartonPt" );
+  //factory->AddTarget( "Jet_MatchedPartonPt / Jet_Pt" );
    
 
    
@@ -70,6 +82,7 @@ void Regressiontraining(   )
    //Root file for Training
    TFile *input(0);
    TString fname = getenv("INPUTFILE");
+   std::cout << fname << std::endl;
    //TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbarforbReg0211.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
@@ -91,14 +104,16 @@ void Regressiontraining(   )
    factory->AddRegressionTree( Tree, regWeight );
    
    //std::cout << "Add weight expression" << endl;
-   factory->SetWeightExpression("Weight","Regression");
+   TString Weightexp = getenv("REG_WEIGHTEXP");
 
+   factory->SetWeightExpression(Weightexp,"Regression");
+   
    //Cut on on samples
    //TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_PartonFlav) == 5";
    TCut mycut = getenv("REG_CUTS");
    
    std::cout << "Prepare Training" << endl;
-   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=1000000:nTest_Regression=2000000:SplitMode=Random:NormMode=NumEvents:!V" );
+   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=100000:SplitMode=Random:NormMode=NumEvents:!V" );
    //factory->PrepareTrainingAndTestTree( mycut, "nTrain_Regression=0:nTest_Regression=0:SplitMode=Random:NormMode=NumEvents:!V" );
    
    bool usebdt = true;
@@ -110,8 +125,10 @@ void Regressiontraining(   )
      TString shrinkage = getenv("REG_BDTG_SHRINK");
      TString maxdepth  = getenv("REG_BDTG_MAXDEPTH");
      TString ncuts     = getenv("REG_BDTG_NCUTS");
+     TString BaggedSF  = getenv("REG_BDTG_BAGGEDSF");
+
      
-     TString bookmethodstring = "!H:NTrees="+nTrees+"::BoostType=Grad:Shrinkage="+shrinkage+":UseBaggedBoost:BaggedSampleFraction=0.5:nCuts="+ncuts+":MaxDepth="+maxdepth+":PruneMethod=costcomplexity:PruneStrength=30:GradBaggingFraction=0.5";
+     TString bookmethodstring = "!H:NTrees="+nTrees+"::BoostType=Grad:Shrinkage="+shrinkage+":UseBaggedBoost:BaggedSampleFraction="+BaggedSF+":nCuts="+ncuts+":MaxDepth="+maxdepth+":PruneMethod=costcomplexity:PruneStrength=30";
      
      factory->BookMethod( TMVA::Types::kBDT, "BDTG", bookmethodstring);
      }

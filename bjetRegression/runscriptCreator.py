@@ -13,7 +13,7 @@ outpath=sys.argv[3]
 scriptpath=sys.argv[2]
 cmsswpath='/nfs/dust/cms/user/kschweig/CMSSW_7_6_3'
 
-samples=[('ttbar','/nfs/dust/cms/user/kschweig/JetRegression/trees0329/ttbar_incl/')]
+samples=[('ttbar','/nfs/dust/cms/user/kschweig/JetRegression/trees0619_ttbar/ttbar_incl/')]
 
 events_per_job= 1000000
 files_per_job = 10

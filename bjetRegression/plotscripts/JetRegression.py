@@ -6,7 +6,7 @@ class JetRegression():
         self.name = "BDTG"
         self.weights = weightfile
         self.training = training
-        reader = ROOT.TMVA.Reader()
+        reader = ROOT.TMVA.Reader("Silent")
         
         self.Jet_pt =array.array('f',[0])
         self.Jet_corr = array.array('f',[0])
@@ -72,8 +72,8 @@ class JetRegression():
         self.Jet_leptonPt[0] =  inputvars["Jet_leptonPt"]
         self.Jet_leptonDeltaR[0] = inputvars["Jet_leptonDeltaR"]
         if self.training == "New":
-            self.Jet_totHEFrac[0] = min(1.0,inputvars["Jet_nHEFrac"]+inputvars["Jet_cHEFrac"])
-            self.Jet_nEMEFrac[0] = min(1.0,inputvars["Jet_nEmEFrac"])
+            self.Jet_totHEFrac[0] = inputvars["Jet_totHEFrac"]
+            self.Jet_nEMEFrac[0] = inputvars["Jet_nEmEFrac"]
         #self.Jet_chMult[0] = inputvars["Jet_chargedMult"]
         self.Jet_vtxPt[0] = inputvars["Jet_vtxPt"]
         self.Jet_vtxMass[0] = inputvars["Jet_vtxMass"]
@@ -84,3 +84,12 @@ class JetRegression():
         if printresult:
             print result
         return result
+
+
+def getHiggsMass(j1pt, j1eta, j1phi, j1E, j1corr, j2pt, j2eta, j2phi, j2E, j2corr):
+    jetvec1 = ROOT.TLorentzVector()
+    jetvec2 = ROOT.TLorentzVector()
+    jetvec1.SetPtEtaPhiE( j1pt * j1corr , j1eta , j1phi , j1E * j1corr )
+    jetvec2.SetPtEtaPhiE( j2pt * j2corr , j2eta , j2phi , j2E * j2corr )
+
+    return ( jetvec1 + jetvec2 ).M()

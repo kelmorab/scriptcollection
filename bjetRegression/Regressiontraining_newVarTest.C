@@ -21,7 +21,7 @@
 using namespace TMVA;
 
 
-void Regressiontraining_newVars(   )
+void Regressiontraining_newVarTest(   )
 {
   TMVA::Tools::Instance();
   
@@ -33,16 +33,16 @@ void Regressiontraining_newVars(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
   
    
-   TString outfileName( "BReg_0609_JESandRwPUwLSFnocorr.root" );
+   TString outfileName( "BReg_0627_GenJet_1200_BSF05minNS06Shr075_ratio.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
    
 
-   TMVA::Factory *factory = new TMVA::Factory( "TMVARegression_0609_JESandRwPUwLSFnocorr", outputFile,"V:!Silent:Color:DrawProgressBar" );
+   TMVA::Factory *factory = new TMVA::Factory( "BReg_0627_GenJet_1200_BSF05minNS06Shr075_ratio", outputFile,"V:!Silent:Color:DrawProgressBar" );
    
    //Add Variables to factory
    factory->AddVariable("Jet_Pt","Jet_pt","units", 'F'); 
    //factory->AddVariable("Jet_corr","Jet_corr","units", 'F');
-   //factory->AddVariable("Jet_corrhelper","Jet_corrhelper","units", 'F');
+   factory->AddVariable("Jet_corrhelper","Jet_corrhelper","units", 'F');
    //factory->AddVariable("Jet_corrhelperJESandR","Jet_corrhelperJESandR","units", 'F');
    factory->AddVariable("N_PrimaryVertices","N_PrimaryVertices","units", 'F');
 
@@ -53,9 +53,9 @@ void Regressiontraining_newVars(   )
    factory->AddVariable("Jet_leptonPt","Jet_leptonPt","units", 'F'); 
    factory->AddVariable("Jet_leptonDeltaR","Jet_leptonDeltaR","units", 'F');
    //factory->AddVariable("Jet_totHEFrac","Jet_totHEFrac","units", 'F'); 
-   factory->AddVariable("Jet_JESandRtotHEFrac","Jet_JESandRtotHEFrac","units", 'F'); 
+   factory->AddVariable("Jet_idtotHEFrac","Jet_idtotHEFrac","units", 'F'); 
    //factory->AddVariable("Jet_nEmEFrac","Jet_neEmEF","units", 'F');
-   factory->AddVariable("Jet_JESandRnEmEFrac","Jet_JESandRneEmEF","units", 'F');
+   factory->AddVariable("Jet_idnEmEFrac","Jet_idneEmEF","units", 'F');
    //factory->AddVariable("Jet_chargedMult","Jet_chargedMult","units", 'F');
    factory->AddVariable("Jet_vtxPt","Jet_vtxPt","units", 'F');
    factory->AddVariable("Jet_vtxMass","Jet_vtxMass","units", 'F');
@@ -63,7 +63,10 @@ void Regressiontraining_newVars(   )
    factory->AddVariable("Jet_vtxNtracks","Jet_vtxNtrk","units", 'F');
    factory->AddVariable("Jet_vtx3DSig","Jet_vtx3deL","units", 'F');
    
-   factory->AddTarget( "Jet_MatchedPartonPt / Jet_Pt" ); 
+   //factory->AddTarget( "Jet_MatchedPartonPt / Jet_Pt" );
+   factory->AddTarget( "Jet_MatchedGenJetwNuPt / Jet_Pt" ); 
+   //factory->AddTarget( "Jet_MatchedGenJetwNuPt" ); 
+   //factory->AddTarget( "Jet_MatchedPartonPt" );
    
    /*
    factory->AddSpectator( "Jet_MatchedPartonPt");
@@ -77,7 +80,7 @@ void Regressiontraining_newVars(   )
    std::cout << "before fname" << endl;
    //Root file for Training
    TFile *input(0);
-   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0603_onlyttbar/ttbarforbReg.root";
+   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0619_ttbar/ttbarforbReg.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
 
@@ -98,13 +101,14 @@ void Regressiontraining_newVars(   )
    factory->AddRegressionTree( Tree, regWeight );
    
    std::cout << "Add weight expression" << endl;
-   factory->SetWeightExpression("Weight * Weight_PU * Weight_LeptonSF","Regression");
+   factory->SetWeightExpression("Weight * Weight_PU","Regression");
 
    //Cut on on samples
-   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_MatchedPartonFlav) == 5 && Jet_Eta <= 2.4";
+   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && Jet_Eta <= 2.4 && Jet_MatchedGenJetwNuPt > 0 && Jet_MatchedGenJetwNuPt < 600 && abs(Jet_MatchedPartonFlav) == 5";
+   //TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_MatchedPartonFlav) == 5 && Jet_Eta <= 2.4";
    
    std::cout << "Prepare Training" << endl;
-   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=300000:SplitMode=Random:NormMode=NumEvents:!V" );
+   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=100000:SplitMode=Random:NormMode=NumEvents:!V" );
    //factory->PrepareTrainingAndTestTree( mycut, "nTrain_Regression=0:nTest_Regression=0:SplitMode=Random:NormMode=NumEvents:!V" );
    
    bool usebdt = true;
@@ -112,8 +116,8 @@ void Regressiontraining_newVars(   )
    if (usebdt) {
      std::cout << "Book BTDG" << endl;
      //factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=1200::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=30:MaxDepth=5:PruneMethod=costcomplexity:PruneStrength=30:VarTransform=U(Jet_leptonDeltaR)" );
-     factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=1200::BoostType=Grad:Shrinkage=0.1:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=30:MaxDepth=5:PruneMethod=costcomplexity:PruneStrength=30:VarTransform=U(Jet_leptonDeltaR)" );
-     //factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:!V:NTrees=1200:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=30:MaxDepth=5:PruneMethod=CostComplexity:PruneStrength=30" );
+     factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:V:VerbosityLevel=Debug:NTrees=1200::BoostType=Grad:Shrinkage=0.075:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=30:MaxDepth=3:PruneMethod=costcomplexity:PruneStrength=30:VarTransform=U(Jet_leptonDeltaR):MinNodeSize=0.6" );
+     //factory->BookMethod( TMVA::Types::kBDT, "BDTG","!H:!V:NTrees=200:BoostType=Grad:Shrinkage=0.10:UseBaggedGrad:GradBaggingFraction=0.5:nCuts=20:MaxDepth=3:PruneMethod=CostComplexity:PruneStrength=30" );
      }
    else {
      std::cout << "Book ANN" << endl;

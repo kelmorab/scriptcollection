@@ -33,13 +33,16 @@ void MakeTreeforbReg(   )
 
 
   int Event_Odd, NJets, NPV;
-  float rho, Event_Weight, PU_Weight;
+  float rho, Event_Weight, PU_Weight, LeptonSF;
   float Jet_pt[20],Jet_rawpt[20],Jet_corr[20],Jet_corr_raw[20],Jet_Eta[20],Jet_M[20],Jet_Mt[20],Jet_leadTrackPt[20],Jet_Flav[20],Jet_PFlav[20];
   float Jet_leptonPt[20],Jet_leptonPtRel[20],Jet_leptonDeltaR[20];
-  float Jet_nHEFrac[20],Jet_cHEFrac[20],Jet_nEMEFrac[20],Jet_totHEFrac[20], Jet_chMult[20];
+  float Jet_nHEFrac[20],Jet_cHEFrac[20], Jet_chMult[20];
+  float Jet_nEMEFrac[20],Jet_JESnEMEFrac[20],Jet_JESandRnEMEFrac[20],Jet_rawEnEMEFrac[20],Jet_idnEMEFrac[20];
+  float Jet_totHEFrac[20],Jet_JEStotHEFrac[20],Jet_JESandRtotHEFrac[20],Jet_rawEtotHEFrac[20],Jet_idtotHEFrac[20];
   float Jet_vtxPt[20],Jet_vtxMass[20],Jet_vtx3DVal[20],Jet_vtxNtracks[20],Jet_vtx3DSig[20];
   float Jet_PartonFlav[20],Jet_PartonPt[20],Jet_PartonDeltaR[20];
-
+  float Jet_helperL1[20], Jet_helperL3[20], Jet_helperJER[20];
+  float Jet_GenJetPt[20];
   
 
   InputChain->SetBranchAddress("Evt_Odd",&Event_Odd);            
@@ -48,6 +51,8 @@ void MakeTreeforbReg(   )
   InputChain->SetBranchAddress("Weight",&Event_Weight);
   InputChain->SetBranchAddress("Weight_PU",&PU_Weight);
   InputChain->SetBranchAddress("N_PrimaryVertices", &NPV);
+  InputChain->SetBranchAddress("Weight_LeptonSF", &LeptonSF);
+
 
   InputChain->SetBranchAddress("Jet_Pt",&Jet_pt);                     
   InputChain->SetBranchAddress("Jet_rawPt",&Jet_rawpt);                     
@@ -66,9 +71,19 @@ void MakeTreeforbReg(   )
 
   InputChain->SetBranchAddress("Jet_nHEFrac",&Jet_nHEFrac);           
   InputChain->SetBranchAddress("Jet_cHEFrac",&Jet_cHEFrac);
-  InputChain->SetBranchAddress("Jet_totHEFrac",&Jet_totHEFrac);           
-  InputChain->SetBranchAddress("Jet_nEmEFrac",&Jet_nEMEFrac);         
   InputChain->SetBranchAddress("Jet_chargedMult",&Jet_chMult);        
+
+  InputChain->SetBranchAddress("Jet_nEmEFrac",&Jet_nEMEFrac);         
+  InputChain->SetBranchAddress("Jet_JESnEmEFrac",&Jet_JESnEMEFrac);         
+  InputChain->SetBranchAddress("Jet_JESandRnEmEFrac",&Jet_JESandRnEMEFrac);         
+  InputChain->SetBranchAddress("Jet_rawEnEmEFrac",&Jet_rawEnEMEFrac);         
+  InputChain->SetBranchAddress("Jet_idnEmEFrac",&Jet_idnEMEFrac);         
+
+  InputChain->SetBranchAddress("Jet_totHEFrac",&Jet_totHEFrac);           
+  InputChain->SetBranchAddress("Jet_JEStotHEFrac",&Jet_JEStotHEFrac);           
+  InputChain->SetBranchAddress("Jet_JESandRtotHEFrac",&Jet_JESandRtotHEFrac);           
+  InputChain->SetBranchAddress("Jet_rawEtotHEFrac",&Jet_rawEtotHEFrac);           
+  InputChain->SetBranchAddress("Jet_idtotHEFrac",&Jet_idtotHEFrac);           
 
   InputChain->SetBranchAddress("Jet_vtxPt",&Jet_vtxPt);               
   InputChain->SetBranchAddress("Jet_vtxMass",&Jet_vtxMass);           
@@ -79,6 +94,12 @@ void MakeTreeforbReg(   )
   InputChain->SetBranchAddress("Jet_MatchedPartonFlav",&Jet_PartonFlav);     
   InputChain->SetBranchAddress("Jet_MatchedPartonPt",&Jet_PartonPt);         
   InputChain->SetBranchAddress("Jet_MatchedPartonDeltaR",&Jet_PartonDeltaR);         
+  InputChain->SetBranchAddress("Jet_MatchedGenJetwNuPt",&Jet_GenJetPt);         
+
+  InputChain->SetBranchAddress("Jet_helperJERScale",&Jet_helperJER);         
+  InputChain->SetBranchAddress("Jet_helperL1",&Jet_helperL1);         
+  InputChain->SetBranchAddress("Jet_helperL3",&Jet_helperL3);  
+  
 
 
 
@@ -86,13 +107,14 @@ void MakeTreeforbReg(   )
   outputFile->cd();
   TTree *OutputTree = new TTree("bRegTree","Tree for bJetRegression training");
 
-  float E_Odd, E_Rho, N_PV,  E_Weight,P_Weight,J_Pt,J_rawPt,J_corr,J_corr_raw,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_chef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt, J_RPJ, J_RLJ, J_RVJ,J_PDR,J_PFlav,J_tothef;
+  float E_Odd, E_Rho, N_PV, LSF, E_Weight,P_Weight,J_Pt,J_rawPt,J_corr,J_corr_raw,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_chef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt, J_RPJ, J_RLJ, J_RVJ,J_PDR,J_PFlav,J_tothef,J_JEStothef,J_JESandRtothef,J_rawEtothef,J_idtothef,J_JESnemef,J_JESandRnemef,J_rawEnemef,J_idnemef,J_helperL1,J_helperL3,J_corrhelper,J_corrhelperJESandR, J_GJPt;
 
   OutputTree->Branch("Evt_Odd",&E_Odd);                 
   OutputTree->Branch("Evt_Rho",&E_Rho);                       
   OutputTree->Branch("Weight",&E_Weight);          
   OutputTree->Branch("Weight_PU",&P_Weight);          
-  
+  OutputTree->Branch("Weight_LeptonSF",&LSF);          
+
   OutputTree->Branch("N_PrimaryVertices",&N_PV);
 
   OutputTree->Branch("Jet_Pt",&J_Pt);                     
@@ -112,9 +134,20 @@ void MakeTreeforbReg(   )
 
   OutputTree->Branch("Jet_nHEFrac",&J_nhef);           
   OutputTree->Branch("Jet_cHEFrac",&J_chef);           
-  OutputTree->Branch("Jet_totHEFrac", &J_tothef);
-  OutputTree->Branch("Jet_nEmEFrac",&J_nemef);         
   OutputTree->Branch("Jet_chargedMult",&J_chM);        
+
+  OutputTree->Branch("Jet_totHEFrac", &J_tothef);
+  OutputTree->Branch("Jet_JEStotHEFrac", &J_JEStothef);
+  OutputTree->Branch("Jet_JESandRtotHEFrac", &J_JESandRtothef);
+  OutputTree->Branch("Jet_rawEtotHEFrac", &J_rawEtothef);
+  OutputTree->Branch("Jet_idtotHEFrac", &J_idtothef);
+
+  OutputTree->Branch("Jet_nEmEFrac",&J_nemef);         
+  OutputTree->Branch("Jet_JESnEmEFrac",&J_JESnemef);         
+  OutputTree->Branch("Jet_JESandRnEmEFrac",&J_JESandRnemef);         
+  OutputTree->Branch("Jet_rawEnEmEFrac",&J_rawEnemef);         
+  OutputTree->Branch("Jet_idnEmEFrac",&J_idnemef);         
+
 
   OutputTree->Branch("Jet_vtxPt",&J_vPt);               
   OutputTree->Branch("Jet_vtxMass",&J_vM);           
@@ -125,10 +158,16 @@ void MakeTreeforbReg(   )
   OutputTree->Branch("Jet_MatchedPartonFlav",&J_PF);     
   OutputTree->Branch("Jet_MatchedPartonPt",&J_PPt);
   OutputTree->Branch("Jet_MatchedPartonDeltaR",&J_PDR);
+  OutputTree->Branch("Jet_MatchedGenJetwNuPt",&J_GJPt);
 
   OutputTree->Branch("Jet_PtRatioPartonJet",&J_RPJ);
   OutputTree->Branch("Jet_PtRatioLeptonJet",&J_RLJ);
   OutputTree->Branch("Jet_PtRatioVertexJet",&J_RVJ);
+
+  OutputTree->Branch("Jet_helperL1",&J_helperL1);               
+  OutputTree->Branch("Jet_corrhelper",&J_corrhelper);               
+  OutputTree->Branch("Jet_corrhelperJESandR",&J_corrhelperJESandR);               
+  OutputTree->Branch("Jet_helperL3",&J_helperL3);               
 
   //Fill output tree
   long nEvents = InputChain->GetEntries();
@@ -144,6 +183,8 @@ void MakeTreeforbReg(   )
       E_Weight = Event_Weight;  
       P_Weight = PU_Weight;
       N_PV = NPV;
+      LSF = LeptonSF;
+
       J_Pt = Jet_pt[j];
       J_rawPt = Jet_rawpt[j];
       J_corr = Jet_corr[j];
@@ -159,11 +200,26 @@ void MakeTreeforbReg(   )
       J_lDR = Jet_leptonDeltaR[j];
       J_nhef = Jet_nHEFrac[j];
       J_chef = Jet_cHEFrac[j];
+
       J_nemef = Jet_nEMEFrac[j];
       if (J_nemef > 1) {  J_nemef = 1;  }
-      tottmp = J_nhef + J_chef;
-      if (tottmp >= 1) {  J_tothef = 1;  }
-      else {  J_tothef = tottmp;  }
+      J_JESnemef = Jet_JESnEMEFrac[j];
+      if (J_JESnemef > 1) {  J_JESnemef = 1;  }
+      J_JESandRnemef = Jet_JESandRnEMEFrac[j];
+      if (J_JESandRnemef > 1) {  J_JESandRnemef = 1;  }
+      J_rawEnemef = Jet_rawEnEMEFrac[j];
+      if (J_rawEnemef > 1) {  J_rawEnemef = 1;  }
+      J_idnemef = Jet_idnEMEFrac[j];
+      if (J_idnemef > 1) {  J_idnemef = 1;  }
+            
+
+
+      J_tothef = Jet_totHEFrac[j];
+      J_JEStothef = Jet_JEStotHEFrac[j];
+      J_JESandRtothef = Jet_JESandRtotHEFrac[j];
+      J_rawEtothef = Jet_rawEtotHEFrac[j];
+      J_idtothef = Jet_idtotHEFrac[j];
+
       J_chM = Jet_chMult[j];
       J_vPt = Jet_vtxPt[j];
       J_vM = Jet_vtxMass[j];
@@ -176,6 +232,13 @@ void MakeTreeforbReg(   )
       J_RPJ = Jet_PartonPt[j] / Jet_pt[j];
       J_RLJ = Jet_leptonPt[j] / Jet_pt[j];
       J_RVJ = Jet_vtxPt[j] / Jet_pt[j];
+      J_GJPt = Jet_GenJetPt[j];
+      
+      J_helperL1 = Jet_helperL1[j];
+      J_corrhelper = 1 / Jet_helperL1[j];
+      J_helperL3 = Jet_helperL3[j];
+      
+      J_corrhelperJESandR = Jet_helperJER[j] / (Jet_helperL1[j]  );
 
       OutputTree->Fill();
     }

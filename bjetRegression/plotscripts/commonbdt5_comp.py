@@ -22,7 +22,7 @@ ROOT.gStyle.SetOptStat(0);
 #-------------------------------------------------------------------------------------#
 # Set Variables
 
-path = "/nfs/dust/cms/user/kschweig/JetRegression/trees0524/"
+path = "/nfs/dust/cms/user/kschweig/JetRegression/trees0701/"
 
 inputtree_sig = ROOT.TChain("MVATree")
 inputtree_bkg = ROOT.TChain("MVATree")
@@ -33,33 +33,35 @@ for f in glob(path+"ttbar_incl/*.root"):
     inputtree_bkg.Add(f)
 
 #outputname = "ttHbb_commonbdt5_comp"
-outputname = "commonbdt5_0525_comp"
+outputname = "commonbdt5_0701_ouput_comp"
 
 Evt = "Evt_Odd == 0"
-weight = "(Weight * Weight_PU * Weight_LeptonSF * Weight_CSV)"
-boosted="(BoostedTopHiggs_TopHadCandidate_TopMVAOutput>=-0.485&&BoostedTopHiggs_HiggsCandidate_HiggsTag>=0.8925)"                        
-#boosted= "0"
-categoriesSELECTION=[#Evt+"&&"+weight+"&&((N_Jets>=6&&N_BTagsM==2)&&!"+boosted+")",
-                     #Evt+"&&"+weight+"*((N_Jets==4&&N_BTagsM==3)&&!"+boosted+")",
+weight = "(Weight * Weight_PU * Weight_LeptonSF)"
+#boosted="(BoostedTopHiggs_TopHadCandidate_TopMVAOutput>=-0.485&&BoostedTopHiggs_HiggsCandidate_HiggsTag>=0.8925)"                        
+boosted= "0"
+categoriesSELECTION=[Evt+"&&"+weight+"*((N_Jets>=6&&N_BTagsM>=4)&&!"+boosted+")",
+                     Evt+"&&"+weight+"*((N_Jets>=6&&N_BTagsM==2)&&!"+boosted+")",
+                     Evt+"&&"+weight+"*((N_Jets==4&&N_BTagsM==3)&&!"+boosted+")",
                      Evt+"&&"+weight+"*((N_Jets==5&&N_BTagsM==3)&&!"+boosted+")",
-                     #Evt+"&&"+weight+"*((N_Jets>=6&&N_BTagsM==3)&&!"+boosted+")",
+                     Evt+"&&"+weight+"*((N_Jets>=6&&N_BTagsM==3)&&!"+boosted+")",
                      Evt+"&&"+weight+"*((N_Jets==4&&N_BTagsM>=4)&&!"+boosted+")",
                      Evt+"&&"+weight+"*((N_Jets==5&&N_BTagsM>=4)&&!"+boosted+")",             
-                     Evt+"&&"+weight+"*((N_Jets>=6&&N_BTagsM>=4)&&!"+boosted+")",]
+                     ]
                      #Evt+"&&"+weight+"*((N_Jets>=4&&N_BTagsM>=2)&&"+boosted+")"]
 
 
 
-categorieslegend=[#"6j2t",
-                  # "4j3t",
+categorieslegend=["6j4t",
+                  "6j2t",
+                  "4j3t",
                   "5j3t",
-                  # "6j3t",
+                  "6j3t",
                   "4j4t",
                   "5j4t",             
-                  "6j4t",]
+                  ]
                   #"boosted"]
 
-binning = {'Evt_CSV_Average':[17,0.3,1],
+binning = { 'Evt_CSV_Average':[17,0.3,1],
             'Evt_Deta_JetsAverage':[20,0,4],
             'HT':[20,0,1000],
             'M3':[30,0,600],
@@ -97,6 +99,9 @@ binning = {'Evt_CSV_Average':[17,0.3,1],
             'third_highest_btag':[ 10,0,1],
             'third_jet_pt': [40,0,400]}
 
+
+
+#
 #
 #-------------------------------------------------------------------------------------#
 
@@ -205,104 +210,124 @@ if False:
 
 if True:
     c1 = ROOT.TCanvas()
-    outputfile = ROOT.TFile(outputname+"_noregVreg.root","RECREATE")
-    outputfile.cd()
 
-    pdfout = PDFPrinting(outputname+"_noregVreg")
 
 
     tree_bkg = inputtree_bkg
 
-    for icat, cat in enumerate(categoriesSELECTION):
-        plots = {}
+    names = ["_genJet"]
 
-        legend_all = ["No Regression t#bar{t}", "No Regression t#bar{t}H,  H #rightarrow b#bar{b}","Regression t#bar{t}", "Regression t#bar{t}H,  H #rightarrow b#bar{b}"]
 
-        for var in common5_input:
-            var = var[len("BDT_common5_input_"):]
-            plots.update(  {  var : normPlots(  var , True , 4,  legend_all , binning[var]  )  }  )
-            
-        output = normPlots(  "BDT Output" , True , 4 , legend_all , [10,-1,1]  )
+    for name in names:
+
+
+        outputfile = ROOT.TFile(outputname+"_noregVreg"+name+".root","RECREATE")
+        outputfile.cd()
         
-        ROC = normPlots( "ROC Curve" , True , 2, ["No Regression","Regression"], [10,0,1] )
+        pdfout = PDFPrinting(outputname+"_noregVreg"+name)
 
-        for variable in common5_input:
-            break
-            var = variable[len("BDT_common5_input_"):]
-            var_reg = "BDT_reg_common5_input_"+variable[len("BDT_common5_input_"):]
-            
-            plots[var].projecttoHisto(0, tree_bkg, variable, cat)
-            plots[var].projecttoHisto(1, tree, variable, cat)
-            plots[var].projecttoHisto(2, tree_bkg, var_reg, cat)
-            plots[var].projecttoHisto(3, tree, var_reg, cat)
+        
+        for icat, cat in enumerate(categoriesSELECTION):
+            plots = {}
 
-            histos = plots[var].getHistos()
+            legend_all = ["No Regression t#bar{t}", "No Regression t#bar{t}H,  H #rightarrow b#bar{b}","Regression t#bar{t}", "Regression t#bar{t}H,  H #rightarrow b#bar{b}"]
+
+            for var in common5_input:
+                var = var[len("BDT_common5_input_"):]
+                plots.update(  {  var : normPlots(  var , True , 4,  legend_all , binning[var]  )  }  )
+
+            output = normPlots(  "BDT Output" , True , 4 , legend_all , [10,-1,1]  )
+
+            ROC = normPlots( "ROC Curve" , True , 2, ["No Regression","Regression"], [10,0,1] )
+
+            for variable in common5_input:
+
+                var = variable[len("BDT_common5_input_"):]
+                var_reg = "BDT_reg"+name+"_common5_input_"+variable[len("BDT_common5_input_"):]
+
+                #liste =  ["all_sum_pt_with_met","sphericity","invariant_mass_of_everything", "closest_tagged_dijet_mass","best_higgs_mass","M3","first_jet_pt","second_jet_pt","third_jet_pt"]
+                liste =  ["closest_tagged_dijet_mass","best_higgs_mass",'tagged_dijet_mass_closest_to_125']
+                #liste =  []
+
+
+                #print var in liste
+                if var in liste or len(liste) is 0:
+                    print "Processing: ",var
+                    
+                    plots[var].projecttoHisto(0, tree_bkg, variable, cat)
+                    plots[var].projecttoHisto(1, tree, variable, cat)
+                    plots[var].projecttoHisto(2, tree_bkg, var_reg, cat)
+                    plots[var].projecttoHisto(3, tree, var_reg, cat)
+
+                    histos = plots[var].getHistos()
+
+                    noreg_text = getSepaTests3([histos[0]],histos[1])[0]
+                    reg_text = getSepaTests3([histos[2]],histos[3])[0]
+
+                    print variable
+
+                    plots[var].addLabel(0.13,0.8, "No Regression: "+noreg_text,0,0.04)
+                    plots[var].addLabel(0.13,0.75, "Regression: "+reg_text,0,0.04)
+
+                    plots[var].changeColorlist([ROOT.kAzure-3,ROOT.kRed,ROOT.kAzure-3,ROOT.kRed])
+
+                    plots[var].addLabel(0.04,0.03,categorieslegend[icat],0,0.045)
+
+                    plots[var].setLineStyle([0,1],2)
+
+
+                    if var != "dr_between_lep_and_closest_jet":
+                        pass
+
+                    else:
+                        print "hallo"
+                    plots[var].WriteHisto(c1, None, False, True, pdfout,False,None,False,False,0.3)
+
+                    del histos 
+
+            output.projecttoHisto(0, tree_bkg,"BDT_common5_output" , cat)
+            output.projecttoHisto(1, tree,"BDT_common5_output" , cat)
+            output.projecttoHisto(2, tree_bkg,"BDT_reg"+name+"_common5_output" , cat)
+            output.projecttoHisto(3, tree,"BDT_reg"+name+"_common5_output" , cat)
+
+            histos = output.getHistos()
+
 
             noreg_text = getSepaTests3([histos[0]],histos[1])[0]
             reg_text = getSepaTests3([histos[2]],histos[3])[0]
 
-            print variable
+            #noreg_roc = getROClist(histos[1],histos[0])
+            #reg_roc = getROClist(histos[3],histos[2])
 
-            plots[var].addLabel(0.13,0.8, "No Regression: "+noreg_text,0,0.04)
-            plots[var].addLabel(0.13,0.75, "Regression: "+reg_text,0,0.04)
+            #rocnoreg = ROOT.TH1F("rocnoreg","rocnoreg",20,0,1)
+            #rocreg = ROOT.TH1F("rocreg","rocreg",20,0,1)
 
-            plots[var].changeColorlist([ROOT.kAzure-3,ROOT.kRed,ROOT.kAzure-3,ROOT.kRed])
-            
-            plots[var].addLabel(0.04,0.03,categorieslegend[icat],0,0.045)
-            
-            plots[var].setLineStyle([0,1],2)
-            
-            
-            if var != "dr_between_lep_and_closest_jet":
-                pass
-
-            else:
-                print "hallo"
-            plots[var].WriteHisto(c1, None, False, True, pdfout)
-
-            del histos 
-
-        output.projecttoHisto(0, tree_bkg,"BDT_common5_output" , cat)
-        output.projecttoHisto(1, tree,"BDT_common5_output" , cat)
-        output.projecttoHisto(2, tree_bkg,"BDT_reg_common5_output" , cat)
-        output.projecttoHisto(3, tree,"BDT_reg_common5_output" , cat)
-
-        histos = output.getHistos()
+            #print len(noreg_roc)
+            #print len(reg_roc)
 
 
-        noreg_text = getSepaTests3([histos[0]],histos[1])[0]
-        reg_text = getSepaTests3([histos[2]],histos[3])[0]
+            ROC.converttoROC(0,tree, tree_bkg, "BDT_common5_output","BDT_common5_output", cat, cat, [1000,-1,1])
+            ROC.converttoROC(1,tree, tree_bkg, "BDT_reg"+name+"_common5_output","BDT_reg"+name+"_common5_output", cat, cat, [1000,-1,1])
+
+            ROC.changeColorlist([ROOT.kAzure-3,ROOT.kRed])
+
+            ROC.addLabel(0.04,0.03,categorieslegend[icat],0,0.045)
+            ROC.WriteHisto(c1 ,None, False, False, pdfout)
+
+
+            output.addLabel(0.13,0.8, "No Regression: "+noreg_text,0,0.04)
+            output.addLabel(0.13,0.75, "Regression: "+reg_text,0,0.04)
+
+            output.changeColorlist([ROOT.kAzure-3,ROOT.kRed,ROOT.kAzure-3,ROOT.kRed])
+            output.setLineStyle([0,1],2)
+
+            output.addLabel(0.04,0.03,categorieslegend[icat],0,0.045)
+            output.WriteHisto(c1,None, False, True, pdfout,False,None,False,False,0.35)
+
+            del output, ROC, histos
+
+        pdfout.closePDF()
         
-        #noreg_roc = getROClist(histos[1],histos[0])
-        #reg_roc = getROClist(histos[3],histos[2])
+        del outputfile, pdfout
 
-        #rocnoreg = ROOT.TH1F("rocnoreg","rocnoreg",20,0,1)
-        #rocreg = ROOT.TH1F("rocreg","rocreg",20,0,1)
-        
-        #print len(noreg_roc)
-        #print len(reg_roc)
-        
-        
-        ROC.converttoROC(0,tree, tree_bkg, "BDT_common5_output","BDT_common5_output", cat, cat, [1000,-1,1])
-        ROC.converttoROC(1,tree, tree_bkg, "BDT_reg_common5_output","BDT_reg_common5_output", cat, cat, [1000,-1,1])
-
-        ROC.changeColorlist([ROOT.kAzure-3,ROOT.kRed])
-        
-        ROC.addLabel(0.04,0.03,categorieslegend[icat],0,0.045)
-        ROC.WriteHisto(c1 ,None, False, False, pdfout)
-
-
-        output.addLabel(0.13,0.8, "No Regression: "+noreg_text,0,0.04)
-        output.addLabel(0.13,0.75, "Regression: "+reg_text,0,0.04)
-
-        output.changeColorlist([ROOT.kAzure-3,ROOT.kRed,ROOT.kAzure-3,ROOT.kRed])
-        output.setLineStyle([0,1],2)
-
-        output.addLabel(0.04,0.03,categorieslegend[icat],0,0.045)
-        output.WriteHisto(c1,None, False, True, pdfout,False,None,False,False,0.35)
-
-        del output, ROC, histos
-
-    pdfout.closePDF()
-
-    del c1, outputfile, pdfout
+    del c1

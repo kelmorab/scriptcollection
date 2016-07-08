@@ -110,11 +110,11 @@ if cat == "5j3t":
     factory.AddVariable(prefix+"avg_dr_tagged_jets",prefix+"avg_dr_tagged_jets","units",'F')
     factory.AddVariable(prefix+"sphericity",prefix+"sphericity","units",'F')
     factory.AddVariable(prefix+"third_highest_btag",prefix+"third_highest_btag","units",'F')
+    factory.AddVariable(prefix+"h3",prefix+"h3","units",'F')
     factory.AddVariable(prefix+"HT",prefix+"HT","units",'F')
     factory.AddVariable(prefix+"dev_from_avg_disc_btags",prefix+"dev_from_avg_disc_btags","units",'F')
-    factory.AddVariable(prefix+"M3",prefix+"M3","units",'F')
-    factory.AddVariable(prefix+"min_dr_tagged_jets",prefix+"min_dr_tagged_jets","units",'F')
-    factory.AddVariable(prefix+"Evt_CSV_Average",prefix+"Evt_CSV_Average","units",'F')
+    factory.AddVariable(prefix+"fourth_highest_btag",prefix+"fourth_highest_btag","units",'F')
+
 
     cut = TCut("Evt_Odd == 1 && Weight && Weight_PU  && N_Jets >= 5 && N_BTagsM >= 3")
 
@@ -137,13 +137,13 @@ if cat == "4j3t":
     factory.AddVariable(prefix+"avg_dr_tagged_jets",prefix+"avg_dr_tagged_jets","units",'F')
     factory.AddVariable(prefix+"sphericity",prefix+"sphericity","units",'F')
     factory.AddVariable(prefix+"third_highest_btag",prefix+"third_highest_btag","units",'F')
-    factory.AddVariable(prefix+"M3",prefix+"M3","units",'F')
-    factory.AddVariable(prefix+"Evt_Deta_JetsAverage",prefix+"Evt_Deta_JetsAverage","units",'F')
-    factory.AddVariable(prefix+"maxeta_jet_tag",prefix+"maxeta_jet_tag","units",'F')
-    factory.AddVariable(prefix+"all_sum_pt_with_met",prefix+"all_sum_pt_with_met","units",'F')
     factory.AddVariable(prefix+"HT",prefix+"HT","units",'F')
+    factory.AddVariable(prefix+"dev_from_avg_disc_btags",prefix+"dev_from_avg_disc_btags","units",'F')
+    factory.AddVariable(prefix+"M3",prefix+"M3","units",'F')
+    factory.AddVariable(prefix+"min_dr_tagged_jets",prefix+"min_dr_tagged_jets","units",'F')
+    factory.AddVariable(prefix+"Evt_CSV_Average",prefix+"Evt_CSV_Average","units",'F')
 
-    cut = TCut("Evt_Odd == 1 && Weight && Weight_PU  && N_Jets >= 4 && N_BTagsM >= 4")
+    cut = TCut("Evt_Odd == 1 && Weight && Weight_PU  && N_Jets >= 4 && N_BTagsM >= 3")
 
     
 
