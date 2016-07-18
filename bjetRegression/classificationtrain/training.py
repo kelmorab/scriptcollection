@@ -56,8 +56,9 @@ if cat == "6j4t":
     factory.AddVariable(prefix+"closest_tagged_dijet_mass",prefix+"closest_tagged_dijet_mass","units",'F')
     factory.AddVariable(prefix+"fifth_highest_CSV",prefix+"fifth_highest_CSV","units",'F')
     factory.AddVariable(prefix+"second_highest_btag",prefix+"second_highest_btag","units",'F')
-    factory.AddVariable(prefix+"dr_between_lep_and_closest_jet",prefix+"dr_between_lep_and_closest_jet","units",'F')
     factory.AddVariable(prefix+"third_jet_pt",prefix+"third_jet_pt","units",'F')
+    factory.AddVariable(prefix+"dr_between_lep_and_closest_jet",prefix+"dr_between_lep_and_closest_jet","units",'F')
+
 
     cut = TCut("Evt_Odd == 1 && Weight && Weight_PU  && N_Jets >= 6 && N_BTagsM >= 4")
 
