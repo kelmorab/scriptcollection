@@ -12,23 +12,23 @@
 
 using namespace std;
 
-void MakeTreeforbReg(   ) 
+void MakeTreeforbReg(   )
 {
-  
+
   //Create file for output
   //TString outfilename("test.root");
   char* outfilename = getenv("OUTPUTFILE");
   TFile* outputFile = new TFile( outfilename, "RECREATE" );
-  
+
 
   //Set up input tree
   TChain* InputChain = new TChain("MVATree");
   //TString filenames = "/nfs/dust/cms/user/kschweig/JetRegression/trees0209/ttbar_nominal.root";
   char* filenames = getenv("INPUTFILES");
   string buf;
-  stringstream ss(filenames); 
+  stringstream ss(filenames);
   while (ss >> buf){
-    InputChain->Add(buf.c_str());  
+    InputChain->Add(buf.c_str());
   }
 
 
@@ -43,65 +43,47 @@ void MakeTreeforbReg(   )
   float Jet_PartonFlav[20],Jet_PartonPt[20],Jet_PartonDeltaR[20];
   float Jet_helperL1[20], Jet_helperL3[20], Jet_helperJER[20];
   float Jet_GenJetPt[20];
-  
 
-  InputChain->SetBranchAddress("Evt_Odd",&Event_Odd);            
-  InputChain->SetBranchAddress("N_Jets",&NJets);                      
-  InputChain->SetBranchAddress("Evt_Rho",&rho);                       
+
+  InputChain->SetBranchAddress("Evt_Odd",&Event_Odd);
+  InputChain->SetBranchAddress("N_RegJets",&NJets);
   InputChain->SetBranchAddress("Weight",&Event_Weight);
   InputChain->SetBranchAddress("Weight_PU",&PU_Weight);
   InputChain->SetBranchAddress("N_PrimaryVertices", &NPV);
   InputChain->SetBranchAddress("Weight_LeptonSF", &LeptonSF);
 
 
-  InputChain->SetBranchAddress("Jet_Pt",&Jet_pt);                     
-  InputChain->SetBranchAddress("Jet_rawPt",&Jet_rawpt);                     
-  InputChain->SetBranchAddress("Jet_corr",&Jet_corr);                 
-  InputChain->SetBranchAddress("Jet_corr_rawJet",&Jet_corr_raw);                 
-  InputChain->SetBranchAddress("Jet_Eta",&Jet_Eta);                   
-  InputChain->SetBranchAddress("Jet_M",&Jet_M);                       
-  InputChain->SetBranchAddress("Jet_Mt",&Jet_Mt);                       
-  InputChain->SetBranchAddress("Jet_leadTrackPt",&Jet_leadTrackPt);   
-  InputChain->SetBranchAddress("Jet_Flav",&Jet_Flav);                 
-  InputChain->SetBranchAddress("Jet_PartonFlav",&Jet_PFlav);                 
+  InputChain->SetBranchAddress("RegJet_Pt",&Jet_pt);
+  InputChain->SetBranchAddress("RegJet_corr",&Jet_corr);
+  InputChain->SetBranchAddress("RegJet_Eta",&Jet_Eta);
+  InputChain->SetBranchAddress("RegJet_M",&Jet_M);
+  InputChain->SetBranchAddress("RegJet_Mt",&Jet_Mt);
+  InputChain->SetBranchAddress("RegJet_leadTrackPt",&Jet_leadTrackPt);
+  InputChain->SetBranchAddress("RegJet_Flav",&Jet_Flav);
+  InputChain->SetBranchAddress("RegJet_PartonFlav",&Jet_PFlav);
 
-  InputChain->SetBranchAddress("Jet_leptonPt",&Jet_leptonPt);         
-  InputChain->SetBranchAddress("Jet_leptonPtRel",&Jet_leptonPtRel);   
-  InputChain->SetBranchAddress("Jet_leptonDeltaR",&Jet_leptonDeltaR); 
+  InputChain->SetBranchAddress("RegJet_leptonPt",&Jet_leptonPt);
+  InputChain->SetBranchAddress("RegJet_leptonPtRel",&Jet_leptonPtRel);
+  InputChain->SetBranchAddress("RegJet_leptonDeltaR",&Jet_leptonDeltaR);
 
-  InputChain->SetBranchAddress("Jet_nHEFrac",&Jet_nHEFrac);           
-  InputChain->SetBranchAddress("Jet_cHEFrac",&Jet_cHEFrac);
-  InputChain->SetBranchAddress("Jet_chargedMult",&Jet_chMult);        
+  InputChain->SetBranchAddress("RegJet_nHEFrac",&Jet_nHEFrac);
+  InputChain->SetBranchAddress("RegJet_cHEFrac",&Jet_cHEFrac);
+  InputChain->SetBranchAddress("RegJet_chargedMult",&Jet_chMult);
 
-  InputChain->SetBranchAddress("Jet_nEmEFrac",&Jet_nEMEFrac);         
-  InputChain->SetBranchAddress("Jet_JESnEmEFrac",&Jet_JESnEMEFrac);         
-  InputChain->SetBranchAddress("Jet_JESandRnEmEFrac",&Jet_JESandRnEMEFrac);         
-  InputChain->SetBranchAddress("Jet_rawEnEmEFrac",&Jet_rawEnEMEFrac);         
-  InputChain->SetBranchAddress("Jet_idnEmEFrac",&Jet_idnEMEFrac);         
+  InputChain->SetBranchAddress("RegJet_nEmEFrac",&Jet_nEMEFrac);
 
-  InputChain->SetBranchAddress("Jet_totHEFrac",&Jet_totHEFrac);           
-  InputChain->SetBranchAddress("Jet_JEStotHEFrac",&Jet_JEStotHEFrac);           
-  InputChain->SetBranchAddress("Jet_JESandRtotHEFrac",&Jet_JESandRtotHEFrac);           
-  InputChain->SetBranchAddress("Jet_rawEtotHEFrac",&Jet_rawEtotHEFrac);           
-  InputChain->SetBranchAddress("Jet_idtotHEFrac",&Jet_idtotHEFrac);           
+  InputChain->SetBranchAddress("RegJet_totHEFrac",&Jet_totHEFrac);
 
-  InputChain->SetBranchAddress("Jet_vtxPt",&Jet_vtxPt);               
-  InputChain->SetBranchAddress("Jet_vtxMass",&Jet_vtxMass);           
-  InputChain->SetBranchAddress("Jet_vtx3DVal",&Jet_vtx3DVal);         
-  InputChain->SetBranchAddress("Jet_vtxNtracks",&Jet_vtxNtracks);     
-  InputChain->SetBranchAddress("Jet_vtx3DSig",&Jet_vtx3DSig);         
+  InputChain->SetBranchAddress("RegJet_vtxPt",&Jet_vtxPt);
+  InputChain->SetBranchAddress("RegJet_vtxMass",&Jet_vtxMass);
+  InputChain->SetBranchAddress("RegJet_vtx3DVal",&Jet_vtx3DVal);
+  InputChain->SetBranchAddress("RegJet_vtxNtracks",&Jet_vtxNtracks);
+  InputChain->SetBranchAddress("RegJet_vtx3DSig",&Jet_vtx3DSig);
 
-  InputChain->SetBranchAddress("Jet_MatchedPartonFlav",&Jet_PartonFlav);     
-  InputChain->SetBranchAddress("Jet_MatchedPartonPt",&Jet_PartonPt);         
-  InputChain->SetBranchAddress("Jet_MatchedPartonDeltaR",&Jet_PartonDeltaR);         
-  InputChain->SetBranchAddress("Jet_MatchedGenJetwNuPt",&Jet_GenJetPt);         
-
-  InputChain->SetBranchAddress("Jet_helperJERScale",&Jet_helperJER);         
-  InputChain->SetBranchAddress("Jet_helperL1",&Jet_helperL1);         
-  InputChain->SetBranchAddress("Jet_helperL3",&Jet_helperL3);  
-  
-
-
+  InputChain->SetBranchAddress("RegJet_MatchedPartonFlav",&Jet_PartonFlav);
+  InputChain->SetBranchAddress("RegJet_MatchedPartonPt",&Jet_PartonPt);
+  InputChain->SetBranchAddress("RegJet_MatchedPartonDeltaR",&Jet_PartonDeltaR);
+  InputChain->SetBranchAddress("RegJet_MatchedGenJetwNuPt",&Jet_GenJetPt);
 
   //Set up output tree
   outputFile->cd();
@@ -109,53 +91,41 @@ void MakeTreeforbReg(   )
 
   float E_Odd, E_Rho, N_PV, LSF, E_Weight,P_Weight,J_Pt,J_rawPt,J_corr,J_corr_raw,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_chef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt, J_RPJ, J_RLJ, J_RVJ,J_PDR,J_PFlav,J_tothef,J_JEStothef,J_JESandRtothef,J_rawEtothef,J_idtothef,J_JESnemef,J_JESandRnemef,J_rawEnemef,J_idnemef,J_helperL1,J_helperL3,J_corrhelper,J_corrhelperJESandR, J_GJPt;
 
-  OutputTree->Branch("Evt_Odd",&E_Odd);                 
-  OutputTree->Branch("Evt_Rho",&E_Rho);                       
-  OutputTree->Branch("Weight",&E_Weight);          
-  OutputTree->Branch("Weight_PU",&P_Weight);          
-  OutputTree->Branch("Weight_LeptonSF",&LSF);          
+  OutputTree->Branch("Evt_Odd",&E_Odd);
+  OutputTree->Branch("Weight",&E_Weight);
+  OutputTree->Branch("Weight_PU",&P_Weight);
+  OutputTree->Branch("Weight_LeptonSF",&LSF);
 
   OutputTree->Branch("N_PrimaryVertices",&N_PV);
 
-  OutputTree->Branch("Jet_Pt",&J_Pt);                     
-  OutputTree->Branch("Jet_rawPt",&J_rawPt);                     
-  OutputTree->Branch("Jet_corr",&J_corr);                 
-  OutputTree->Branch("Jet_corr_rawJet",&J_corr_raw);                 
-  OutputTree->Branch("Jet_Eta",&J_Eta);                   
-  OutputTree->Branch("Jet_M",&J_M);                       
-  OutputTree->Branch("Jet_Mt",&J_Mt);                       
-  OutputTree->Branch("Jet_leadTrackPt",&J_lTPt);   
-  OutputTree->Branch("Jet_Flav",&J_Flav);             
-  OutputTree->Branch("Jet_PartonFlav",&J_PFlav);             
+  OutputTree->Branch("Jet_Pt",&J_Pt);
+  OutputTree->Branch("Jet_corr",&J_corr);
+  OutputTree->Branch("Jet_Eta",&J_Eta);
+  OutputTree->Branch("Jet_M",&J_M);
+  OutputTree->Branch("Jet_Mt",&J_Mt);
+  OutputTree->Branch("Jet_leadTrackPt",&J_lTPt);
+  OutputTree->Branch("Jet_Flav",&J_Flav);
+  OutputTree->Branch("Jet_PartonFlav",&J_PFlav);
 
-  OutputTree->Branch("Jet_leptonPt",&J_lPt);         
-  OutputTree->Branch("Jet_leptonPtRel",&J_lPtRel);   
-  OutputTree->Branch("Jet_leptonDeltaR",&J_lDR); 
+  OutputTree->Branch("Jet_leptonPt",&J_lPt);
+  OutputTree->Branch("Jet_leptonPtRel",&J_lPtRel);
+  OutputTree->Branch("Jet_leptonDeltaR",&J_lDR);
 
-  OutputTree->Branch("Jet_nHEFrac",&J_nhef);           
-  OutputTree->Branch("Jet_cHEFrac",&J_chef);           
-  OutputTree->Branch("Jet_chargedMult",&J_chM);        
+  OutputTree->Branch("Jet_nHEFrac",&J_nhef);
+  OutputTree->Branch("Jet_cHEFrac",&J_chef);
+  OutputTree->Branch("Jet_chargedMult",&J_chM);
 
   OutputTree->Branch("Jet_totHEFrac", &J_tothef);
-  OutputTree->Branch("Jet_JEStotHEFrac", &J_JEStothef);
-  OutputTree->Branch("Jet_JESandRtotHEFrac", &J_JESandRtothef);
-  OutputTree->Branch("Jet_rawEtotHEFrac", &J_rawEtothef);
-  OutputTree->Branch("Jet_idtotHEFrac", &J_idtothef);
 
-  OutputTree->Branch("Jet_nEmEFrac",&J_nemef);         
-  OutputTree->Branch("Jet_JESnEmEFrac",&J_JESnemef);         
-  OutputTree->Branch("Jet_JESandRnEmEFrac",&J_JESandRnemef);         
-  OutputTree->Branch("Jet_rawEnEmEFrac",&J_rawEnemef);         
-  OutputTree->Branch("Jet_idnEmEFrac",&J_idnemef);         
+  OutputTree->Branch("Jet_nEmEFrac",&J_nemef);
 
+  OutputTree->Branch("Jet_vtxPt",&J_vPt);
+  OutputTree->Branch("Jet_vtxMass",&J_vM);
+  OutputTree->Branch("Jet_vtx3DVal",&J_vV);
+  OutputTree->Branch("Jet_vtxNtracks",&J_vNt);
+  OutputTree->Branch("Jet_vtx3DSig",&J_vS);
 
-  OutputTree->Branch("Jet_vtxPt",&J_vPt);               
-  OutputTree->Branch("Jet_vtxMass",&J_vM);           
-  OutputTree->Branch("Jet_vtx3DVal",&J_vV);         
-  OutputTree->Branch("Jet_vtxNtracks",&J_vNt);     
-  OutputTree->Branch("Jet_vtx3DSig",&J_vS);         
-
-  OutputTree->Branch("Jet_MatchedPartonFlav",&J_PF);     
+  OutputTree->Branch("Jet_MatchedPartonFlav",&J_PF);
   OutputTree->Branch("Jet_MatchedPartonPt",&J_PPt);
   OutputTree->Branch("Jet_MatchedPartonDeltaR",&J_PDR);
   OutputTree->Branch("Jet_MatchedGenJetwNuPt",&J_GJPt);
@@ -164,31 +134,25 @@ void MakeTreeforbReg(   )
   OutputTree->Branch("Jet_PtRatioLeptonJet",&J_RLJ);
   OutputTree->Branch("Jet_PtRatioVertexJet",&J_RVJ);
 
-  OutputTree->Branch("Jet_helperL1",&J_helperL1);               
-  OutputTree->Branch("Jet_corrhelper",&J_corrhelper);               
-  OutputTree->Branch("Jet_corrhelperJESandR",&J_corrhelperJESandR);               
-  OutputTree->Branch("Jet_helperL3",&J_helperL3);               
 
   //Fill output tree
   long nEvents = InputChain->GetEntries();
   for(long i = 0; i<nEvents; i++) {
-    
+
     InputChain->GetEvent(i);
-    
+
     float tottmp;
 
     for(int j = 0; j < NJets; j++) {
       E_Odd = Event_Odd;
       E_Rho = rho;
-      E_Weight = Event_Weight;  
+      E_Weight = Event_Weight;
       P_Weight = PU_Weight;
       N_PV = NPV;
       LSF = LeptonSF;
 
       J_Pt = Jet_pt[j];
-      J_rawPt = Jet_rawpt[j];
       J_corr = Jet_corr[j];
-      J_corr_raw = Jet_corr_raw[j];
       J_Eta = Jet_Eta[j];
       J_M = Jet_M[j];
       J_Mt = Jet_Mt[j];
@@ -203,23 +167,8 @@ void MakeTreeforbReg(   )
 
       J_nemef = Jet_nEMEFrac[j];
       if (J_nemef > 1) {  J_nemef = 1;  }
-      J_JESnemef = Jet_JESnEMEFrac[j];
-      if (J_JESnemef > 1) {  J_JESnemef = 1;  }
-      J_JESandRnemef = Jet_JESandRnEMEFrac[j];
-      if (J_JESandRnemef > 1) {  J_JESandRnemef = 1;  }
-      J_rawEnemef = Jet_rawEnEMEFrac[j];
-      if (J_rawEnemef > 1) {  J_rawEnemef = 1;  }
-      J_idnemef = Jet_idnEMEFrac[j];
-      if (J_idnemef > 1) {  J_idnemef = 1;  }
-            
-
 
       J_tothef = Jet_totHEFrac[j];
-      J_JEStothef = Jet_JEStotHEFrac[j];
-      J_JESandRtothef = Jet_JESandRtotHEFrac[j];
-      J_rawEtothef = Jet_rawEtotHEFrac[j];
-      J_idtothef = Jet_idtotHEFrac[j];
-
       J_chM = Jet_chMult[j];
       J_vPt = Jet_vtxPt[j];
       J_vM = Jet_vtxMass[j];
@@ -233,12 +182,6 @@ void MakeTreeforbReg(   )
       J_RLJ = Jet_leptonPt[j] / Jet_pt[j];
       J_RVJ = Jet_vtxPt[j] / Jet_pt[j];
       J_GJPt = Jet_GenJetPt[j];
-      
-      J_helperL1 = Jet_helperL1[j];
-      J_corrhelper = 1 / Jet_helperL1[j];
-      J_helperL3 = Jet_helperL3[j];
-      
-      J_corrhelperJESandR = Jet_helperJER[j] / (Jet_helperL1[j]  );
 
       OutputTree->Fill();
     }
