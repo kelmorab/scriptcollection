@@ -21,100 +21,169 @@ class plots():
         self.uselogscale = False
         self.noCMS = False
         if key == "Jet_Pt":
-            self.setTH1(200,0,600)
+            if customparam is None:
+                self.setTH1(200,0,600)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             self.Titlestring = "Jet p_{T} (GeV)"
         elif key == "Jet_corr":
-            self.setTH1(100,0.8,1.2)
+            if customparam is None:
+                self.setTH1(100,0.8,1.2)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             self.Titlestring = "Jet jecFactor('Uncorrected')"
         elif key == "Evt_Rho":
-            self.setTH1(40,0,60)
+            if customparam is None:
+                self.setTH1(40,0,60)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "#rho (GeV/Einheitsflaeche)"
             else:
                 self.Titlestring = "Event #rho (GeV/unit area)"
+        elif key == "N_PrimaryVertices":
+            if customparam is None:
+                self.setTH1(26,-.5,25.5)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
+            if self.language == 1:
+                self.Titlestring = "Anzahl Primaervertices"
+            else:
+                self.Titlestring = "Number of Primary vertices"
         elif key == "Jet_Eta":
-            self.setTH1(40,-2.4,2.4)
+            if customparam is None:
+                self.setTH1(40,-2.4,2.4)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             self.Titlestring = "Jet #eta"
         elif key == "Jet_Mt":
-            self.setTH1(200,0,600)
+            if customparam is None:
+                self.setTH1(200,0,600)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             self.Titlestring = "Jet m_{T} (GeV)"
         elif key == "Jet_leadTrackPt":
-            self.setTH1(100,0,300)
+            if customparam is None:
+                self.setTH1(100,0,300)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "p_{T} der haertesten Spur im Jet (GeV)"
             else:
                 self.Titlestring = "p_{T} of leading Track in Jet (GeV)"
         elif key == "Jet_leptonPt":
-            self.setTH1(60,0,120)
+            if customparam is None:
+                self.setTH1(60,0,120)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "p_{T} des dem Jet zugeordneten Lepton (Ge^1V)"
             else:
                 self.Titlestring = "p_{T} of Lepton matched to Jet (GeV)"
         elif key == "Jet_leptonPtRel":
-            self.setTH1(30,0,60)
+            if customparam is None:
+                self.setTH1(30,0,60)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "Rel. p_{T} zwischen Jet und zugeordnetem Lepton (GeV)"
             else:
                 self.Titlestring = "Rel. p_{T} of Lepton matched and Jet (GeV)"
         elif key == "Jet_leptonDeltaR":
-            self.setTH1(20,0,0.5)
+            if customparam is None:
+                self.setTH1(20,0,0.5)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "#Delta R zwischen Jet und zugeordnetem Lepton (GeV)"
             else:
                 self.Titlestring = "#Delta R between Jet and matched Lepton"
         elif key == "Jet_leptonPt_all":
-            self.setTH1(140,-120,120)
+            if customparam is None:
+                self.setTH1(140,-120,120)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "p_{T} des dem Jet zugeordneten Lepton (GeV)"
             else:
                 self.Titlestring = "p_{T} of Lepton matched to Jet (GeV)"
         elif key == "Jet_nHEFrac" or key == "Jet_nEmEFrac":
-            self.setTH1(20,0,1)
+            if customparam is None:
+                self.setTH1(20,0,1)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             self.Titlestring = key
         elif key == "Jet_chargedMult":
-            self.setTH1(35,0,70)
+            if customparam is None:
+                self.setTH1(35,0,70)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "Anzahl geladener Teilchen im Jet"
             else:
                 self.Titlestring = "Charged Multiplicity of Jet"
         elif key == "Jet_vtxPt":
-            self.setTH1(100,0,200)
+            if customparam is None:
+                self.setTH1(100,0,200)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             self.Titlestring = "Vertex p_{T} (GeV)"
         elif key == "Jet_vtxMass":
-            self.setTH1(14,0,7)
+            if customparam is None:
+                self.setTH1(14,0,7)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "Vertex Masse (GeV)"
             else:
                 self.Titlestring = "Vertex Mass (GeV)"
         elif key == "Jet_vtx3DVal":
-            self.setTH1(30,0,15)
+            if customparam is None:
+                self.setTH1(30,0,15)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "3D Fluglaenge des Vertex (cm)"
             else:
                 self.Titlestring = "3D decay length value of Vertex (cm)"
         elif key == "Jet_vtxNtracks":
-            self.setTH1(13,-0.5,12.5)
+            if customparam is None:
+                self.setTH1(13,-0.5,12.5)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "N_{Spuren} des Vertex"
             else:
                 self.Titlestring = "N_{tracks} of Vertex"
         elif key == "Jet_vtx3DSig":
-            self.setTH1(150,0,300)
+            if customparam is None:
+                self.setTH1(150,0,300)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "#sigma der 3D Fluglaenge des Vertex (cm)"
             else:
                 self.Titlestring = "#sigma of 3D decay length value of Vertex (cm)"
         elif key == "Jet_regPt":
-            self.setTH1(200,0,600)
+            if customparam is None:
+                self.setTH1(200,0,600)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             if self.language == 1:
                 self.Titlestring = "Jet p_{T} nach Regression (GeV)"
             else:
                 self.Titlestring = "Regressed Jet p_{T} (GeV)"
         elif key == "Jet_regcorr":
-            self.setTH1(96,0.4,1.6)
+            if customparam is None:
+                self.setTH1(96,0.4,1.6)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             self.Titlestring = "p_{T, reg} / p_{T}"
         elif key == "Jet_PtRatioPartonJet":
-            self.setTH1(60,0,3)
+            if customparam is None:
+                self.setTH1(60,0,3)
+            else:
+                self.setTH1(customparam[0],customparam[1],customparam[2])
             self.Titlestring = "p_{T, Parton} / p_{T, Jet} "
         elif key == "Jet_PartonPt" or key == "Jet_MatchedPartonPt":
             if customparam is None:
@@ -139,7 +208,7 @@ class plots():
             else:
                 print "Key error!",key,"not supported."
                 exit()
-        
+
     #call from script, to change language caption
     def changeLanguage(self,lang):
         if lang == "german":
@@ -149,7 +218,7 @@ class plots():
         else:
             print "Not supported language. Set back to default (english)"
             self.language = 0
-    
+
     def changeColorlist(self, colorlist = []):
         if len(colorlist) != 0:
             self.manualcolors = True
@@ -164,7 +233,7 @@ class plots():
         th1f.GetXaxis().SetTitleSize(0.05)
         th1f.GetXaxis().SetTitleOffset(0.75)
         th1f.SetTitle("")
-        
+
     #is called in memberfunction
     def setYTitle(self, th1f, string = None):
         if string is None:
@@ -189,8 +258,8 @@ class plots():
         label.SetTextFont(42)
         label.SetTextSize(0.045)
         label.SetNDC()
-        return label    
-        
+        return label
+
     #call from script, to add additional labels to plot
     def addLabel(self,xpos,ypos,text,angle,size = 0.045):
         label = ROOT.TLatex(xpos,ypos,text)
@@ -211,13 +280,13 @@ class plots():
         cms.SetTextFont(42)
         cms.SetTextSize(0.045)
         cms.SetNDC()
-        
+
         return simul, cms
 
     #call from script
     def donotmakeCMSstuff(self):
         self.noCMS = True
-        
+
     def getKey(self):
         return self.key
 
@@ -230,7 +299,7 @@ class plots():
     #is called in memberfunction
     def setSumw2(self, th1f):
         th1f.Sumw2()
-        
+
     #call in script, to change position of legend
     def setmanualegendsize(self,pos,x1,y1,x2,y2):
         if pos is "right":
@@ -260,13 +329,13 @@ class plots():
 
 
 
-#Class to make stackplots    
-class CatPlots(plots):    
+#Class to make stackplots
+class CatPlots(plots):
 
     def __init__(self, key, cuts, categorizer, legendtext, symmetricCats = True, symmetricColor = True, sample = None, customparam = None, hideyLabels = False):
         plots.__init__(self, key, customparam)
         self.samplestring = sample
-        if len(cuts) < 3: 
+        if len(cuts) < 3:
             print "More cuts needed"
             exit()
         self.categorizer = categorizer
@@ -280,7 +349,7 @@ class CatPlots(plots):
         self.hideyLabels = hideyLabels
         #self.makeLegend(self.legendtext,symmetricCats, symmetricColor)
 
-        
+
 
     def setCatHistos(self, cuts, symmetric, categorizer):
         self.histokeys = []
@@ -291,7 +360,7 @@ class CatPlots(plots):
                     rand = str(ROOT.gRandom.Integer(10000))
                     self.histokeys.append("histo"+rand+str(i)+postfix+"_"+categorizer)
                     self.fullpostfix.append(rand+str(i)+postfix+"_"+categorizer)
-        
+
         else:
             if self.samplestring is not None:
                 postfix = self.samplestring
@@ -304,9 +373,9 @@ class CatPlots(plots):
 
         self.Cathistos = {}
         self.Catlookup = {}
-        
+
         cutindex = 0
-        
+
         for i in range(len(self.fullpostfix)):
             self.Cathistos.update({self.histokeys[i] : ROOT.TH1F(self.key+self.fullpostfix[i],self.key+self.fullpostfix[i], self.bins,self.xmin,self.xmax) })
             self.Catlookup.update({self.histokeys[i] : {"left": cuts[cutindex], "right": cuts[cutindex+1]} })
@@ -354,7 +423,7 @@ class CatPlots(plots):
             self.colorlist = colorlist
             for i,key in enumerate(self.histokeys):
                 self.CatColors.update({ key : colorlist[i] })
-                
+
     def FillCatHistos(self, fillval, catval):
         for key in self.histokeys:
             if catval >= self.Catlookup[key]["left"] and catval < self.Catlookup[key]["right"]:
@@ -377,7 +446,7 @@ class CatPlots(plots):
         self.Stackplot = ROOT.THStack("Stack"+self.key+rand,"Stack "+self.key+rand)
         #for i in range(len(self.histokeys)/2):
         #    print self.histokeys[i], self.histokeys[(len(self.histokeys)-1)-i]
-         #   self.Stackplot.Add(self.Cathistos[self.histokeys[i]])            
+         #   self.Stackplot.Add(self.Cathistos[self.histokeys[i]])
           #  self.Stackplot.Add(self.Cathistos[self.histokeys[(len(self.histokeys)-1)-i]])
         tmplist = []
         for key in self.Cathistos:
@@ -394,7 +463,7 @@ class CatPlots(plots):
         for element in tmplist:
             for key in self.Cathistos:
                 if element == self.Catlookup[key]["left"]:
-                    self.Stackplot.Add(self.Cathistos[key])            
+                    self.Stackplot.Add(self.Cathistos[key])
                     self.sortedHistos.append(self.Cathistos[key])
                     break
         #self.setXTitle(self.key,self.Stackplot)
@@ -413,7 +482,7 @@ class CatPlots(plots):
         for key in self.Cathistos:
             selection = addselection+" && " + self.categorizer+" >= "+str(self.Catlookup[key]["left"])+ "&& " + self.categorizer +" < " +str(self.Catlookup[key]["right"])
             tree.Project(self.Cathistos[key].GetName(),varexp,selection)
-        
+
     def WriteStack(self, canvas, pdfout = None):
         #self.Stackplot.Write()
         self.makeLegend(self.legendtext,self.symmetricCats, self.symmetricColor,"box")
@@ -490,7 +559,7 @@ class CatPlots(plots):
         if pdfout is not None:
             pdfout.addCanvastoPDF(canvas)
 
-        
+
     def makeLegend(self, categorizer, symmetricCats, symmetricColor,style= "box"):
         specialpos = ["Jet_regcorr","Jet_corr"]
         if self.getKey() in specialpos:
@@ -515,7 +584,7 @@ class CatPlots(plots):
                 if element == self.Catlookup[key]["left"]:
                     self.leg.AddEntry(self.Cathistos[key],str(self.Catlookup[key]["left"])+" <= "+categorizer+" < "+str(self.Catlookup[key]["right"]),option)
                     break
-                    
+
     def getHistos(self, getstack = True):
         hlist = []
         if getstack:
@@ -548,8 +617,8 @@ class normPlots(plots):
         for histo in self.histos:
             self.setSumw2(histo)
 
-            
-    
+
+
     def makeStyle(self, maxyval, dofilling = False , ytitle = None, yoffsetTop = None):
         colorlist = [ROOT.kViolet+9,ROOT.kViolet+1,ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen-3,ROOT.kGreen,ROOT.kGreen+2,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2,ROOT.kMagenta+2,ROOT.kPink+2,ROOT.kRed-4, ROOT.kBlue-5, ROOT.kYellow-6]
         if self.manualcolors:
@@ -589,12 +658,12 @@ class normPlots(plots):
         if self.getKey() in specialpos:
             if self.manualLegendleft:
                 leg = ROOT.TLegend(self.legenx1l,self.legeny1l,self.legenx2l,self.legeny2l)
-            else:    
+            else:
                 leg = ROOT.TLegend(0.13,0.65,0.41,0.83)
         else:
             if self.manualLegendright:
                 leg = ROOT.TLegend(self.legenx1r, self.legeny1r,self.legenx2r,self.legeny2r)
-            else:    
+            else:
                 leg = ROOT.TLegend(0.6,0.70,0.88,0.88)
         leg.SetBorderSize(0)
         leg.SetTextFont(42)
@@ -603,7 +672,7 @@ class normPlots(plots):
             #print "adding", legendtext[ihisto]
             leg.AddEntry(histo, legendtext[ihisto])
             if addstats:
-                leg.AddEntry(histo,"Mean: "+str(histo.GetMean(1))[:6]+" RMS: "+str(histo.GetRMS(1))[:6],"")  
+                leg.AddEntry(histo,"Mean: "+str(histo.GetMean(1))[:6]+" RMS: "+str(histo.GetRMS(1))[:6],"")
 
 
         return leg
@@ -620,7 +689,7 @@ class normPlots(plots):
 
     def FillnormHisto(self,fillval,nHisto = 0):
         self.histos[nHisto].Fill(fillval)
-        
+
     def AddTH1F(self, th1f, nHisto, dosumw2 = True):
         if dosumw2:
             self.setSumw2(th1f)
@@ -644,7 +713,7 @@ class normPlots(plots):
             c1.SetLogy(1)
         if plotlogx:
             c1.SetLogx(1)
-            
+
         if Drawnormalized:
             for histo in self.histos:
                 ScaletoInt(histo)
@@ -692,19 +761,19 @@ class normPlots(plots):
         canvas = c1
         canvas.SetTitle(self.key)
         canvas.SetName(self.key)
-        
+
 
         #Xcanvas.Update()
         canvas.Write()
         if pdfout is not None:
             pdfout.addCanvastoPDF(canvas)
-        
+
     def getHistos(self):
         hlist = []
         for histo in self.histos:
             hlist.append(histo)
         return hlist
-        
+
     def getNumOfHistos(self):
         return len(self.histos)
 
@@ -741,7 +810,7 @@ class normPlots(plots):
         nonZeroBins=[]
         for i in range(nBins,-1,-1):
             if tmph_sig.GetBinContent(i)>0. or tmph_bkg.GetBinContent(i)>0.:
-                nonZeroBins.append(i)  
+                nonZeroBins.append(i)
         roc = ROOT.TGraphAsymmErrors(len(nonZeroBins)+1)
 
         if rej:
@@ -761,10 +830,10 @@ class normPlots(plots):
             else:
                 roc.SetPoint(point,eff1,eff2)
             point+=1
-            
+
         tmph = roc
         self.graph = True
-        
+
         self.ROCCurve = True
         if rej:
             self.ROCYTitle = "Background Rej."
@@ -796,11 +865,11 @@ class TwoDplot(plots):
             self.customparamused = True
         else:
             self.customparamused = False
-        
+
         self.combinedkey = key1+"__"+key2
-        
+
         ranstr = "_"+str(ROOT.gRandom.Integer(10000))
-        
+
         self.histo = ROOT.TH2F(self.combinedkey+ranstr,self.combinedkey+ranstr,self.key1bins,self.key1min,self.key1max,self.key2bins,self.key2min,self.key2max)
 
         self.customAxisTitle = False
@@ -810,7 +879,7 @@ class TwoDplot(plots):
     def makeStyle(self):
         self.setXTitle(None,self.histo,self.key1title )
         self.setYTitle(self.histo, self.key2title)
-        
+
     def FillTwoDplot(self, key1val, key2val):
         self.histo.Fill(key1val, key2val)
 
@@ -837,7 +906,7 @@ class TwoDplot(plots):
         if len(drawLine) is 4:
             line = self.getLine(drawLine[0],drawLine[1],drawLine[2],drawLine[3])
             line.Draw("same")
-       
+
         if printStatBox:
             if StatBoxNames is not None:
                 legend = self.printStats(StatBoxNames[0],StatBoxNames[1])
@@ -849,12 +918,12 @@ class TwoDplot(plots):
             legend.Draw("same")
         if self.customAxisTitle:
             self.setXTitle("", self.histo, self.Xcustom)
-            self.setYTitle(self.histo, self.Ycustom)        
+            self.setYTitle(self.histo, self.Ycustom)
         if len(self.additionalLabels) > 0:
             for label in self.additionalLabels:
                 label.Draw("same")
 
-         
+
         canvas = c1
         canvas.SetTitle(self.combinedkey)
         canvas.SetName(self.combinedkey)
@@ -865,7 +934,7 @@ class TwoDplot(plots):
 
     def GetTH2F(self):
         return self.histo
-        
+
     def GetCombinedKey(self):
         return self.combinedkey
 
@@ -886,10 +955,10 @@ class TwoDplot(plots):
 
     def printStats(self, xaxis = "x", yaxis = "y"):
         leg = ROOT.TLegend(0.7,0.70,0.88,0.88)
-        leg.AddEntry(0,"Mean "+str(xaxis)+": "+str(self.histo.GetMean(1))[:6],"")  
-        leg.AddEntry(0,"Mean "+str(yaxis)+": "+str(self.histo.GetMean(2))[:6],"")  
-        leg.AddEntry(0,"RMS "+str(xaxis)+": "+str(self.histo.GetRMS(1))[:6],"")  
-        leg.AddEntry(0,"RMS "+str(yaxis)+": "+str(self.histo.GetRMS(2))[:6],"")  
+        leg.AddEntry(0,"Mean "+str(xaxis)+": "+str(self.histo.GetMean(1))[:6],"")
+        leg.AddEntry(0,"Mean "+str(yaxis)+": "+str(self.histo.GetMean(2))[:6],"")
+        leg.AddEntry(0,"RMS "+str(xaxis)+": "+str(self.histo.GetRMS(1))[:6],"")
+        leg.AddEntry(0,"RMS "+str(yaxis)+": "+str(self.histo.GetRMS(2))[:6],"")
         leg.SetMargin(leg.GetMargin()*0.4)
         #leg.SetBorderSize(0)
         leg.SetTextFont(42)
@@ -911,7 +980,7 @@ class PointPlot(plots):
         self.manualLegendright = False
         self.manualLegendleft = False
 
-        
+
     def addPoint(self, m, em = 0):
         #tmpgraph = ROOT.TGraphErrors(1,array('f',[self.pointsadded+0.5]),array('f',[m]),array('f',[0]),array('f',[em]))
         #tmpgraph.SetPoint(1,self.pointsadded+0.5,m)
@@ -956,7 +1025,7 @@ class PointPlot(plots):
             leg = ROOT.TLegend(self.legenx1l,self.legeny1l,self.legenx2l,self.legeny2l)
         elif self.manualLegendright:
             leg = ROOT.TLegend(self.legenx1r,self.legeny1r,self.legenx2r,self.legeny2r)
-        else:    
+        else:
             leg = ROOT.TLegend(0.6,0.70,0.88,0.88)
         for n in range(self.maxPoints):
             leg.AddEntry(self.grapherrorlist[n],self.Legendtext[n],"p")
@@ -1011,8 +1080,8 @@ class PointPlot(plots):
         else:
             print "Added Points and set Point at initialisation are different"
 
-class StackPlots(plots):    
-    
+class StackPlots(plots):
+
     def __init__(self, key, nHistos, legendtext = [], styles = None, customparam = None,hideyLabels = False):
         plots.__init__(self, key, customparam)
         self.nHistos = nHistos
@@ -1064,12 +1133,12 @@ class StackPlots(plots):
         if self.getKey() in specialpos:
             if self.manualLegendleft:
                 leg = ROOT.TLegend(self.legenx1l,self.legeny1l,self.legenx2l,self.legeny2l)
-            else:    
+            else:
                 leg = ROOT.TLegend(0.13,0.65,0.41,0.83)
         else:
             if self.manualLegendright:
                 leg = ROOT.TLegend(self.legenx1r, self.legeny1r,self.legenx2r,self.legeny2r)
-            else:    
+            else:
                 leg = ROOT.TLegend(0.6,0.70,0.88,0.88)
         leg.SetBorderSize(0)
         leg.SetTextFont(42)
@@ -1080,7 +1149,7 @@ class StackPlots(plots):
             elif self.styles[ihisto] == "Line":
                 leg.AddEntry(histo, legendtext[ihisto], "L")
         return leg
-    
+
     def projecttoHisto(self, nHisto, tree, varexp, select = "", option = ""):
         tmpstr = "tmp_"+str(ROOT.gRandom.Integer(1000))
         tmph = ROOT.TH1F(tmpstr,tmpstr, self.bins,self.xmin,self.xmax)
@@ -1089,7 +1158,7 @@ class StackPlots(plots):
         self.histos[nHisto] = copy.deepcopy(tmph)
         del tmph
 
-        
+
     def makeStack(self):
         rand = str(ROOT.gRandom.Integer(10000))
         #self.makeStyle()
@@ -1101,7 +1170,7 @@ class StackPlots(plots):
                 self.Stackplot.Add(histo)
         self.histos.reverse()
         self.styles.reverse()
-                
+
     def WriteHisto(self, canvas, samplestring = None, Drawnormalized = False, pdfout = None,  ytitle = None, plotlogx = False, plotlogy = False, yoffsetTop = 0.1):
         c1 = ROOT.TCanvas()
         c1.cd(1)
@@ -1111,7 +1180,7 @@ class StackPlots(plots):
             c1.SetLogy(1)
         if plotlogx:
             c1.SetLogx(1)
-        maxy = 1            
+        maxy = 1
         if Drawnormalized:
             for histo in self.histos:
                 ScaletoInt(histo)
@@ -1158,9 +1227,9 @@ class StackPlots(plots):
         if pdfout is not None:
             pdfout.addCanvastoPDF(canvas)
 
-    
-            
-            
+
+
+
 def ScaletoInt(th1f):
     if th1f.GetNbinsX() != 1:
         th1f.Scale(1/float(th1f.Integral()))

@@ -34,7 +34,7 @@ void MakeTreeforbReg(   )
 
   int Event_Odd, NJets, NPV;
   float rho, Event_Weight, PU_Weight, LeptonSF;
-  float Jet_pt[20],Jet_rawpt[20],Jet_corr[20],Jet_corr_raw[20],Jet_Eta[20],Jet_M[20],Jet_Mt[20],Jet_leadTrackPt[20],Jet_Flav[20],Jet_PFlav[20];
+  float Jet_pt[20],Jet_rawpt[20],Jet_corr[20],Jet_corr_raw[20],Jet_Eta[20],Jet_M[20],Jet_Mt[20],Jet_leadTrackPt[20],Jet_Flav[20],Jet_PFlav[20],Jet_regcorr;
   float Jet_leptonPt[20],Jet_leptonPtRel[20],Jet_leptonDeltaR[20];
   float Jet_nHEFrac[20],Jet_cHEFrac[20], Jet_chMult[20];
   float Jet_nEMEFrac[20],Jet_JESnEMEFrac[20],Jet_JESandRnEMEFrac[20],Jet_rawEnEMEFrac[20],Jet_idnEMEFrac[20];
@@ -53,8 +53,9 @@ void MakeTreeforbReg(   )
   InputChain->SetBranchAddress("Weight_LeptonSF", &LeptonSF);
 
 
-  InputChain->SetBranchAddress("RegJet_Pt",&Jet_pt);
+  InputChain->SetBranchAddress("RegJet_preregPt",&Jet_pt);
   InputChain->SetBranchAddress("RegJet_corr",&Jet_corr);
+  InputChain->SetBranchAddress("RegJet_regcorr",&Jet_regcorr);
   InputChain->SetBranchAddress("RegJet_Eta",&Jet_Eta);
   InputChain->SetBranchAddress("RegJet_M",&Jet_M);
   InputChain->SetBranchAddress("RegJet_Mt",&Jet_Mt);
@@ -154,8 +155,8 @@ void MakeTreeforbReg(   )
       J_Pt = Jet_pt[j];
       J_corr = Jet_corr[j];
       J_Eta = Jet_Eta[j];
-      J_M = Jet_M[j];
-      J_Mt = Jet_Mt[j];
+      J_M = Jet_M[j]/Jet_regcorr[j];
+      J_Mt = Jet_Mt[j]/Jet_regcorr[j];
       J_lTPt = Jet_leadTrackPt[j];
       J_Flav = Jet_Flav[j];
       J_PFlav = Jet_PFlav[j];

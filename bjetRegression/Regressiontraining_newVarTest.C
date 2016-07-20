@@ -33,11 +33,11 @@ void Regressiontraining_newVarTest(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
 
 
-   TString outfileName( "BReg_0627_GenJet_1200_BSF05minNS06Shr075_ratio.root" );
+   TString outfileName( "BReg_0720_80XReg.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
 
 
-   TMVA::Factory *factory = new TMVA::Factory( "BReg_0627_GenJet_1200_BSF05minNS06Shr075_ratio", outputFile,"V:!Silent:Color:DrawProgressBar" );
+   TMVA::Factory *factory = new TMVA::Factory( "BReg_0720_80XReg", outputFile,"V:!Silent:Color:DrawProgressBar" );
 
    //Add Variables to factory
    factory->AddVariable("Jet_Pt","Jet_pt","units", 'F');
@@ -76,7 +76,8 @@ void Regressiontraining_newVarTest(   )
    std::cout << "before fname" << endl;
    //Root file for Training
    TFile *input(0);
-   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0619_ttbar/ttbarforbReg.root";
+   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0718/TreeforbReg_0719.root";
+   //TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0619_ttbar/ttbarforbReg.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
 
@@ -100,7 +101,7 @@ void Regressiontraining_newVarTest(   )
    factory->SetWeightExpression("Weight * Weight_PU","Regression");
 
    //Cut on on samples
-   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && Jet_Pt > 25 && Jet_Eta <= 2.4 && Jet_MatchedGenJetwNuPt > 0 && Jet_MatchedGenJetwNuPt < 600 && abs(Jet_MatchedPartonFlav) == 5";
+   TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && Jet_Pt > 25 && Jet_Pt < 600  && Jet_Eta <= 2.4 && Jet_MatchedGenJetwNuPt > 0 && Jet_MatchedGenJetwNuPt < 600 && abs(Jet_MatchedPartonFlav) == 5";
    //TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_MatchedPartonFlav) == 5 && Jet_Eta <= 2.4";
 
    std::cout << "Prepare Training" << endl;
