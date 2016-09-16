@@ -1,7 +1,13 @@
 import csv
 import os
-import das_client
+#import das_client
 import sys
+
+import datetime
+import imp
+das_client=imp.load_source("das_client", "/cvmfs/cms.cern.ch/slc6_amd64_gcc481/cms/das_client/v02.17.04/bin/das_client.py")
+
+store_prefix='file:/pnfs/desy.de/cms/tier2/'
 
 crab_cfg_path='crab_cfgs_ICHEPv1'
 samplelist=sys.argv[1]
@@ -20,7 +26,7 @@ for row in reader:
     #        requestname="'"+(dataset.split('/')[1])+"'"
         if dataset!='' and name!='':
             print 'checking dataset info for',dataset
-            das_data=das_client.get_data("https://cmsweb.cern.ch","dataset="+dataset+" instance=phys/prod",0,0,0)
+            #das_data=das_client.get_data("https://cmsweb.cern.ch","dataset="+dataset+" instance=phys/prod",0,0,0)
             #print das_data
             #for d in das_data['data']:
                 ##print d
