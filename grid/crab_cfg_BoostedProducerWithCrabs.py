@@ -3,22 +3,22 @@ config = Configuration()
 
 config.section_("General")
 config.General.requestName = ?
-config.General.workArea = 'carb_test'
+config.General.workArea = 'crab_BoostedMiniAODICHEPv1'
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '/nfs/dust/cms/user/kschweig/CMSSW_8_0_10/src/BoostedTTH/BoostedProducer/test/boostedProducer_cfg.py'
+config.JobType.psetName = '/afs/cern.ch/user/k/koschwei/private/CMSSW_8_0_12/src/BoostedTTH/BoostedProducer/test/boostedProducer_cfg.py'
 config.JobType.outputFiles = ?
-config.JobType.pyCfgParams = ?
+
 
 config.section_("Data")
 config.Data.inputDataset = ?
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 5
-config.Data.publication = False
+config.Data.publication = True
 #config.Data.totalUnits = 1
-#config.Data.publishDbsUrl = 'phys03'
+config.Data.publishDBS = 'phys03'
 config.Data.outputDatasetTag = ?
 
 config.section_("Site")
