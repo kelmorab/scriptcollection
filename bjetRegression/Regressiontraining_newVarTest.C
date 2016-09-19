@@ -33,11 +33,15 @@ void Regressiontraining_newVarTest(   )
   gROOT->ProcessLine(".L TMVARegGui.C");
 
 
-   TString outfileName( "BReg_0720_80XReg.root" );
+  TString outfileName( "BReg_0906_BaseLine.root" );
+//  TString outfileName( "BReg_0823_JESUP.root" );
+//  TString outfileName( "BReg_0823_JESDOWN.root" );
    TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
 
 
-   TMVA::Factory *factory = new TMVA::Factory( "BReg_0720_80XReg", outputFile,"V:!Silent:Color:DrawProgressBar" );
+   TMVA::Factory *factory = new TMVA::Factory( "BReg_0906_BaseLine", outputFile,"V:!Silent:Color:DrawProgressBar" );
+//   TMVA::Factory *factory = new TMVA::Factory( "BReg_0823_JESUP", outputFile,"V:!Silent:Color:DrawProgressBar" );
+//   TMVA::Factory *factory = new TMVA::Factory( "BReg_0823_JESDOWN", outputFile,"V:!Silent:Color:DrawProgressBar" );
 
    //Add Variables to factory
    factory->AddVariable("Jet_Pt","Jet_pt","units", 'F');
@@ -76,7 +80,9 @@ void Regressiontraining_newVarTest(   )
    std::cout << "before fname" << endl;
    //Root file for Training
    TFile *input(0);
-   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0718/TreeforbReg_0719.root";
+   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/training/trees0823/TreeforbReg_nominal_0823.root";
+//   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/training/trees0823/TreeforbReg_JESUP_0823.root";
+//   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/training/trees0823/TreeforbReg_JESDOWN_0823.root";
    //TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0619_ttbar/ttbarforbReg.root";
    //   TString fname = "/nfs/dust/cms/user/kschweig/JetRegression/trees0113/ttbar_nominal.root";
    std::cout << "after fname" << endl;
@@ -98,14 +104,14 @@ void Regressiontraining_newVarTest(   )
    factory->AddRegressionTree( Tree, regWeight );
 
    std::cout << "Add weight expression" << endl;
-   factory->SetWeightExpression("Weight * Weight_PU","Regression");
+   factory->SetWeightExpression("Weight_PU * Weight_CSV * Weight_ElectronSFID * Weight_ElectronSFIso * Weight_MuonSFID * Weight_MuonSFTrigger * Weight_MuonSFIso * Weight_ElectronSFGFS * Weight_ElectronSFTrigger","Regression");
 
    //Cut on on samples
    TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && Jet_Pt > 25 && Jet_Pt < 600  && Jet_Eta <= 2.4 && Jet_MatchedGenJetwNuPt > 0 && Jet_MatchedGenJetwNuPt < 600 && abs(Jet_MatchedPartonFlav) == 5";
    //TCut mycut = "Evt_Odd == 1 && abs(Jet_Flav) == 5 && abs(Jet_MatchedPartonFlav) == 5 && Jet_Eta <= 2.4";
 
    std::cout << "Prepare Training" << endl;
-   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=100000:nTest_Regression=100000:SplitMode=Random:NormMode=NumEvents:!V" );
+   factory->PrepareTrainingAndTestTree( mycut, "V:VerboseLevel=Debug:nTrain_Regression=200000:nTest_Regression=250000:SplitMode=Random:NormMode=NumEvents:!V" );
    //factory->PrepareTrainingAndTestTree( mycut, "nTrain_Regression=0:nTest_Regression=0:SplitMode=Random:NormMode=NumEvents:!V" );
 
    bool usebdt = true;

@@ -1,5 +1,5 @@
 #Modified from https://github.com/kit-cn-cms/cpp-plotscripts/blob/master/fatjet_data_mc/create_runscripts.py
-#Usage = python runscriptCreator.py progampath scriptpath outpath 
+#Usage = python runscriptCreator.py progampath scriptpath outpath
 
 import glob
 import os
@@ -11,9 +11,11 @@ programpath=sys.argv[1]
 
 outpath=sys.argv[3]
 scriptpath=sys.argv[2]
-cmsswpath='/nfs/dust/cms/user/kschweig/CMSSW_7_6_3'
+cmsswpath='/nfs/dust/cms/user/kschweig/CMSSW_8_0_12'
 
-samples=[('ttbar','/nfs/dust/cms/user/kschweig/JetRegression/trees0718/ttbar_incl/')]
+samples=[('ttbar_nominal','/nfs/dust/cms/user/kschweig/JetRegression/training/trees0905/ttbar_incl/*_nominal_')]
+#         ('ttbar_JESUP','/nfs/dust/cms/user/kschweig/JetRegression/training/trees0823/ttbar_incl/*_JESUP_'),
+#         ('ttbar_JESDOWN','/nfs/dust/cms/user/kschweig/JetRegression/training/trees0823/ttbar_incl/*_JESDOWN_')]
 
 events_per_job= 1000000
 files_per_job = 10
@@ -46,7 +48,7 @@ def createScript(scriptname,programpath,processname,filenames,outfilename,maxeve
     st = os.stat(scriptname)
     os.chmod(scriptname, st.st_mode | stat.S_IEXEC)
 
-    
+
 def createScriptsForSamples(samples,suffix,programpath):
     tmpsamples=[]
     for s in samples:

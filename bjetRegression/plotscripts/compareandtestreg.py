@@ -5,7 +5,7 @@ from array import array
 
 from ROOT import TChain, TColor, TCanvas
 
-from JetRegression import JetRegression, getHiggsMass
+from JetRegression import JetRegression, getHiggsMass,getHiggsMasswcorr
 from plotting import *
 from rootutils import PDFPrinting
 
@@ -31,7 +31,7 @@ weightlocation = "/nfs/dust/cms/user/kschweig/Code/scriptcollection/bjetRegressi
 
 sample = "Signal" # Signal or Background
 
-outputname = "compareandtestreg_Gejettargetcomp_7"
+outputname = "compareandtestreg_Gejettargetcomp_MA"
 
 autosel = False
 dotargetcomp = True
@@ -79,12 +79,12 @@ if not autosel:
 
 print legend
 
-bbMass_param = [150,50,205]
-regcorr = normPlots("Regression Output",True,len(legend),legend,[50,0.6,1.6],True)
-regcorr_parton = normPlots("Regression Output (Target: Parton)",True,3,["Parton p_{T} / Jet p_{T}","Output w/ p_{T} as Target","Output w/ p_{T} Ratio as Target"],[50,0.6,1.6],True)
-regcorr_genjet = normPlots("Regression Output (Target: GenJet)",True,3,["GenJet p_{T} / Jet p_{T}","Output w/ p_{T} as Target","Output w/ p_{T} Ratio as Target"],[50,0.6,1.6],True)
-regcorr_targets = normPlots("Regression Targets",True,2,["Parton p_{T} / Jet p_{T} ","GenJet p_{T} / Jet p_{T}"],[50,0.6,1.6],True)
-bbmass = normPlots("MC Higgs Mass /GeV",True,len(legend)+1,["No regression"] + legend,bbMass_param,True)
+bbMass_param = [63,80,220]
+regcorr = normPlots("Regression Output",True,len(legend),legend,[50,0.6,1.6])
+regcorr_parton = normPlots("Regression Output (Target: Parton)",True,3,["Parton p_{T} / Jet p_{T}","Output w/ p_{T} as Target","Output w/ p_{T} Ratio as Target"],[50,0.6,1.6])
+regcorr_genjet = normPlots("Regression Output (Target: GenJet)",True,3,["GenJet p_{T} / Jet p_{T}","Output w/ p_{T} as Target","Output w/ p_{T} Ratio as Target"],[50,0.6,1.6])
+regcorr_targets = normPlots("Regression Targets",True,2,["Parton p_{T} / Jet p_{T} ","GenJet p_{T} / Jet p_{T}"],[50,0.6,1.6])
+bbmass = normPlots("MC Higgs Mass [GeV]",True,len(legend)+1,["No regression"] + legend,bbMass_param)
 #bbmass0Lep =normPlots("MC Higgs Mass w/ 0 matched Leptons",True,len(legend),legend,bbMass_param)
 #bbmass1Lep = normPlots("MC Higgs Mass w/ 1 matched Lepton",True,len(legend),legend,bbMass_param)
 #bbmass2Lep =normPlots("MC Higgs Mass w/ 2 matched Leptons",True,len(legend),legend,bbMass_param)
@@ -98,7 +98,7 @@ bbmass.changeColorlist([ROOT.kBlack, ROOT.kAzure+8, ROOT.kAzure-7, ROOT.kPink+4,
 regcorr.setmanualegendsize("right",0.55,0.55,0.88,0.88)
 regcorr_parton.setmanualegendsize("right",0.55,0.65,0.88,0.88)
 regcorr_genjet.setmanualegendsize("right",0.55,0.65,0.88,0.88)
-bbmass.setmanualegendsize("right",0.60,0.55,0.88,0.88)
+bbmass.setmanualegendsize("right",0.525,0.55,0.88,0.88)
 if autosel:
     regcorr.addLabel(0.92,0.15,"1: nTrees | 2: Shrinkage | 3: MaxDepth | 4: nCuts",90,0.03)
     regcorr.addLabel(0.945,0.15,"5: BaggedSampleFraction",90,0.03)
@@ -109,8 +109,8 @@ if autosel:
 plot_errsqu = PointPlot(len(legend),"Error with squared loss function",legend)
 plot_errabs = PointPlot(len(legend),"Error with abs. loss function",legend)
 
-plot_errsqu.setmanualegendsize("right",0.55,0.65,0.88,0.88)
-plot_errabs.setmanualegendsize("right",0.55,0.65,0.88,0.88)
+plot_errsqu.setmanualegendsize("right",0.475,0.65,0.88,0.88)
+plot_errabs.setmanualegendsize("right",0.475,0.65,0.88,0.88)
 plot_errsqu.changeColorlist([ROOT.kAzure+8, ROOT.kAzure-7, ROOT.kPink+4, ROOT.kRed-7])
 plot_errabs.changeColorlist([ROOT.kAzure+8, ROOT.kAzure-7, ROOT.kPink+4, ROOT.kRed-7])
 if autosel:
@@ -159,7 +159,7 @@ for iw, weight in enumerate(weightlist):
         partonvgenjet_pt.WriteTwoDplot(c1,"ttHbb",True,None,pdfout,False,False,[30,30,200,200])
         
 
-    regression = JetRegression(weight,[],"New")
+    regression = JetRegression(weight,[],"A")
 
     nEvents = tree.GetEntries()
     
@@ -291,8 +291,8 @@ for iw, weight in enumerate(weightlist):
                 #Hier muss noch was gefuellt werden
         if len(higgsjets) == 2:
             
-            bbmass.FillnormHisto(getHiggsMass(higgsjets[0][0],higgsjets[0][1],higgsjets[0][2],higgsjets[0][3],higgsjets[0][4],
-                                              higgsjets[1][0],higgsjets[1][1],higgsjets[1][2],higgsjets[1][3],higgsjets[1][4]),
+            bbmass.FillnormHisto(getHiggsMasswcorr(higgsjets[0][0],higgsjets[0][1],higgsjets[0][2],higgsjets[0][3],higgsjets[0][4],
+                                                   higgsjets[1][0],higgsjets[1][1],higgsjets[1][2],higgsjets[1][3],higgsjets[1][4]),
                                  iw+1)
             if iw == 0:
                 bbmass.FillnormHisto(bbmass_noreg[0], 0)

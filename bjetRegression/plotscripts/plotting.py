@@ -230,8 +230,8 @@ class plots():
             th1f.GetXaxis().SetTitle(self.Titlestring)
         else:
             th1f.GetXaxis().SetTitle(string)
-        th1f.GetXaxis().SetTitleSize(0.05)
-        th1f.GetXaxis().SetTitleOffset(0.75)
+        th1f.GetXaxis().SetTitleSize(0.045)
+        th1f.GetXaxis().SetTitleOffset(0.9)
         th1f.SetTitle("")
 
     #is called in memberfunction
@@ -244,7 +244,7 @@ class plots():
         else:
             th1f.GetYaxis().SetTitle(string)
         th1f.GetYaxis().SetTitleSize(0.05)
-        th1f.GetYaxis().SetTitleOffset(0.8)
+        th1f.GetYaxis().SetTitleOffset(0.95)
 
     #is called in memberfunction
     def makeSampletext(self,samplestring):
@@ -252,6 +252,8 @@ class plots():
             label = ROOT.TLatex(0.6275,0.908, 'Sample: t#bar{t}H , H #rightarrow b#bar{b}')
         elif samplestring is "ttbar":
             label = ROOT.TLatex(0.77,0.908, 'Sample: t#bar{t}')
+        elif samplestring is "ZJets":
+            label = ROOT.TLatex(0.68,0.908, 'Sample: Z + Jets')
         else:
             print "samplesting no supported"
             label = ROOT.TLatex(0.88,0.908, '')
@@ -271,12 +273,12 @@ class plots():
 
     #is called in memberfunction
     def makeCMSstuff(self):
-        simul = ROOT.TLatex(0.135, 0.908, '#scale[1.2]{#bf{CMS}} #it{simulation}')
+        simul = ROOT.TLatex(0.15, 0.908, '#scale[1.2]{#bf{CMS}} #it{simulation}')
         simul.SetTextFont(42)
         simul.SetTextSize(0.045)
         simul.SetNDC()
 
-        cms = ROOT.TLatex(0.135, 0.86, 'work in progress')
+        cms = ROOT.TLatex(0.15, 0.86, 'work in progress')
         cms.SetTextFont(42)
         cms.SetTextSize(0.045)
         cms.SetNDC()
@@ -315,16 +317,16 @@ class plots():
             self.legenx2l = x2
             self.legeny2l = y2
 
-    def getLine(self, x1, y1, x2 ,y2, horizontal = False, vertical = False, canvas = None):
+    def getLine(self, x1, y1, x2 ,y2, horizontal = False, vertical = False, width = 1, color = ROOT.kBlack, style = 2, canvas = None ):
         if canvas is not None and vertical:
             line = ROOT.TLine(x1,y1,x2,canvas.GetUymax())
         elif canvas is not None and horizontal:
             line = ROOT.TLine(x1,y1,canvas.GetUxmax(), y2)
         else:
             line = ROOT.TLine(x1,y1,x2, y2)
-        line.SetLineWidth(1)
-        line.SetLineStyle(2)
-        line.SetLineColor(ROOT.kBlack)
+        line.SetLineWidth(width)
+        line.SetLineStyle(style)
+        line.SetLineColor(color)
         return line
 
 
@@ -332,7 +334,7 @@ class plots():
 #Class to make stackplots
 class CatPlots(plots):
 
-    def __init__(self, key, cuts, categorizer, legendtext, symmetricCats = True, symmetricColor = True, sample = None, customparam = None, hideyLabels = False):
+    def __init__(self, key, cuts, categorizer, legendtext, symmetricCats = True, symmetricColor = True, sample = None, customparam = None, hideyLabels = False, catcolors = None):
         plots.__init__(self, key, customparam)
         self.samplestring = sample
         if len(cuts) < 3:
@@ -345,6 +347,9 @@ class CatPlots(plots):
         self.symmetricCats = symmetricCats
         self.symmetricColor = symmetricColor
         self.setCatHistos(cuts, symmetricCats, categorizer)
+        if catcolors is not None:
+            self.manualcolors = True
+            self.manualcolorlist = catcolors
         self.setCatColors(symmetricCats, symmetricColor)
         self.hideyLabels = hideyLabels
         #self.makeLegend(self.legendtext,symmetricCats, symmetricColor)
@@ -386,43 +391,52 @@ class CatPlots(plots):
             #self.setXTitle(key, self.Cathistos[key])
 
     def setCatColors(self, symmetricCats, symmetricColors):
-        nhistos = len(self.fullpostfix)
-        colorlist = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen]
-        colorlist_asym = [ROOT.kGreen+2, ROOT.kBlue+2, ROOT.kRed+2]
-        colorlist_add = [ROOT.kViolet, ROOT.kYellow,ROOT.kOrange, ROOT.kAzure, ROOT.kPink+10]
-        self.CatColors = {}
-        if symmetricCats:
-            if symmetricColors:
-                if nhistos == 12:
-                    colorlist = [ROOT.kBlue+2,ROOT.kBlue+1,ROOT.kBlue,ROOT.kGreen-2,ROOT.kGreen-1,ROOT.kGreen,ROOT.kGreen,ROOT.kGreen+1,ROOT.kGreen+2,ROOT.kRed,ROOT.kRed+1,ROOT.kRed+2]
-                if nhistos == 10:
-                    colorlist = [ROOT.kBlue+2,ROOT.kBlue+1,ROOT.kBlue,ROOT.kGreen-2,ROOT.kGreen,ROOT.kGreen,ROOT.kGreen+2,ROOT.kRed,ROOT.kRed+1,ROOT.kRed+2]
-                if nhistos == 8:
-                    colorlist = [ROOT.kBlue+2,ROOT.kBlue,ROOT.kGreen-2,ROOT.kGreen,ROOT.kGreen,ROOT.kGreen+2,ROOT.kRed,ROOT.kRed+2]
-            else:
-                #print nhistos
-                colorlist = colorlist + colorlist_asym
-            for i, key in enumerate(self.histokeys):
-                self.CatColors.update({ key : colorlist[i] })
-        else:
-            if nhistos == 7:
-                #colorlist = [ROOT.kBlue+2,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed+2]
-                colorlist = [ROOT.kBlue+2,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed+2]
-                colorlist = colorlist[::-1]
-            elif nhistos == 5:
-                colorlist = [ROOT.kBlue+2,ROOT.kAzure-4,ROOT.kGreen,ROOT.kOrange-4,ROOT.kRed+2]
-                colorlist = colorlist[::-1]
-            elif nhistos == 11:
-                colorlist = [ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen-3,ROOT.kGreen,ROOT.kGreen+2,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2]
-                colorlist[::-1]
-            elif nhistos == 9:
-                colorlist = [ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2]
-                colorlist[::-1]
-            else:
-                colorlist = [ROOT.kViolet+7,ROOT.kViolet+6,ROOT.kViolet+1,ROOT.kViolet,ROOT.kViolet-4,ROOT.kViolet-8,ROOT.kMagenta+1,ROOT.kMagenta-10]
+        if self.manualcolors:
+            print "fasdhfkashdflhaskdjfhlakjdshflakjsdflakjsdhflaksjdhfla"
+            self.CatColors = {}
+            if len(self.manualcolorlist) >= len(self.fullpostfix):
+                colorlist = self.manualcolorlist
             self.colorlist = colorlist
             for i,key in enumerate(self.histokeys):
                 self.CatColors.update({ key : colorlist[i] })
+        else:
+            nhistos = len(self.fullpostfix)
+            colorlist = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen]
+            colorlist_asym = [ROOT.kGreen+2, ROOT.kBlue+2, ROOT.kRed+2]
+            colorlist_add = [ROOT.kViolet, ROOT.kYellow,ROOT.kOrange, ROOT.kAzure, ROOT.kPink+10]
+            self.CatColors = {}
+            if symmetricCats:
+                if symmetricColors:
+                    if nhistos == 12:
+                        colorlist = [ROOT.kBlue+2,ROOT.kBlue+1,ROOT.kBlue,ROOT.kGreen-2,ROOT.kGreen-1,ROOT.kGreen,ROOT.kGreen,ROOT.kGreen+1,ROOT.kGreen+2,ROOT.kRed,ROOT.kRed+1,ROOT.kRed+2]
+                    if nhistos == 10:
+                        colorlist = [ROOT.kBlue+2,ROOT.kBlue+1,ROOT.kBlue,ROOT.kGreen-2,ROOT.kGreen,ROOT.kGreen,ROOT.kGreen+2,ROOT.kRed,ROOT.kRed+1,ROOT.kRed+2]
+                    if nhistos == 8:
+                        colorlist = [ROOT.kBlue+2,ROOT.kBlue,ROOT.kGreen-2,ROOT.kGreen,ROOT.kGreen,ROOT.kGreen+2,ROOT.kRed,ROOT.kRed+2]
+                else:
+                    #print nhistos
+                    colorlist = colorlist + colorlist_asym
+                for i, key in enumerate(self.histokeys):
+                    self.CatColors.update({ key : colorlist[i] })
+            else:
+                if nhistos == 7:
+                    #colorlist = [ROOT.kBlue+2,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed+2]
+                    colorlist = [ROOT.kBlue+2,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed+2]
+                    colorlist = colorlist[::-1]
+                elif nhistos == 5:
+                    colorlist = [ROOT.kBlue+2,ROOT.kAzure-4,ROOT.kGreen,ROOT.kOrange-4,ROOT.kRed+2]
+                    colorlist = colorlist[::-1]
+                elif nhistos == 11:
+                    colorlist = [ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen-3,ROOT.kGreen,ROOT.kGreen+2,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2]
+                    colorlist[::-1]
+                elif nhistos == 9:
+                    colorlist = [ROOT.kBlue+2,ROOT.kBlue,ROOT.kAzure-4,ROOT.kTeal+5,ROOT.kGreen,ROOT.kYellow-9,ROOT.kOrange-4,ROOT.kRed,ROOT.kRed+2]
+                    colorlist[::-1]
+                else:
+                    colorlist = [ROOT.kViolet+7,ROOT.kViolet+6,ROOT.kViolet+1,ROOT.kViolet,ROOT.kViolet-4,ROOT.kViolet-8,ROOT.kMagenta+1,ROOT.kMagenta-10]
+                self.colorlist = colorlist
+                for i,key in enumerate(self.histokeys):
+                    self.CatColors.update({ key : colorlist[i] })
 
     def FillCatHistos(self, fillval, catval):
         for key in self.histokeys:
@@ -482,8 +496,10 @@ class CatPlots(plots):
         for key in self.Cathistos:
             selection = addselection+" && " + self.categorizer+" >= "+str(self.Catlookup[key]["left"])+ "&& " + self.categorizer +" < " +str(self.Catlookup[key]["right"])
             tree.Project(self.Cathistos[key].GetName(),varexp,selection)
-
+            self.Cathistos[key].Draw()
     def WriteStack(self, canvas, pdfout = None):
+        c1 = ROOT.TCanvas()
+        c1.cd(1)
         #self.Stackplot.Write()
         self.makeLegend(self.legendtext,self.symmetricCats, self.symmetricColor,"box")
         self.Stackplot.Draw("histoe")
@@ -504,6 +520,8 @@ class CatPlots(plots):
         if len(self.additionalLabels) > 0:
             for label in self.additionalLabels:
                 label.Draw("same")
+        c1.Update()
+        canvas = c1
         canvas.SetTitle(self.key)
         canvas.SetName(self.key)
         canvas.Update()
@@ -512,6 +530,8 @@ class CatPlots(plots):
             pdfout.addCanvastoPDF(canvas)
 
     def WriteNotStacked(self, canvas, pdfout = None, DrawNormalized = True):
+        c1 = ROOT.TCanvas()
+        c1.cd(1)
         histos = copy.deepcopy(self.sortedHistos)
         if DrawNormalized:
             print "NORMALIZED"
@@ -552,6 +572,8 @@ class CatPlots(plots):
         if len(self.additionalLabels) > 0:
             for label in self.additionalLabels:
                 label.Draw("same")
+        c1.Update()
+        canvas = c1
         canvas.SetTitle(self.key)
         canvas.SetName(self.key)
         canvas.Update()
@@ -582,7 +604,7 @@ class CatPlots(plots):
         for element in tmplist:
             for key in self.Cathistos:
                 if element == self.Catlookup[key]["left"]:
-                    self.leg.AddEntry(self.Cathistos[key],str(self.Catlookup[key]["left"])+" <= "+categorizer+" < "+str(self.Catlookup[key]["right"]),option)
+                    self.leg.AddEntry(self.Cathistos[key],str(self.Catlookup[key]["left"])+" #leq "+categorizer+" < "+str(self.Catlookup[key]["right"]),option)
                     break
 
     def getHistos(self, getstack = True):
@@ -601,6 +623,7 @@ class normPlots(plots):
         self.graph = False
         self.ROCCurve = False
         self.hideyLabels = hideyLabels
+        self.eventweight = None
         if comparison:
             self.nHistos = nComparisons
         else:
@@ -672,7 +695,7 @@ class normPlots(plots):
             #print "adding", legendtext[ihisto]
             leg.AddEntry(histo, legendtext[ihisto])
             if addstats:
-                leg.AddEntry(histo,"Mean: "+str(histo.GetMean(1))[:6]+" RMS: "+str(histo.GetRMS(1))[:6],"")
+                leg.AddEntry(histo,"Mean: "+str(histo.GetMean(1))[:6]+" #sigma: "+str(histo.GetRMS(1))[:6],"")
 
 
         return leg
@@ -687,8 +710,19 @@ class normPlots(plots):
             self.histos[nHisto].SetLineStyle(style)
 
 
-    def FillnormHisto(self,fillval,nHisto = 0):
-        self.histos[nHisto].Fill(fillval)
+    def FillnormHisto(self,fillval,nHisto = 0, weight = None):
+        if weight is not None:
+            weightexp = weight
+        elif self.eventweight is not None and weight is None:
+            weightexp = self.eventweight
+        else:
+            weightexp = 1
+
+        self.histos[nHisto].Fill(fillval,weightexp)
+
+
+    def setWeight(self,weight):
+        self.eventweight = weight
 
     def AddTH1F(self, th1f, nHisto, dosumw2 = True):
         if dosumw2:
@@ -703,8 +737,17 @@ class normPlots(plots):
         self.histos[nHisto] = copy.deepcopy(tmph)
         del tmph
 
+    def weightHisto(self, weight = 1.0 ,allHistos = True,nHisto = None):
+        if allHistos:
+            for histo in self.histos:
+                histo.Scale(weight)
+        else:
+            self.histos[nHisto].Scale(weight)
 
-    def WriteHisto(self, canvas, samplestring = None, dofilling = False, Drawnormalized = False, pdfout = None, savehisto = False, ytitle = None, plotlogx = False, plotlogy = False, yoffsetTop = None, addstats = False):
+
+    def WriteHisto(self, canvas, samplestring = None, dofilling = False, Drawnormalized = False, pdfout = None,
+                   savehisto = False, ytitle = None, plotlogx = False, plotlogy = False, yoffsetTop = None,
+                   addstats = False, vertialLine = None):
         c1 = ROOT.TCanvas()
         c1.cd(1)
         c1.SetLogy(0)
@@ -713,7 +756,7 @@ class normPlots(plots):
             c1.SetLogy(1)
         if plotlogx:
             c1.SetLogx(1)
-
+        c1.SetBottomMargin(0.125)
         if Drawnormalized:
             for histo in self.histos:
                 ScaletoInt(histo)
@@ -744,7 +787,20 @@ class normPlots(plots):
         simul, cms = self.makeCMSstuff()
         for fit in self.Fits:
             if fit is not None:
+                print fit
                 fit.Draw("same")
+        if vertialLine is not None:
+            if type(vertialLine) is type(1.0):
+                if yoffsetTop is None:
+                    line = self.getLine(vertialLine,0,vertialLine,maxy*1.1)
+                else:
+                    line = self.getLine(vertialLine,0,vertialLine,maxy*(1.0 + yoffsetTop))
+            elif len(vertialLine) is 4:
+                if yoffsetTop is None:
+                    line = self.getLine(vertialLine[0],0,vertialLine[0],maxy*1.1,False,False,vertialLine[1],vertialLine[2],vertialLine[3])
+                else:
+                    line = self.getLine(vertialLine[0],0,vertialLine[0],maxy*(1.0 + yoffsetTop),False,False,vertialLine[1],vertialLine[2],vertialLine[3])
+            line.Draw("same")
         if not self.noCMS:
             simul.Draw("same")
             cms.Draw("same")
@@ -761,7 +817,6 @@ class normPlots(plots):
         canvas = c1
         canvas.SetTitle(self.key)
         canvas.SetName(self.key)
-
 
         #Xcanvas.Update()
         canvas.Write()
@@ -788,7 +843,7 @@ class normPlots(plots):
         self.Fits[nHisto] = copy.deepcopy(fit)
         del fit
 
-    def converttoROC(self, nHisto, tree_sig,tree_bkg, varexp_sig, varexp_bkg, select_sig = "", select_bkg = "", varbinning = [10,-1,1], rej= True):
+    def converttoROC(self, nHisto, tree_sig,tree_bkg, varexp_sig, varexp_bkg, select_sig = "", select_bkg = "", varbinning = [10,-1,1], rej= True,):
         tmpstr = "tmp_"+str(ROOT.gRandom.Integer(1000))
         tmpstr_sig = "tmp_"+str(ROOT.gRandom.Integer(1000))
         tmpstr_bkg = "tmp_"+str(ROOT.gRandom.Integer(1000))
@@ -796,9 +851,14 @@ class normPlots(plots):
         tmph_bkg = ROOT.TH1F(tmpstr_bkg,tmpstr_bkg, varbinning[0],varbinning[1],varbinning[2])
         self.setSumw2(tmph_sig)
         self.setSumw2(tmph_bkg)
-        tree_sig.Project(tmpstr_sig, varexp_sig, select_sig)
-        tree_bkg.Project(tmpstr_bkg, varexp_bkg, select_bkg)
-
+        if tree_sig is None:
+            tmph_sig = copy.deepcopy(varexp_sig)
+            tmph_bkg = copy.deepcopy(varexp_bkg)
+        else:
+            tree_sig.Project(tmpstr_sig, varexp_sig, select_sig)
+            tree_bkg.Project(tmpstr_bkg, varexp_bkg, select_bkg)
+        
+            
         #Compute Values for ROC Curve
         nBins=tmph_sig.GetNbinsX()
         nBins2=tmph_bkg.GetNbinsX()
@@ -979,8 +1039,9 @@ class PointPlot(plots):
         self.additionalLabels = []
         self.manualLegendright = False
         self.manualLegendleft = False
-
-
+        self.manualmarkers = False
+        self.difftext = None
+        self.dumplist = []
     def addPoint(self, m, em = 0):
         #tmpgraph = ROOT.TGraphErrors(1,array('f',[self.pointsadded+0.5]),array('f',[m]),array('f',[0]),array('f',[em]))
         #tmpgraph.SetPoint(1,self.pointsadded+0.5,m)
@@ -990,6 +1051,33 @@ class PointPlot(plots):
         self.Pointvalues.append(m)
         self.pointsadded += 1
         #del tmpgraph
+
+    def setGroupOptions(self, colorlist, difftext = []):
+        self.manualcolors = True
+        if len(colorlist) is self.maxPoints/2:
+            self.manualmarkers = True
+            self.manualmarkerlist = []
+            self.manualcolorlist = []                
+            for n in range(self.maxPoints/2):
+                self.manualcolorlist.append(colorlist[n])
+                self.manualcolorlist.append(colorlist[n])
+                self.manualmarkerlist.append(21)
+                self.manualmarkerlist.append(22)
+        elif len(colorlist) is self.maxPoints/2:
+            self.manualcolorlist = colorlist
+        self.difftext = difftext
+        
+    def projectPointfromHMean(self, tree, varexp, select = "1"):
+        tmpstr = "tmp_"+str(ROOT.gRandom.Integer(1000))
+        tmph = ROOT.TH1F(tmpstr,tmpstr, 100,1,-1)
+        self.setSumw2(tmph)
+        tree.Project(tmpstr, varexp, select)
+        em = 0
+        m = tmph.GetMean()
+        self.grapherrorlist.append(ROOT.TGraphErrors(1,array('f',[self.pointsadded+0.5]),array('f',[m]),array('f',[0]),array('f',[em])))
+        self.Pointvalues.append(m)
+        self.pointsadded += 1
+        del tmph
 
     def makeStyle(self, fixedy):
         if self.manualcolors:
@@ -1005,7 +1093,10 @@ class PointPlot(plots):
                 maxP = self.Pointvalues[n]
             self.grapherrorlist[n].SetMarkerColor(colorlist[n])
             self.grapherrorlist[n].SetMarkerSize(1.)
-            self.grapherrorlist[n].SetMarkerStyle(21)
+            if  self.manualmarkers:
+                self.grapherrorlist[n].SetMarkerStyle(self.manualmarkerlist[n])
+            else:
+                self.grapherrorlist[n].SetMarkerStyle(21)
         a = minP-(minP*0.05)
         b = maxP+(maxP*0.125)
         self.minimum = minP
@@ -1034,8 +1125,38 @@ class PointPlot(plots):
         leg.SetFillStyle(0)
         return leg
 
+    def makeGroupLegend(self):
+        #This functions expects, that the points that should be group are filled successive in the pointlist
+        if self.manualLegendleft:
+            leg = ROOT.TLegend(self.legenx1l,self.legeny1l,self.legenx2l,self.legeny2l)
+        elif self.manualLegendright:
+            leg = ROOT.TLegend(self.legenx1r,self.legeny1r,self.legenx2r,self.legeny2r)
+        else:
+            leg = ROOT.TLegend(0.5,0.64,0.88,0.82)
+        subleg = ROOT.TLegend(0.5,0.80,0.88,0.88)
+        leg.SetNColumns(2);
+        nn = 0
+        for n in range(self.maxPoints/2):
+            leg.AddEntry(self.grapherrorlist[n+nn]," ","p")
+            leg.AddEntry(self.grapherrorlist[n+nn+1],self.Legendtext[n],"p")
+            nn = nn + 1
+        subleg.SetNColumns(2);
+        self.dumplist.append( copy.deepcopy(self.grapherrorlist[0]) )
+        self.dumplist.append( copy.deepcopy(self.grapherrorlist[1]) )
+        self.dumplist[0].SetMarkerColor(ROOT.kBlack)
+        self.dumplist[1].SetMarkerColor(ROOT.kBlack)
+        subleg.AddEntry(self.dumplist[0], self.difftext[0] ,"p")
+        subleg.AddEntry(self.dumplist[1], self.difftext[1] ,"p")
+        leg.SetBorderSize(0)
+        leg.SetTextFont(42)
+        leg.SetFillStyle(0)
+        subleg.SetBorderSize(0)
+        subleg.SetTextFont(42)
+        subleg.SetFillStyle(0)
 
-    def WritePointPlot(self, canvas, samplestring = None, pdfout = None, fixedy = None, showwline = "Min"):
+        return leg,subleg
+            
+    def WritePointPlot(self, canvas, samplestring = None, pdfout = None, fixedy = None, showwline = "Min", doLegendGrouping = False):
         if self.pointsadded == self.maxPoints:
             c1 = ROOT.TCanvas()
             c1.cd(1)
@@ -1046,7 +1167,11 @@ class PointPlot(plots):
             for nP in range(self.maxPoints):
                 #print "Drawing point",nP
                 self.grapherrorlist[nP].Draw("P")
-            legend = self.makeLegend()
+            if not doLegendGrouping:
+                legend = self.makeLegend()
+            else:
+                legend, sublegend = self.makeGroupLegend()
+                sublegend.Draw("same")
             legend.Draw("same")
             if samplestring is not None:
                 samplelabel = self.makeSampletext(samplestring)
@@ -1232,4 +1357,10 @@ class StackPlots(plots):
 
 def ScaletoInt(th1f):
     if th1f.GetNbinsX() != 1:
-        th1f.Scale(1/float(th1f.Integral()))
+        try:
+            i = 1/float(th1f.Integral())
+        except ZeroDivisionError:
+            print "ZeroDevision Error. Not scaling th1f"
+            return
+        else:
+            th1f.Scale(1/float(th1f.Integral()))

@@ -33,8 +33,10 @@ void MakeTreeforbReg(   )
 
 
   int Event_Odd, NJets, NPV;
-  float rho, Event_Weight, PU_Weight, LeptonSF;
-  float Jet_pt[20],Jet_rawpt[20],Jet_corr[20],Jet_corr_raw[20],Jet_Eta[20],Jet_M[20],Jet_Mt[20],Jet_leadTrackPt[20],Jet_Flav[20],Jet_PFlav[20],Jet_regcorr;
+  float rho, Event_Weight, CSV_Weight, PU_Weight, PU69_Weight, LeptonSF;
+  float EleSFID, EleSFGFS, EleSFIso, EleSFTrigger;
+  float MuSFID, MuSFIso, MuSFTrigger, MuSFHIP;
+  float Jet_pt[20],Jet_rawpt[20],Jet_corr[20],Jet_corr_raw[20],Jet_Eta[20],Jet_M[20],Jet_Mt[20],Jet_leadTrackPt[20],Jet_Flav[20],Jet_PFlav[20],Jet_regcorr[20];
   float Jet_leptonPt[20],Jet_leptonPtRel[20],Jet_leptonDeltaR[20];
   float Jet_nHEFrac[20],Jet_cHEFrac[20], Jet_chMult[20];
   float Jet_nEMEFrac[20],Jet_JESnEMEFrac[20],Jet_JESandRnEMEFrac[20],Jet_rawEnEMEFrac[20],Jet_idnEMEFrac[20];
@@ -48,9 +50,20 @@ void MakeTreeforbReg(   )
   InputChain->SetBranchAddress("Evt_Odd",&Event_Odd);
   InputChain->SetBranchAddress("N_RegJets",&NJets);
   InputChain->SetBranchAddress("Weight",&Event_Weight);
+  InputChain->SetBranchAddress("Weight_CSV", &CSV_Weight);
   InputChain->SetBranchAddress("Weight_PU",&PU_Weight);
+  InputChain->SetBranchAddress("Weight_pu69p2",&PU69_Weight);
   InputChain->SetBranchAddress("N_PrimaryVertices", &NPV);
   InputChain->SetBranchAddress("Weight_LeptonSF", &LeptonSF);
+
+  InputChain->SetBranchAddress("Weight_ElectronSFGFS",&EleSFGFS);
+  InputChain->SetBranchAddress("Weight_ElectronSFID",&EleSFID);
+  InputChain->SetBranchAddress("Weight_ElectronSFIso",&EleSFIso);
+  InputChain->SetBranchAddress("Weight_ElectronSFTrigger",&EleSFTrigger);
+  InputChain->SetBranchAddress("Weight_MuonSFID",&MuSFID);
+  InputChain->SetBranchAddress("Weight_MuonSFTrigger",&MuSFTrigger);
+  InputChain->SetBranchAddress("Weight_MuonSFIso",&MuSFIso);
+  InputChain->SetBranchAddress("Weight_MuonSFHIP",&MuSFHIP);
 
 
   InputChain->SetBranchAddress("RegJet_preregPt",&Jet_pt);
@@ -90,12 +103,25 @@ void MakeTreeforbReg(   )
   outputFile->cd();
   TTree *OutputTree = new TTree("bRegTree","Tree for bJetRegression training");
 
-  float E_Odd, E_Rho, N_PV, LSF, E_Weight,P_Weight,J_Pt,J_rawPt,J_corr,J_corr_raw,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_chef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt, J_RPJ, J_RLJ, J_RVJ,J_PDR,J_PFlav,J_tothef,J_JEStothef,J_JESandRtothef,J_rawEtothef,J_idtothef,J_JESnemef,J_JESandRnemef,J_rawEnemef,J_idnemef,J_helperL1,J_helperL3,J_corrhelper,J_corrhelperJESandR, J_GJPt;
+  float E_Odd, E_Rho, N_PV, LSF, E_Weight, C_Weight, P_Weight, P69_Weight,J_Pt,J_rawPt,J_corr,J_corr_raw,J_Eta,J_M,J_Mt,J_lTPt,J_Flav,J_lPt,J_lPtRel,J_lDR,J_nhef,J_chef,J_nemef,J_chM,J_vPt,J_vM,J_vV,J_vNt,J_vS,J_PF,J_PPt, J_RPJ, J_RLJ, J_RVJ,J_PDR,J_PFlav,J_tothef,J_JEStothef,J_JESandRtothef,J_rawEtothef,J_idtothef,J_JESnemef,J_JESandRnemef,J_rawEnemef,J_idnemef,J_helperL1,J_helperL3,J_corrhelper,J_corrhelperJESandR, J_GJPt,J_regcorr;
+  float eSFID, eSFGFS, eSFIso, eSFTrigger;
+  float mSFID, mSFIso, mSFTrigger, mSFHIP;
 
   OutputTree->Branch("Evt_Odd",&E_Odd);
   OutputTree->Branch("Weight",&E_Weight);
   OutputTree->Branch("Weight_PU",&P_Weight);
+  OutputTree->Branch("Weight_pu69p2",&P69_Weight);
+  OutputTree->Branch("Weight_CSV",&C_Weight);
   OutputTree->Branch("Weight_LeptonSF",&LSF);
+
+  OutputTree->Branch("Weight_ElectronSFGFS",&eSFGFS);
+  OutputTree->Branch("Weight_ElectronSFID",&eSFID);
+  OutputTree->Branch("Weight_ElectronSFIso",&eSFIso);
+  OutputTree->Branch("Weight_ElectronSFTrigger",&eSFTrigger);
+  OutputTree->Branch("Weight_MuonSFID",&mSFID);
+  OutputTree->Branch("Weight_MuonSFTrigger",&mSFTrigger);
+  OutputTree->Branch("Weight_MuonSFIso",&mSFIso);
+  OutputTree->Branch("Weight_MuonSFHIP",&mSFHIP);
 
   OutputTree->Branch("N_PrimaryVertices",&N_PV);
 
@@ -126,6 +152,8 @@ void MakeTreeforbReg(   )
   OutputTree->Branch("Jet_vtxNtracks",&J_vNt);
   OutputTree->Branch("Jet_vtx3DSig",&J_vS);
 
+  OutputTree->Branch("Jet_regcorr",&J_regcorr);
+
   OutputTree->Branch("Jet_MatchedPartonFlav",&J_PF);
   OutputTree->Branch("Jet_MatchedPartonPt",&J_PPt);
   OutputTree->Branch("Jet_MatchedPartonDeltaR",&J_PDR);
@@ -148,15 +176,32 @@ void MakeTreeforbReg(   )
       E_Odd = Event_Odd;
       E_Rho = rho;
       E_Weight = Event_Weight;
+      C_Weight = CSV_Weight;
       P_Weight = PU_Weight;
+      P69_Weight = PU69_Weight;
+      eSFID = EleSFID;
+      eSFGFS = EleSFGFS;
+      eSFIso = EleSFIso;
+      eSFTrigger = EleSFTrigger;
+      mSFID = MuSFID;
+      mSFIso = MuSFIso;
+      mSFTrigger = MuSFTrigger;
+      mSFHIP = MuSFHIP;
+
       N_PV = NPV;
       LSF = LeptonSF;
 
       J_Pt = Jet_pt[j];
       J_corr = Jet_corr[j];
       J_Eta = Jet_Eta[j];
-      J_M = Jet_M[j]/Jet_regcorr[j];
-      J_Mt = Jet_Mt[j]/Jet_regcorr[j];
+      if (Jet_regcorr[j] > 0){
+	  J_M = Jet_M[j]/Jet_regcorr[j];
+	  J_Mt = Jet_Mt[j]/Jet_regcorr[j];
+      }
+      else {
+	  J_M = Jet_M[j];
+	  J_Mt = Jet_Mt[j];
+      }
       J_lTPt = Jet_leadTrackPt[j];
       J_Flav = Jet_Flav[j];
       J_PFlav = Jet_PFlav[j];
@@ -165,6 +210,7 @@ void MakeTreeforbReg(   )
       J_lDR = Jet_leptonDeltaR[j];
       J_nhef = Jet_nHEFrac[j];
       J_chef = Jet_cHEFrac[j];
+      J_regcorr = Jet_regcorr[j];
 
       J_nemef = Jet_nEMEFrac[j];
       if (J_nemef > 1) {  J_nemef = 1;  }
