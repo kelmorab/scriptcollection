@@ -7,7 +7,7 @@ config.General.workArea = 'crab_BoostedMiniAODICHEPv2'
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '/nfs/dust/cms/user/kelmorab/newCMSSW8019/CMSSW_8_0_19/src/BoostedTTH/BoostedProducer/test/boostedProducer_cfg.py'
+config.JobType.psetName = '/nfs/dust/cms/user/kelmorab/newCMSSW8019/CMSSW_8_0_19/src/BoostedTTH/BoostedProducer/test/boostedProducer_data_cfg.py'
 config.JobType.outputFiles = ?
 
 

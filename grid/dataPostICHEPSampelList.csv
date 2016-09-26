@@ -1,0 +1,4 @@
+name,dataset,nGen,Npos-Nneg/Ntotal,XS,weight,boosted_dataset,globalTag,isData,generator,additionalSelection,isreHLT
+,,,,,,,,,,,
+el_data,"/SingleElectron/Run2016B-PromptReco-v2/MINIAOD,/SingleElectron/Run2016C-PromptReco-v2/MINIAOD,/SingleElectron/Run2016D-PromptReco-v2/MINIAOD,/SingleElectron/Run2016E-PromptReco-v2/MINIAOD",,,,1,/SingleElectron/koschwei-BoostedMiniAODICHEPv1-83dd6ef9d965b98925f21cedeb8608ff/USER,80X_dataRun2_Prompt_ICHEP16JEC_v0,TRUE,notSpecified,NONE,FALSE
+mu_data,"/SingleMuon/Run2016B-PromptReco-v2/MINIAOD,/SingleMuon/Run2016C-PromptReco-v2/MINIAOD,/SingleMuon/Run2016D-PromptReco-v2/MINIAOD,/SingleMuon/Run2016E-PromptReco-v2/MINIAOD",,,,1,/SingleMuon/koschwei-BoostedMiniAODICHEPv1-83dd6ef9d965b98925f21cedeb8608ff/USER,80X_dataRun2_Prompt_ICHEP16JEC_v0,TRUE,notSpecified,NONE,FALSE

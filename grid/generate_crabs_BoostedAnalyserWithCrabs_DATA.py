@@ -42,7 +42,7 @@ for row in reader:
                     if not os.path.exists(outfilename):
                         break
             crabout=open(outfilename,'w')
-            crab_template=open('crab_cfg_BoostedProducerWithCrabs.py','r')
+            crab_template=open('crab_cfg_BoostedProducerWithCrabs_DATA.py','r')
             for line in crab_template:
                 if 'config.Data.inputDataset' in line:
                     crabout.write('config.Data.inputDataset = '+dataset+'\n')

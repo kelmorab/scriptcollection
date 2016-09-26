@@ -1,0 +1,6 @@
+name,dataset,nGen,Npos-Nneg/Ntotal,XS,weight,boosted_dataset,globalTag,isData,generator,additionalSelection,isreHLT
+,,,,,,,,,,,
+Tranche3_ttbar_DL,/TTTo2L2Nu_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM,75383000,1,87.3348,0.001158548,,80X_mcRun2_asymptotic_2016_miniAODv2_v1,FALSE,POWHEG,NONE,FALSE
+ttbar_DL,/TTTo2L2Nu_13TeV-powheg/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/MINIAODSIM,104607105,1,87.3348,0.000834884,,80X_mcRun2_asymptotic_2016_miniAODv2_v1,FALSE,POWHEG,NONE,FALSE
+scaleDown_ttbar_DL,/TTTo2L2Nu_13TeV_ScaleDown-powheg/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM,5924588,1,87.3348,0.014741076,,80X_mcRun2_asymptotic_2016_miniAODv2_v1,FALSE,POWHEG,NONE,FALSE
+scaleUp_ttbar_DL,/TTTo2L2Nu_13TeV_ScaleUp-powheg/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM,5965640,1,87.3348,0.014639636,,80X_mcRun2_asymptotic_2016_miniAODv2_v1,FALSE,POWHEG,NONE,FALSE
